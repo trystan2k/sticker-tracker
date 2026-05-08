@@ -124,17 +124,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Resolve Playwright version
-        id: playwright-version
-        run: |
-          echo "version=$(node --eval \"console.log(JSON.parse(require('node:fs').readFileSync('package.json', 'utf8')).devDependencies.playwright.replace(/^[~^]/, ''))\")" >> "$GITHUB_OUTPUT"
-
       - name: Cache Playwright browsers
         id: playwright-cache
         uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-chromium-${{ steps.playwright-version.outputs.version }}
+          key: playwright-chromium-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Install Playwright Chromium
         if: steps.playwright-cache.outputs.cache-hit != 'true'
@@ -200,17 +195,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Resolve Playwright version
-        id: playwright-version
-        run: |
-          echo "version=$(node --eval \"console.log(JSON.parse(require('node:fs').readFileSync('package.json', 'utf8')).devDependencies.playwright.replace(/^[~^]/, ''))\")" >> "$GITHUB_OUTPUT"
-
       - name: Cache Playwright browsers
         id: playwright-cache
         uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-chromium-webkit-${{ steps.playwright-version.outputs.version }}
+          key: playwright-chromium-webkit-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Install Playwright browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
