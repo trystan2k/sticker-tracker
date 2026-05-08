@@ -24,7 +24,7 @@
       "@/*": ["./src/*"],
       "@test/*": ["./test/*"]
     },
-    "types": ["node"]
+    "types": ["node", "vite/client"]
   },
   "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["dist", "dist-ssr", "coverage", "node_modules", ".tanstack"]
