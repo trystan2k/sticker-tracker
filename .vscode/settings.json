@@ -8,7 +8,7 @@
   },
   "biome.enabled": false,
   "prettier.enable": false,
-    "files.watcherExclude": {
+  "files.watcherExclude": {
     "**/routeTree.gen.ts": true
   },
   "search.exclude": {

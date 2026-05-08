@@ -66,64 +66,64 @@ UI implementation is blocked until Pencil mockups and exported tokens are commit
 
 `albumCode` must match the PDF. `flagCode` must be compatible with `flag-icons`; use ISO 3166-1 alpha-2 where possible, with supported regional codes for non-sovereign football teams such as England and Scotland.
 
-| Group | Team pt-BR | albumCode | pageId | flagCode |
-|---|---|---:|---|---|
-| A | México | MEX | mex | mx |
-| A | África do Sul | RSA | rsa | za |
-| A | Coreia do Sul | KOR | kor | kr |
-| A | Rep. Tcheca | CZE | cze | cz |
-| B | Canadá | CAN | can | ca |
-| B | Bósnia | BIH | bih | ba |
-| B | Catar | QAT | qat | qa |
-| B | Suíça | SUI | sui | ch |
-| C | Brasil | BRA | bra | br |
-| C | Marrocos | MAR | mar | ma |
-| C | Haiti | HAI | hai | ht |
-| C | Escócia | SCO | sco | gb-sct |
-| D | Estados Unidos | USA | usa | us |
-| D | Paraguai | PAR | par | py |
-| D | Austrália | AUS | aus | au |
-| D | Turquia | TUR | tur | tr |
-| E | Alemanha | GER | ger | de |
-| E | Curaçao | CUW | cuw | cw |
-| E | Costa do Marfim | CIV | civ | ci |
-| E | Equador | ECU | ecu | ec |
-| F | Holanda | NED | ned | nl |
-| F | Japão | JPN | jpn | jp |
-| F | Suécia | SWE | swe | se |
-| F | Tunísia | TUN | tun | tn |
-| G | Bélgica | BEL | bel | be |
-| G | Egito | EGY | egy | eg |
-| G | Irã | IRN | irn | ir |
-| G | Nova Zelândia | NZL | nzl | nz |
-| H | Espanha | ESP | esp | es |
-| H | Cabo Verde | CPV | cpv | cv |
-| H | Arábia Saudita | KSA | ksa | sa |
-| H | Uruguai | URU | uru | uy |
-| I | França | FRA | fra | fr |
-| I | Senegal | SEN | sen | sn |
-| I | Iraque | IRQ | irq | iq |
-| I | Noruega | NOR | nor | no |
-| J | Argentina | ARG | arg | ar |
-| J | Argélia | ALG | alg | dz |
-| J | Áustria | AUT | aut | at |
-| J | Jordânia | JOR | jor | jo |
-| K | Portugal | POR | por | pt |
-| K | Congo | COD | cod | cd |
-| K | Uzbequistão | UZB | uzb | uz |
-| K | Colômbia | COL | col | co |
-| L | Inglaterra | ENG | eng | gb-eng |
-| L | Croácia | CRO | cro | hr |
-| L | Gana | GHA | gha | gh |
-| L | Panamá | PAN | pan | pa |
+| Group | Team pt-BR      | albumCode | pageId | flagCode |
+| ----- | --------------- | --------: | ------ | -------- |
+| A     | México          |       MEX | mex    | mx       |
+| A     | África do Sul   |       RSA | rsa    | za       |
+| A     | Coreia do Sul   |       KOR | kor    | kr       |
+| A     | Rep. Tcheca     |       CZE | cze    | cz       |
+| B     | Canadá          |       CAN | can    | ca       |
+| B     | Bósnia          |       BIH | bih    | ba       |
+| B     | Catar           |       QAT | qat    | qa       |
+| B     | Suíça           |       SUI | sui    | ch       |
+| C     | Brasil          |       BRA | bra    | br       |
+| C     | Marrocos        |       MAR | mar    | ma       |
+| C     | Haiti           |       HAI | hai    | ht       |
+| C     | Escócia         |       SCO | sco    | gb-sct   |
+| D     | Estados Unidos  |       USA | usa    | us       |
+| D     | Paraguai        |       PAR | par    | py       |
+| D     | Austrália       |       AUS | aus    | au       |
+| D     | Turquia         |       TUR | tur    | tr       |
+| E     | Alemanha        |       GER | ger    | de       |
+| E     | Curaçao         |       CUW | cuw    | cw       |
+| E     | Costa do Marfim |       CIV | civ    | ci       |
+| E     | Equador         |       ECU | ecu    | ec       |
+| F     | Holanda         |       NED | ned    | nl       |
+| F     | Japão           |       JPN | jpn    | jp       |
+| F     | Suécia          |       SWE | swe    | se       |
+| F     | Tunísia         |       TUN | tun    | tn       |
+| G     | Bélgica         |       BEL | bel    | be       |
+| G     | Egito           |       EGY | egy    | eg       |
+| G     | Irã             |       IRN | irn    | ir       |
+| G     | Nova Zelândia   |       NZL | nzl    | nz       |
+| H     | Espanha         |       ESP | esp    | es       |
+| H     | Cabo Verde      |       CPV | cpv    | cv       |
+| H     | Arábia Saudita  |       KSA | ksa    | sa       |
+| H     | Uruguai         |       URU | uru    | uy       |
+| I     | França          |       FRA | fra    | fr       |
+| I     | Senegal         |       SEN | sen    | sn       |
+| I     | Iraque          |       IRQ | irq    | iq       |
+| I     | Noruega         |       NOR | nor    | no       |
+| J     | Argentina       |       ARG | arg    | ar       |
+| J     | Argélia         |       ALG | alg    | dz       |
+| J     | Áustria         |       AUT | aut    | at       |
+| J     | Jordânia        |       JOR | jor    | jo       |
+| K     | Portugal        |       POR | por    | pt       |
+| K     | Congo           |       COD | cod    | cd       |
+| K     | Uzbequistão     |       UZB | uzb    | uz       |
+| K     | Colômbia        |       COL | col    | co       |
+| L     | Inglaterra      |       ENG | eng    | gb-eng   |
+| L     | Croácia         |       CRO | cro    | hr       |
+| L     | Gana            |       GHA | gha    | gh       |
+| L     | Panamá          |       PAN | pan    | pa       |
 
 Special pages:
 
-| Page | pageId | Stickers | Count |
-|---|---|---|---:|
-| FIFA World Cup History Opening | fwc-opening | `00`, `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8` | 9 |
-| FIFA World Cup History Closing | fwc-closing | `9`, `10`, `11`, `12`, `13`, `14`, `15`, `16`, `17`, `18`, `19` | 11 |
-| Coca-Cola | coca-cola | `CC1`–`CC14` | 14 |
+| Page                           | pageId      | Stickers                                                        | Count |
+| ------------------------------ | ----------- | --------------------------------------------------------------- | ----: |
+| FIFA World Cup History Opening | fwc-opening | `00`, `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`                    |     9 |
+| FIFA World Cup History Closing | fwc-closing | `9`, `10`, `11`, `12`, `13`, `14`, `15`, `16`, `17`, `18`, `19` |    11 |
+| Coca-Cola                      | coca-cola   | `CC1`–`CC14`                                                    |    14 |
 
 ### Functional requirements
 
@@ -243,27 +243,27 @@ Scanner is out of scope for v1 implementation. V1 must only scaffold:
 
 ### Tech stack
 
-| Concern | Tool / decision |
-|---|---|
-| Framework | React 19 |
-| Routing/app shell | TanStack Start, SPA mode, client-only |
-| Language | TypeScript strict mode |
-| Styling | CSS Modules + CSS custom properties |
-| Tokens | Style Dictionary from `/design-tokens/` to `/src/styles/tokens.css` |
-| Flags | `flag-icons` |
-| i18n | `react-i18next` |
-| Local storage | IndexedDB via `idb` |
-| PWA | Vite PWA plugin + Workbox |
-| Package manager | pnpm |
-| Linter | oxlint |
-| Formatter | oxfmt |
-| Dead code | knip |
-| CSS linting | stylelint |
-| Commit hooks | commitlint + husky + lint-staged |
-| Unit tests | Vitest; browser mode for browser-dependent tests |
-| E2E tests | Playwright |
-| CI/CD | GitHub Actions |
-| Deployment | Cloudflare Workers via Wrangler |
+| Concern           | Tool / decision                                                     |
+| ----------------- | ------------------------------------------------------------------- |
+| Framework         | React 19                                                            |
+| Routing/app shell | TanStack Start, SPA mode, client-only                               |
+| Language          | TypeScript strict mode                                              |
+| Styling           | CSS Modules + CSS custom properties                                 |
+| Tokens            | Style Dictionary from `/design-tokens/` to `/src/styles/tokens.css` |
+| Flags             | `flag-icons`                                                        |
+| i18n              | `react-i18next`                                                     |
+| Local storage     | IndexedDB via `idb`                                                 |
+| PWA               | Vite PWA plugin + Workbox                                           |
+| Package manager   | pnpm                                                                |
+| Linter            | oxlint                                                              |
+| Formatter         | oxfmt                                                               |
+| Dead code         | knip                                                                |
+| CSS linting       | stylelint                                                           |
+| Commit hooks      | commitlint + husky + lint-staged                                    |
+| Unit tests        | Vitest; browser mode for browser-dependent tests                    |
+| E2E tests         | Playwright                                                          |
+| CI/CD             | GitHub Actions                                                      |
+| Deployment        | Cloudflare Workers via Wrangler                                     |
 
 ### Data architecture
 
@@ -343,7 +343,7 @@ Persistence requirements:
    Scanner feature flag default off; no visible non-functional scan button in production v1.
 
 10. **Vitest browser mode**  
-   Browser mode required for browser-dependent tests; pure logic tests may use faster standard Vitest environment.
+    Browser mode required for browser-dependent tests; pure logic tests may use faster standard Vitest environment.
 
 ### Remaining implementation risks
 

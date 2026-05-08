@@ -1,9 +1,9 @@
-import { defineConfig } from 'vite'
-import { devtools } from '@tanstack/devtools-vite'
+import { defineConfig } from 'vite';
+import { devtools } from '@tanstack/devtools-vite';
 
-import { tanstackStart } from '@tanstack/react-start/plugin/vite'
+import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 
-import viteReact from '@vitejs/plugin-react'
+import viteReact from '@vitejs/plugin-react';
 
 import killerInstincts from 'vite-plugin-killer-instincts';
 
@@ -30,8 +30,8 @@ const config = defineConfig({
       }
     }),
     viteReact(),
-    killerInstincts({ autoKill: true }),
-  ],
-})
+    killerInstincts({ autoKill: true })
+  ]
+});
 
-export default config
+export default config;
