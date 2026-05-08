@@ -8,7 +8,7 @@ permissions:
 jobs:
   dependabot:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.repository == 'trystan2k/padelbuddy-web'
+    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.repository == 'trystan2k/sticker-tracker'
     steps:
       - name: Enable auto-merge for Dependabot PRs
         run: gh pr merge --auto --rebase "$PR_URL"

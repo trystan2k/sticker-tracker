@@ -46,16 +46,16 @@ This project uses Linear for issue tracking and project management. GitHub is us
 
 ## Conventions
 
-- **Branch**: `feature/[linear-issue-id]-[title]` using the full Linear issue identifier, for example `feature/STI-123-score-engine`
+- **Branch**: `feature/[linear-issue-id]-[title]` using the full Linear issue identifier, for example `feature/STR-123-score-engine`
 - **Commit**: `[type]: [description]` (feat/fix/docs/style/refactor/test/chore)
 - **Indent**: 2 spaces
 - **Files**: snake_case/kebab-case | **Code**: camelCase
 - **Units**: rpx (prefer), px (only for fixed sizing)
-- **Linear Team**: `Sticker Tracker` (<https://linear.app/sticker-tracker>)
-- **Linear Project**: `Sticker Tracker` (<https://linear.app/sticker-tracker/project/sticker-tracker-f1d7506afdf6>)
+- **Linear Team**: `Sticker Tracker` (<https://linear.app/trystanworkspace>)
+- **Linear Project**: `Sticker Tracker` (<https://linear.app/trystanworkspace/project/sticker-tracker-65087a3bf80e>)
 - **Task Tracking**: Create Linear Issues first, then work on them.
-- **Issue IDs**: Use Linear issue identifier as task ID reference (e.g., `STI-123`)
-- **Dependencies**: Use `Depends On` with issue links (e.g., `STI-1`, `STI-3`)
+- **Issue IDs**: Use Linear issue identifier as task ID reference (e.g., `STR-123`)
+- **Dependencies**: Use `Depends On` with issue links (e.g., `STR-1`, `STR-3`)
 
 ## Skills (load when needed)
 
