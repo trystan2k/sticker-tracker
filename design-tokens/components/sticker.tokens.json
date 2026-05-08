@@ -1,0 +1,61 @@
+{
+  "component": {
+    "sticker": {
+      "bg": {
+        "collected": {
+          "$type": "color",
+          "$value": "{surface.interactive.selected}",
+          "$extensions": {
+            "sticker-tracker": {
+              "modes": {
+                "dark": "{surface.interactive.selected}"
+              }
+            }
+          }
+        },
+        "missing": {
+          "$type": "color",
+          "$value": "{color.bg.surface}",
+          "$extensions": {
+            "sticker-tracker": {
+              "modes": {
+                "dark": "{color.bg.surface}"
+              }
+            }
+          }
+        }
+      },
+      "text": {
+        "collected": { "$type": "color", "$value": "{color.text.onBrand}" },
+        "missing": {
+          "$type": "color",
+          "$value": "{color.text.tertiary}",
+          "$extensions": {
+            "sticker-tracker": {
+              "modes": {
+                "dark": "{color.text.tertiary}"
+              }
+            }
+          }
+        }
+      },
+      "border": {
+        "missing": {
+          "$type": "color",
+          "$value": "{color.border.muted}",
+          "$extensions": {
+            "sticker-tracker": {
+              "modes": {
+                "dark": "{color.border.muted}"
+              }
+            }
+          }
+        },
+        "width": { "$type": "dimension", "$value": "{border.width.default}" }
+      },
+      "radius": { "$type": "dimension", "$value": "{radius.md}" },
+      "minTap": { "$type": "dimension", "$value": "{size.touch.min}" },
+      "gap": { "$type": "dimension", "$value": "{space.2}" }
+    }
+  }
+}

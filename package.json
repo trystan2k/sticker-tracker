@@ -4,15 +4,15 @@
   "private": true,
   "description": "A mobile-first, client-only Sticker tracker used to track the stickers that users have already and the ones missing in your album.",
   "keywords": [
+    "2026",
+    "album",
+    "fifa world cup",
     "mobile",
-    "sticker",
     "sports",
+    "sticker",
     "tracker",
     "web",
-    "world cup",
-    "fifa world cup",
-    "album",
-    "2026"
+    "world cup"
   ],
   "type": "module",
   "scripts": {
@@ -20,7 +20,7 @@
     "dev": "vite",
     "prebuild": "pnpm tokens:build",
     "build": "vite build",
-    "tokens:build": "style-dictionary build --config design-tokens/style-dictionary.config.json",
+    "tokens:build": "style-dictionary build --config design-tokens/style-dictionary.config.js",
     "prepare": "husky",
     "lint": "pnpm lint:oxlint && pnpm lint:stylelint",
     "lint:oxlint": "oxlint --deny-warnings",
@@ -43,10 +43,10 @@
   },
   "dependencies": {
     "@base-ui/react": "~1.4.1",
-    "@tanstack/react-router": "~1.169.1",
-    "@tanstack/react-start": "~1.167.63",
     "@tanstack/react-devtools": "~0.10.2",
+    "@tanstack/react-router": "~1.169.1",
     "@tanstack/react-router-devtools": "~1.166.13",
+    "@tanstack/react-start": "~1.167.63",
     "i18next": "~26.0.8",
     "modern-screenshot": "~4.7.0",
     "react": "~19.2.5",

@@ -1,0 +1,48 @@
+{
+  "component": {
+    "filterChip": {
+      "bg": {
+        "active": {
+          "$type": "color",
+          "$value": "{surface.interactive.selected}",
+          "$extensions": {
+            "sticker-tracker": {
+              "modes": {
+                "dark": "{surface.interactive.selected}"
+              }
+            }
+          }
+        },
+        "inactive": {
+          "$type": "color",
+          "$value": "{surface.interactive.muted}",
+          "$extensions": {
+            "sticker-tracker": {
+              "modes": {
+                "dark": "{surface.interactive.muted}"
+              }
+            }
+          }
+        }
+      },
+      "text": {
+        "active": { "$type": "color", "$value": "{color.text.onBrand}" },
+        "inactive": {
+          "$type": "color",
+          "$value": "{color.text.secondary}",
+          "$extensions": {
+            "sticker-tracker": {
+              "modes": {
+                "dark": "{color.text.secondary}"
+              }
+            }
+          }
+        }
+      },
+      "radius": { "$type": "dimension", "$value": "{radius.pill}" },
+      "height": { "$type": "dimension", "$value": "{size.control.md}" },
+      "paddingInline": { "$type": "dimension", "$value": "{space.4}" },
+      "gap": { "$type": "dimension", "$value": "{space.2}" }
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "component": {
+    "progress": {
+      "track": {
+        "$type": "color",
+        "$value": "{surface.progress.track}",
+        "$extensions": {
+          "sticker-tracker": {
+            "modes": {
+              "dark": "{surface.progress.track}"
+            }
+          }
+        }
+      },
+      "fill": {
+        "$type": "color",
+        "$value": "{color.brand.primary}",
+        "$extensions": {
+          "sticker-tracker": {
+            "modes": {
+              "dark": "{color.brand.primary}"
+            }
+          }
+        }
+      },
+      "radius": { "$type": "dimension", "$value": "{radius.pill}" },
+      "height": { "$type": "dimension", "$value": "{space.2}" }
+    }
+  }
+}

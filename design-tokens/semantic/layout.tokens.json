@@ -1,0 +1,28 @@
+{
+  "layout": {
+    "page": {
+      "padding": {
+        "inline": { "$type": "dimension", "$value": "{space.4}" },
+        "section": { "$type": "dimension", "$value": "{space.6}" }
+      },
+      "gap": {
+        "section": { "$type": "dimension", "$value": "{space.8}" },
+        "stack": { "$type": "dimension", "$value": "{space.4}" }
+      }
+    },
+    "header": {
+      "height": { "$type": "dimension", "$value": "56px" },
+      "zIndex": { "$type": "number", "$value": "{zIndex.header}" }
+    },
+    "filterRow": {
+      "height": { "$type": "dimension", "$value": "44px" },
+      "gap": { "$type": "dimension", "$value": "{space.2}" }
+    },
+    "safeArea": {
+      "bottom": { "$type": "dimension", "$value": "34px" }
+    },
+    "grid": {
+      "stickerColumnsMobile": { "$type": "number", "$value": 5 }
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "component": {
+    "header": {
+      "bg": {
+        "$type": "color",
+        "$value": "{color.bg.header}",
+        "$extensions": {
+          "sticker-tracker": {
+            "modes": {
+              "dark": "{color.bg.header}"
+            }
+          }
+        }
+      },
+      "height": { "$type": "dimension", "$value": "{layout.header.height}" },
+      "paddingInline": { "$type": "dimension", "$value": "{layout.page.padding.inline}" },
+      "borderColor": {
+        "$type": "color",
+        "$value": "{color.border.subtle}",
+        "$extensions": {
+          "sticker-tracker": {
+            "modes": {
+              "dark": "{color.border.subtle}"
+            }
+          }
+        }
+      },
+      "zIndex": { "$type": "number", "$value": "{zIndex.header}" }
+    }
+  }
+}

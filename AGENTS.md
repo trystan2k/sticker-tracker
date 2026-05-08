@@ -28,9 +28,9 @@ Sticker tracker application used to track the stickers that users have already a
 - Use the approved deepthink plan as a guide for code implementation.
 - Prefer simple solutions over complex ones.
 - Don't change any code without explaining the reasoning.
-- **Always follow Pencil designs strictly** when implementing app screens. Use the design and design tokens from `docs/design/sticker-tracker.pen` as the single source of truth for colors, typography, spacing, and visual styling. All design tokens are defined in `design-tokens/` directory.
+- **Always follow Pencil designs strictly** when implementing app screens. Use the design and design tokens from `docs/design/sticker-tracker.pen` as the single source of truth for colors, typography, spacing, and visual styling. All design tokens are defined in `design-tokens/dist/*.css` files (after running `pnpm tokens:build`). .
 - **NEVER** Change vitest coverage thresholds without approval
-- **ALWAYS** Follow the same code standard for all files. Like CSS tokens usage.
+- **ALWAYS** Follow the same code standard for all files. Like CSS variable tokens usage.
 
 ## Tasks
 

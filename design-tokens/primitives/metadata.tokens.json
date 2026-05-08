@@ -1,0 +1,8 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "$metadata": {
+    "source": "docs/design/sticker-tracker.pen",
+    "project": "Figurinhas da Copa 2026",
+    "themes": ["light", "dark"]
+  }
+}

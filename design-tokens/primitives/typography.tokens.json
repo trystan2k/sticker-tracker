@@ -1,0 +1,35 @@
+{
+  "typography": {
+    "family": {
+      "heading": {
+        "$type": "fontFamily",
+        "$value": "Barlow Condensed",
+        "$description": "Used for headings, labels, badges, and dense numeric UI"
+      },
+      "body": {
+        "$type": "fontFamily",
+        "$value": "Barlow",
+        "$description": "Used for body text, descriptions, and navigation"
+      }
+    },
+    "weight": {
+      "regular": { "$type": "number", "$value": 400 },
+      "medium": { "$type": "number", "$value": 500 },
+      "semibold": { "$type": "number", "$value": 600 },
+      "bold": { "$type": "number", "$value": 700 }
+    },
+    "size": {
+      "xs": { "$type": "dimension", "$value": "10rpx" },
+      "sm": { "$type": "dimension", "$value": "12rpx" },
+      "md": { "$type": "dimension", "$value": "14rpx" },
+      "lg": { "$type": "dimension", "$value": "18rpx" },
+      "xl": { "$type": "dimension", "$value": "24rpx" },
+      "2xl": { "$type": "dimension", "$value": "32rpx" }
+    },
+    "lineHeight": {
+      "tight": { "$type": "number", "$value": 1.1 },
+      "snug": { "$type": "number", "$value": 1.25 },
+      "normal": { "$type": "number", "$value": 1.5 }
+    }
+  }
+}

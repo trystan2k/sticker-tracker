@@ -1,0 +1,20 @@
+{
+  "size": {
+    "touch": {
+      "min": {
+        "$type": "dimension",
+        "$value": "44px",
+        "$description": "Minimum accessible touch target"
+      }
+    },
+    "control": {
+      "md": { "$type": "dimension", "$value": "44px" },
+      "lg": { "$type": "dimension", "$value": "56px" }
+    },
+    "icon": {
+      "sm": { "$type": "dimension", "$value": "16px" },
+      "md": { "$type": "dimension", "$value": "20px" },
+      "lg": { "$type": "dimension", "$value": "24px" }
+    }
+  }
+}

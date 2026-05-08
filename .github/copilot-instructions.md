@@ -93,7 +93,7 @@ Repository size: medium; primary app code in `src/`, tests in `test/`, build con
 
 - React 19 + TanStack Start only; use TanStack Router navigation and loaders; do not use `window.location.href` for SPA navigation.
 - UI:
-  - Follow Pencil designs strictly; use design tokens from `design-tokens/` (generated to `design-tokens/dist/variables.css`).
+  - Follow Pencil designs strictly; use design tokens from `design-tokens/` (generated to `design-tokens/dist/primitives.css`, `design-tokens/dist/semantic.css`, and `design-tokens/dist/components.css`).
   - CSS Modules for scoped styling; avoid global styles beyond `src/styles.css`.
   - Accessibility: prefer Base UI primitives; ensure keyboard nav, ARIA, focus management.
 - File naming:

@@ -1,0 +1,195 @@
+{
+  "color": {
+    "brand": {
+      "primary": {
+        "$type": "color",
+        "$value": "{color.palette.green.500}",
+        "$extensions": {
+          "sticker-tracker": {
+            "modes": {
+              "dark": "{color.palette.green.400}"
+            }
+          }
+        },
+        "$description": "Main brand action color"
+      },
+      "secondary": {
+        "$type": "color",
+        "$value": "{color.palette.gold.500}",
+        "$extensions": {
+          "sticker-tracker": {
+            "modes": {
+              "dark": "{color.palette.gold.400}"
+            }
+          }
+        },
+        "$description": "Secondary highlight color"
+      },
+      "sponsor": {
+        "cocaCola": {
+          "$type": "color",
+          "$value": "{color.palette.red.600}",
+          "$description": "Coca-Cola red for sponsor-specific surfaces only"
+        }
+      }
+    },
+    "bg": {
+      "canvas": {
+        "$type": "color",
+        "$value": "{color.palette.forest.50}",
+        "$extensions": {
+          "sticker-tracker": {
+            "modes": {
+              "dark": "{color.palette.forest.950}"
+            }
+          }
+        },
+        "$description": "Page and app canvas background"
+      },
+      "surface": {
+        "$type": "color",
+        "$value": "{color.palette.forest.0}",
+        "$extensions": {
+          "sticker-tracker": {
+            "modes": {
+              "dark": "{color.palette.forest.850}"
+            }
+          }
+        },
+        "$description": "Card, sheet, and elevated block background"
+      },
+      "subtle": {
+        "$type": "color",
+        "$value": "{color.palette.forest.100}",
+        "$extensions": {
+          "sticker-tracker": {
+            "modes": {
+              "dark": "{color.palette.forest.800}"
+            }
+          }
+        },
+        "$description": "Subtle fill for inactive and decorative surfaces"
+      },
+      "header": {
+        "$type": "color",
+        "$value": "{color.palette.forest.0}",
+        "$extensions": {
+          "sticker-tracker": {
+            "modes": {
+              "dark": "{color.palette.forest.900}"
+            }
+          }
+        },
+        "$description": "App header and top navigation background"
+      }
+    },
+    "text": {
+      "primary": {
+        "$type": "color",
+        "$value": "{color.palette.forest.1000}",
+        "$extensions": {
+          "sticker-tracker": {
+            "modes": {
+              "dark": "{color.palette.forest.100}"
+            }
+          }
+        }
+      },
+      "secondary": {
+        "$type": "color",
+        "$value": "{color.palette.forest.500}",
+        "$extensions": {
+          "sticker-tracker": {
+            "modes": {
+              "dark": "{color.palette.forest.400}"
+            }
+          }
+        }
+      },
+      "tertiary": {
+        "$type": "color",
+        "$value": "{color.palette.forest.400}",
+        "$extensions": {
+          "sticker-tracker": {
+            "modes": {
+              "dark": "{color.palette.forest.500}"
+            }
+          }
+        }
+      },
+      "onBrand": {
+        "$type": "color",
+        "$value": "{color.palette.forest.0}",
+        "$description": "Text on high-emphasis brand surfaces"
+      }
+    },
+    "border": {
+      "subtle": {
+        "$type": "color",
+        "$value": "{color.palette.forest.200}",
+        "$extensions": {
+          "sticker-tracker": {
+            "modes": {
+              "dark": "{color.palette.forest.700}"
+            }
+          }
+        },
+        "$description": "Default dividers and low-emphasis outlines"
+      },
+      "muted": {
+        "$type": "color",
+        "$value": "{color.palette.forest.300}",
+        "$extensions": {
+          "sticker-tracker": {
+            "modes": {
+              "dark": "{color.palette.forest.600}"
+            }
+          }
+        },
+        "$description": "Outline color for inactive selectable elements"
+      }
+    }
+  },
+  "surface": {
+    "interactive": {
+      "selected": {
+        "$type": "color",
+        "$value": "{color.brand.primary}",
+        "$extensions": {
+          "sticker-tracker": {
+            "modes": {
+              "dark": "{color.brand.primary}"
+            }
+          }
+        },
+        "$description": "Filled surface for active selection states"
+      },
+      "muted": {
+        "$type": "color",
+        "$value": "{color.bg.subtle}",
+        "$extensions": {
+          "sticker-tracker": {
+            "modes": {
+              "dark": "{color.bg.subtle}"
+            }
+          }
+        },
+        "$description": "Muted interactive surface for inactive chips and controls"
+      }
+    },
+    "progress": {
+      "track": {
+        "$type": "color",
+        "$value": "{color.border.subtle}",
+        "$extensions": {
+          "sticker-tracker": {
+            "modes": {
+              "dark": "{color.border.subtle}"
+            }
+          }
+        },
+        "$description": "Track behind progress indicators"
+      }
+    }
+  }
+}
