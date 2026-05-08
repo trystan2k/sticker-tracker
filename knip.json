@@ -1,0 +1,6 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "tags": ["-lintignore"],
+  "project": ["src/**/*.ts", "src/**/*.tsx", "e2e/**/*.ts", "test/**/*.ts", "test/**/*.tsx"],
+  "ignoreFiles": []
+}

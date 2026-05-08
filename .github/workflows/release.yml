@@ -1,0 +1,104 @@
+name: Release Please
+
+on:
+  workflow_run:
+    workflows: ['CI']
+    types:
+      - completed
+    branches:
+      - main
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+env:
+  NODE_VERSION: 26.1.0
+  PNPM_VERSION: 11.0.8
+
+jobs:
+  release_please:
+    if: github.event.workflow_run.conclusion == 'success'
+    name: Release Please
+    runs-on: ubuntu-latest
+    outputs:
+      pr: ${{ steps.release.outputs.pr }}
+      prs: ${{ steps.release.outputs.prs }}
+      prs_created: ${{ steps.release.outputs.prs_created }}
+      release_created: ${{ steps.release.outputs.release_created }}
+      releases_created: ${{ steps.release.outputs.releases_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - name: Run Release Please
+        id: release
+        uses: googleapis/release-please-action@v5
+        with:
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: release-please-manifest.json
+
+      - name: Summarize release state
+        shell: bash
+        env:
+          PRS_CREATED: ${{ steps.release.outputs.prs_created }}
+          RELEASE_CREATED: ${{ steps.release.outputs.release_created }}
+          RELEASES_CREATED: ${{ steps.release.outputs.releases_created }}
+        run: |
+          {
+            echo "## Release Please"
+            echo ""
+            echo "- prs_created: ${PRS_CREATED:-false}"
+            echo "- release_created: ${RELEASE_CREATED:-false}"
+            echo "- releases_created: ${RELEASES_CREATED:-false}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  build_and_upload:
+    name: Build and upload dist artifact
+    needs: release_please
+    if: needs.release_please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out released tag
+        uses: actions/checkout@v6
+        with:
+          ref: refs/tags/${{ needs.release_please.outputs.tag_name }}
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6.0.5
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          cache: pnpm
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build application
+        run: pnpm build
+
+      - name: Archive dist artifact
+        run: tar -czf dist.tar.gz dist/
+
+      - name: Upload dist artifact to GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          TAG_NAME: ${{ needs.release_please.outputs.tag_name }}
+        run: gh release upload "$TAG_NAME" dist.tar.gz --clobber
+
+  deploy_production:
+    name: Deploy production
+    needs: [release_please, build_and_upload]
+    if: needs.release_please.outputs.release_created == 'true'
+    uses: ./.github/workflows/deploy-production.yml
+    with:
+      tag_name: ${{ needs.release_please.outputs.tag_name }}
+    secrets: inherit

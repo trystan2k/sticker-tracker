@@ -1,0 +1,89 @@
+name: Preview Release PR
+
+on:
+  workflow_run:
+    workflows: ['CI']
+    types:
+      - completed
+
+concurrency:
+  group: preview-release-pr-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  NODE_VERSION: 26.1.0
+  PNPM_VERSION: 11.0.8
+  PREVIEW_ALIAS: release-please-main
+
+jobs:
+  deploy_preview:
+    name: Deploy release preview
+    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == github.repository && startsWith(github.event.workflow_run.head_branch, 'release-please--branches--main')
+    runs-on: ubuntu-latest
+    outputs:
+      preview_url: ${{ steps.preview_url.outputs.preview_url }}
+    steps:
+      - name: Check out release PR head
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6.0.5
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          cache: pnpm
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build application
+        run: pnpm build
+
+      - name: Deploy preview to Cloudflare Pages
+        id: deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: >-
+            pages deploy dist/client
+            --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
+            --branch=${{ env.PREVIEW_ALIAS }}
+
+      - name: Set preview URL
+        id: preview_url
+        shell: bash
+        env:
+          PREVIEW_URL: ${{ steps.deploy.outputs.deployment-url }}
+        run: echo "preview_url=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Comment preview URL on the release PR
+        uses: marocchino/sticky-pull-request-comment@v3
+        if: github.event.workflow_run.pull_requests[0] != null
+        with:
+          number: ${{ github.event.workflow_run.pull_requests[0].number }}
+          header: release-preview
+          message: |
+            Cloudflare Pages preview refreshed for the Release Please PR.
+
+            Preview URL: ${{ steps.preview_url.outputs.preview_url }}
+
+      - name: Summarize preview deployment
+        env:
+          PREVIEW_URL: ${{ steps.preview_url.outputs.preview_url }}
+        run: |
+          {
+            echo "## Release preview"
+            echo ""
+            echo "- Preview URL: $PREVIEW_URL"
+          } >> "$GITHUB_STEP_SUMMARY"

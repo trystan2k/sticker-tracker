@@ -1,0 +1,24 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 100,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": true,
+  "singleQuote": true,
+  "trailingComma": "none",
+  "ignorePatterns": [
+    "dist/**",
+    "dist-ssr/**",
+    "coverage/**",
+    ".husky/**",
+    ".opencode/**",
+    ".agents/**",
+    ".serena/**",
+    ".tanstack/**",
+    "node_modules/**",
+    "src/routeTree.gen.ts",
+    "**/*.gen.ts",
+    "**/*.gen.tsx",
+    "CHANGELOG.md"
+  ]
+}

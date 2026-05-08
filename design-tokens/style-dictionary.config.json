@@ -1,0 +1,19 @@
+{
+  "$schema": "https://unpkg.com/style-dictionary/schema/style-dictionary.config.schema.json",
+  "source": ["design-tokens/**/*.tokens.json"],
+  "platforms": {
+    "css": {
+      "transformGroup": "css",
+      "buildPath": "design-tokens/dist/",
+      "files": [
+        {
+          "destination": "variables.css",
+          "format": "css/variables",
+          "options": {
+            "selector": ":root"
+          }
+        }
+      ]
+    }
+  }
+}

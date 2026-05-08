@@ -1,0 +1,258 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: 26.1.0
+  PNPM_VERSION: 11.0.8
+
+jobs:
+  detect_changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      docs_only: ${{ steps.classify.outputs.docs_only }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Gather changed files
+        id: changed
+        uses: tj-actions/changed-files@v47
+        with:
+          safe_output: true
+          separator: "\n"
+
+      - name: Classify change scope
+        id: classify
+        shell: bash
+        env:
+          ALL_CHANGED_FILES: ${{ steps.changed.outputs.all_changed_files }}
+        run: |
+          docs_only=true
+          has_files=false
+
+          while IFS= read -r file; do
+            if [[ -z "$file" ]]; then
+              continue
+            fi
+
+            has_files=true
+
+            if [[ "$file" =~ ^docs/ || "$file" =~ ^[^/]+\.md$ || "$file" =~ ^\.github/.+\.md$ ]]; then
+              continue
+            fi
+
+            docs_only=false
+            break
+          done <<< "$ALL_CHANGED_FILES"
+
+          if [[ "$has_files" == "false" ]]; then
+            docs_only=false
+          fi
+
+          echo "docs_only=$docs_only" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "## Change classification"
+            echo ""
+            echo "- docs_only: $docs_only"
+            echo "- files: ${ALL_CHANGED_FILES:-none}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  docs_checks:
+    name: Docs checks
+    needs: detect_changes
+    if: needs.detect_changes.outputs.docs_only == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6.0.5
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          cache: pnpm
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate docs-only path
+        run: pnpm format:check
+
+  full_checks:
+    name: Full checks
+    needs: detect_changes
+    if: needs.detect_changes.outputs.docs_only != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6.0.5
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          cache: pnpm
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Playwright Chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install chromium
+
+      - name: Install Playwright system dependencies
+        run: pnpm exec playwright install-deps chromium
+
+      - name: Knip unused dependencies
+        run: pnpm knip
+
+      - name: Type check
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Check formatting
+        run: pnpm format:check
+
+      - name: Run tests
+        run: pnpm test
+
+      - name: Build application
+        run: pnpm build
+
+      - name: Upload coverage artifact
+        if: always() && !cancelled()
+        uses: actions/upload-artifact@v7
+        with:
+          if-no-files-found: ignore
+          name: coverage-${{ github.sha }}
+          path: coverage/
+          retention-days: 7
+
+      - name: Upload Pages artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: pages-${{ github.sha }}
+          path: dist/client/
+          retention-days: 7
+
+  e2e_tests:
+    name: E2E Tests
+    needs: detect_changes
+    if: needs.detect_changes.outputs.docs_only != 'true' && (startsWith(github.head_ref, 'release-please--branches--main') || contains(github.event.pull_request.labels.*.name, 'dependabot'))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6.0.5
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          cache: pnpm
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-webkit-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install chromium webkit
+
+      - name: Install Playwright system dependencies
+        run: pnpm exec playwright install-deps chromium webkit
+
+      - name: Run E2E tests
+        run: pnpm test:e2e
+
+      - name: Upload Playwright report
+        if: always() && !cancelled()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report-${{ github.sha }}
+          path: playwright-report/
+          retention-days: 7
+
+  ci:
+    name: CI
+    needs:
+      - detect_changes
+      - docs_checks
+      - full_checks
+      - e2e_tests
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify workflow outcome
+        shell: bash
+        env:
+          DOCS_ONLY: ${{ needs.detect_changes.outputs.docs_only }}
+          DOCS_RESULT: ${{ needs.docs_checks.result }}
+          FULL_RESULT: ${{ needs.full_checks.result }}
+          E2E_RESULT: ${{ needs.e2e_tests.result }}
+        run: |
+          if [[ "$DOCS_ONLY" == "true" ]]; then
+            if [[ "$DOCS_RESULT" != "success" ]]; then
+              echo "Docs-only CI failed with result: $DOCS_RESULT"
+              exit 1
+            fi
+
+            exit 0
+          fi
+
+          if [[ "$FULL_RESULT" != "success" ]]; then
+            echo "Full CI failed with result: $FULL_RESULT"
+            exit 1
+          fi
+
+          if [[ "$E2E_RESULT" != "success" && "$E2E_RESULT" != "skipped" ]]; then
+            echo "E2E tests failed with result: $E2E_RESULT"
+            exit 1
+          fi

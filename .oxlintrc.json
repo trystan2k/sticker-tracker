@@ -1,0 +1,89 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "eslint",
+    "typescript",
+    "unicorn",
+    "oxc",
+    "react",
+    "react-perf",
+    "import",
+    "jsx-a11y",
+    "promise",
+    "vitest",
+    "node"
+  ],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "perf": "warn"
+  },
+  "options": {
+    "typeAware": true
+  },
+  "env": {
+    "builtin": true,
+    "browser": true
+  },
+  "globals": {},
+  "ignorePatterns": [
+    "dist/**",
+    "dist-ssr/**",
+    "coverage/**",
+    ".husky/**",
+    ".opencode/**",
+    ".agents/**",
+    ".serena/**",
+    ".tanstack/**",
+    ".vinxi/**",
+    "node_modules/**",
+    "**/*.gen.ts",
+    "**/*.gen.tsx"
+  ],
+  "rules": {
+    "no-alert": "error",
+    "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "no-debugger": "error",
+    "eqeqeq": ["error", "always", { "null": "ignore" }],
+    "import/first": "warn",
+    "import/no-cycle": "error",
+    "import/no-duplicates": "error",
+    "import/no-self-import": "error",
+    "typescript/no-unsafe-type-assertion": "warn",
+    "promise/catch-or-return": "warn",
+    "typescript/await-thenable": "error",
+    "typescript/no-floating-promises": ["error", { "ignoreVoid": true }],
+    "typescript/no-misused-promises": ["warn", { "checksVoidReturn": false }],
+    "react/button-has-type": "warn",
+    "react/react-in-jsx-scope": "off",
+    "react/no-array-index-key": "warn",
+    "react/self-closing-comp": "warn",
+    "react-perf/jsx-no-new-array-as-prop": "warn",
+    "react-perf/jsx-no-new-function-as-prop": "warn",
+    "react-perf/jsx-no-new-object-as-prop": "warn"
+  },
+  "settings": {
+    "react": {
+      "version": "19.2.4"
+    },
+    "vitest": {
+      "typecheck": false
+    }
+  },
+  "overrides": [
+    {
+      "files": ["test/**/*.{ts,tsx}"],
+      "env": {
+        "vitest": true,
+        "node": true
+      },
+      "rules": {
+        "valid-expect": "off",
+        "typescript/no-unsafe-type-assertion": "off",
+        "jsx-no-new-function-as-prop": "off",
+        "jsx-no-new-array-as-prop": "off",
+        "jsx-no-new-object-as-prop": "off"
+      }
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+version: 2
+updates:
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'sunday'
+      time: '09:00'
+      timezone: 'Europe/Madrid'
+    versioning-strategy: 'increase'
+    open-pull-requests-limit: 10
+    labels:
+      - 'dependabot'
+      - 'dependencies'
+    assignees:
+      - 'trystan2k'
+    commit-message:
+      prefix: 'chore'
+    groups:
+      prod-dependencies:
+        dependency-type: 'production'
+      dev-dependencies:
+        dependency-type: 'development'
+    cooldown:
+      default-days: 2
+      include:
+        - '*'
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      time: '09:00'
+      timezone: 'Europe/Madrid'
+    groups:
+      all-actions:
+        patterns: ['*']
+    assignees:
+      - 'trystan2k'
+    labels:
+      - 'dependabot'
+      - 'dependencies'
+    commit-message:
+      prefix: 'chore'
+    cooldown:
+      default-days: 2
+      include:
+        - '*'

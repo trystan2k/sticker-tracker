@@ -1,0 +1,21 @@
+node_modules
+.DS_Store
+dist
+dist-ssr
+coverage
+*.local
+.env
+.nitro
+.tanstack
+.wrangler
+.output
+.vinxi
+__unconfig*
+todos.json
+.serena/
+
+# Playwright
+playwright-report/
+test-results/
+playwright/.cache/
+**/__screenshots__/

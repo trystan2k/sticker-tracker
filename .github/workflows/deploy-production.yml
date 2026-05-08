@@ -1,0 +1,72 @@
+name: Deploy Production
+
+on:
+  workflow_call:
+    inputs:
+      tag_name:
+        description: 'Release tag to deploy (e.g. v1.2.3)'
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release tag to deploy (e.g. v1.2.3)'
+        required: true
+        type: string
+
+concurrency:
+  group: deploy-production-${{ inputs.tag_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  PRODUCTION_BRANCH: main
+
+jobs:
+  deploy_production:
+    name: Deploy production
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ steps.production_url.outputs.production_url }}
+    steps:
+      - name: Download dist artifact from release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ inputs.tag_name }}
+        run: gh release download "$TAG_NAME" --repo "$GITHUB_REPOSITORY" --pattern "dist.tar.gz"
+
+      - name: Extract dist artifact
+        run: tar -xzf dist.tar.gz
+
+      - name: Deploy production to Cloudflare Pages
+        id: deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: >-
+            pages deploy dist/client
+            --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
+            --branch=${{ env.PRODUCTION_BRANCH }}
+
+      - name: Set production URL
+        id: production_url
+        shell: bash
+        env:
+          PROJECT_NAME: ${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
+        run: echo "production_url=https://${PROJECT_NAME}.pages.dev" >> "$GITHUB_OUTPUT"
+
+      - name: Summarize production deployment
+        env:
+          PRODUCTION_URL: ${{ steps.production_url.outputs.production_url }}
+          RELEASE_TAG: ${{ inputs.tag_name }}
+        run: |
+          {
+            echo "## Production deployment"
+            echo ""
+            echo "- Release: $RELEASE_TAG"
+            echo "- URL: $PRODUCTION_URL"
+          } >> "$GITHUB_STEP_SUMMARY"

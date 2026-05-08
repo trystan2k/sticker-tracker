@@ -1,0 +1,24 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "packages": {
+    ".": {
+      "changelog-path": "CHANGELOG.md",
+      "include-v-in-tag": true,
+      "include-component-in-tag": false,
+      "include-v-in-release-name": true,
+      "pull-request-header": "🎯 A new release is created",
+      "release-type": "node",
+      "pull-request-title-pattern": "chore(release): ${version}",
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "public/sw.js"
+        },
+        {
+          "type": "generic",
+          "path": "src/version.ts"
+        }
+      ]
+    }
+  }
+}
