@@ -81,7 +81,7 @@
     "vitest-browser-react": "~2.2.0"
   },
   "engines": {
-    "node": "^26.1.0",
+    "node": "^24.14.1",
     "pnpm": "^11.0.8"
   },
   "packageManager": "pnpm@11.0.8"
