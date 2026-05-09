@@ -37,7 +37,7 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
-    "complete-check": "pnpm knip:fix && pnpm typecheck && pnpm lint:fix && pnpm format && pnpm test && pnpm build",
+    "complete-check": "pnpm knip:fix && pnpm typecheck && pnpm lint:fix && pnpm format && pnpm test && pnpm test:e2e && pnpm build",
     "knip": "knip",
     "knip:fix": "pnpm knip --fix"
   },
