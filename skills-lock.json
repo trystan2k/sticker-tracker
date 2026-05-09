@@ -11,7 +11,13 @@
       "source": "trystan2k/skills",
       "sourceType": "github",
       "skillPath": "base-ui-react/SKILL.md",
-      "computedHash": "b9916c7b6fa08ed495674673553b2a45e0570cc1a360eb95d745329c179ac4af"
+      "computedHash": "cd3d4f252d2171a11ff6db5fdfa77cf13495b0b4e36f453cfbea2efd6165c6c9"
+    },
+    "brainstorming": {
+      "source": "trystan2k/skills",
+      "sourceType": "github",
+      "skillPath": "brainstorming/SKILL.md",
+      "computedHash": "56818c9ebfe4ae0dce041f9810bf96ee5e3238a02601e1ad7aa66b8b1aa68275"
     },
     "caveman": {
       "source": "JuliusBrussee/caveman",
@@ -47,19 +53,43 @@
       "source": "trystan2k/skills",
       "sourceType": "github",
       "skillPath": "css-architecture/SKILL.md",
-      "computedHash": "8ca473b11938368795a4590b4530eaa6bb5afc69cb240db0110beb9961f77f5d"
+      "computedHash": "7a235044b6f349555655dff761857a56cda328169988aa55301530ef523df0db"
     },
     "frontend-design": {
       "source": "trystan2k/skills",
       "sourceType": "github",
       "skillPath": "frontend-design/SKILL.md",
-      "computedHash": "d896af12c9ee988a77fc55b6f3e05beafbec943ff6bdf39b1177780a34fa12ca"
+      "computedHash": "d8e174ba68c3694c0f03bf1bcade84d2b76c7fc89b2a337d65486e19477045ea"
+    },
+    "gh-cli": {
+      "source": "trystan2k/skills",
+      "sourceType": "github",
+      "skillPath": "gh-cli/SKILL.md",
+      "computedHash": "c44e37b9d8c63bdfc43db5a3d27a96144b64914d706d01ff00cdf66ec104feb3"
+    },
+    "git": {
+      "source": "trystan2k/skills",
+      "sourceType": "github",
+      "skillPath": "git/SKILL.md",
+      "computedHash": "281d83cd62c364aaefc13516f03a642daf307cb202504a372f3aaa84b0a516a3"
+    },
+    "git-master": {
+      "source": "trystan2k/skills",
+      "sourceType": "github",
+      "skillPath": "git/SKILL.md",
+      "computedHash": "c1429aaca5b5947b339b613996231e57907ce88f0b7df6c2fdc3a6a4806dac36"
     },
     "grill-with-docs": {
       "source": "mattpocock/skills",
       "sourceType": "github",
       "skillPath": "skills/engineering/grill-with-docs/SKILL.md",
       "computedHash": "31a5b1ae116558bf7d3f633f442835f54bd7645923d4f45c7823e52a97317666"
+    },
+    "husky": {
+      "source": "trystan2k/skills",
+      "sourceType": "github",
+      "skillPath": "husky/SKILL.md",
+      "computedHash": "1bf2ad1f7a72d6a5e0d0071137dfef053df671496d18bfa445f3a73fdbd5de47"
     },
     "improve-codebase-architecture": {
       "source": "trystan2k/skills",
@@ -71,7 +101,19 @@
       "source": "trystan2k/skills",
       "sourceType": "github",
       "skillPath": "linear-cli/SKILL.md",
-      "computedHash": "7cf827d07dd21f717d457e6eb69fbd674979f97d22eca5dedfd7fb32b891ee42"
+      "computedHash": "5bb45aa06bd936c47a86f19216decd791129379310ac1be898c1276af3c60a3b"
+    },
+    "lint-staged": {
+      "source": "trystan2k/skills",
+      "sourceType": "github",
+      "skillPath": "lint-staged/SKILL.md",
+      "computedHash": "8e006ca70899e4f3e5f526312ad88c9fea8de1835032467b2c89cee0096f0497"
+    },
+    "memory-notes": {
+      "source": "trystan2k/skills",
+      "sourceType": "github",
+      "skillPath": "memory-notes/SKILL.md",
+      "computedHash": "99bd88a5804037a198abd1cb4a51ec4a091d42fae3aefd71ea0eb8f6152fa636"
     },
     "oxfmt": {
       "source": "trystan2k/skills",
@@ -89,13 +131,25 @@
       "source": "trystan2k/skills",
       "sourceType": "github",
       "skillPath": "playwright/SKILL.md",
-      "computedHash": "7ebf09757efd480178a677d4d712b3bc1dcad6b08ea7fe6b28e0c38d4b3d501d"
+      "computedHash": "c9860821d7ab729466edcff60ba1a020d145147c6994f67ae29888a95fa0d1f3"
     },
     "playwright-cli": {
       "source": "trystan2k/skills",
       "sourceType": "github",
       "skillPath": "playwright-cli/SKILL.md",
-      "computedHash": "6f61c0def76e122ef85bc4a40cb2cfc506dce7a37cfb23a8c92091042bbf4935"
+      "computedHash": "d8bfa11a854db350216c5dddbb7fad138bbef5b734af4b587f567c886a6ea0b4"
+    },
+    "react-development": {
+      "source": "trystan2k/skills",
+      "sourceType": "github",
+      "skillPath": "react-development/SKILL.md",
+      "computedHash": "850bee32db36d88a05499b6d7c391587b92bc4e7b2476e9fcfb12d51f6462c66"
+    },
+    "react-view-transitions": {
+      "source": "trystan2k/skills",
+      "sourceType": "github",
+      "skillPath": "react-view-transitions/SKILL.md",
+      "computedHash": "487c9c8e6f973941c532c2ff9c7c1836d0ecd19b2d0cfae50546b2c3f230f6a2"
     },
     "skill-creator": {
       "source": "anthropics/skills",
@@ -107,31 +161,37 @@
       "source": "trystan2k/skills",
       "sourceType": "github",
       "skillPath": "tanstack-start/SKILL.md",
-      "computedHash": "bc2b1931962ce8aff0a35cef487249e4699c7f1db43e8fd3e7fe6909fc46b2f0"
+      "computedHash": "611fab8ae1011f1c520175e0236fb16c8114457b6cdaa9588abdea4d4dbffea7"
+    },
+    "typescript-development": {
+      "source": "trystan2k/skills",
+      "sourceType": "github",
+      "skillPath": "typescript-development/SKILL.md",
+      "computedHash": "d53d20331327c3e672504c97fed6d1f9f7c715e35e24e41cf9c42edefadc0152"
     },
     "ui-ux-pro-max": {
       "source": "trystan2k/skills",
       "sourceType": "github",
       "skillPath": "ui-ux-pro-max/SKILL.md",
-      "computedHash": "cd0c76fc127bc00dbafa29cf0d99894cb9ad6c0536441630ae59207338e7fa9e"
+      "computedHash": "c1ca8967b10de0b33172f87d93f4ee5c16ed2247241f5d91e2a9459c66be22b7"
     },
     "vite": {
       "source": "trystan2k/skills",
       "sourceType": "github",
       "skillPath": "vite/SKILL.md",
-      "computedHash": "6ce0b4152d34b13a100fab979c8ad89eb2f0a8e9a25efbe23267171b9fcced8d"
+      "computedHash": "104f04379fa8d791174121430faccb377e3f1eb7823d910a2dadd70b9bc67d62"
     },
     "web-accessibility": {
       "source": "trystan2k/skills",
       "sourceType": "github",
       "skillPath": "web-accessibility/SKILL.md",
-      "computedHash": "ae6586f42cf900a7bf07cf7a3e394b0bbce7d7acd764f70df1661dc27b6e8866"
+      "computedHash": "780d3e87f1da187811035b1f0fe7722d71482d73ee4417d8ec93c4d56afec9dd"
     },
     "wrangler": {
       "source": "trystan2k/skills",
       "sourceType": "github",
       "skillPath": "wrangler/SKILL.md",
-      "computedHash": "b25fd1ec2ffd92908a9b53aadf881a00f3a0b7fb786d55536c2f937cad8af234"
+      "computedHash": "272c5b780d0e9d4b9751c364d81289af1dc98b144a16856f786ea8c89885120f"
     }
   }
 }
