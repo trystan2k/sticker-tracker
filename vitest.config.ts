@@ -6,17 +6,16 @@ import appViteConfig from './vite.config';
 export default defineConfig({
   ...appViteConfig,
   test: {
-    passWithNoTests: true,
     coverage: {
       include: ['src/**/*.{ts,tsx}'],
       exclude: ['src/routeTree.gen.ts', 'src/start.ts'],
       provider: 'v8',
       reporter: ['text', 'html'],
       thresholds: {
-        lines: 0,
-        branches: 0,
-        functions: 0,
-        statements: 0
+        lines: 70,
+        branches: 70,
+        functions: 70,
+        statements: 70
       }
     },
     projects: [
