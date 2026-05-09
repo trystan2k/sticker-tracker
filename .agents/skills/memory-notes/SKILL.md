@@ -38,6 +38,10 @@ Development logs follow a specific format with the following sections:
 
 A template file is provided at `references/development-log-template.md` that shows the exact format to use.
 
+### File name
+
+The file name for development logs is `docs/development-logs/Task [TASK_ID] [task-title-description].md`
+
 ### Best Practices for Development Logs
 
 1. **Be specific**: Include concrete details about what was changed and why
