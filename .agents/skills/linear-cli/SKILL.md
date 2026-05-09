@@ -2,6 +2,8 @@
 name: linear-cli
 description: Manage Linear issues from the command line using the linear cli. This skill allows automating linear management.
 allowed-tools: Bash(linear:*), Bash(curl:*)
+license: MIT
+compatibility: OpenCode
 ---
 
 # Linear CLI

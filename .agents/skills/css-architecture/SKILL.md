@@ -3,6 +3,7 @@ name: css-architecture
 description: >
   Organize CSS using CSS Modules. Use when building scalable, maintainable
   styling systems with scoped styles and proper component isolation.
+license: MIT
 compatibility: OpenCode
 metadata:
   version: "1.0.0"

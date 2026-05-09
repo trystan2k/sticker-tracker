@@ -1,6 +1,7 @@
 ---
 name: ui-ux-pro-max
 description: UI/UX design intelligence with searchable database
+license: MIT
 compatibility: OpenCode
 metadata:
   version: "1.0.0"

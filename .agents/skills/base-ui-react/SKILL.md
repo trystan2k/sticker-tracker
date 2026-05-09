@@ -20,6 +20,7 @@ description: |
   number field, react components, tailwind components, vite react, cloudflare workers ui,
   beta components, component library
 license: MIT
+compatibility: OpenCode
 ---
 
 # Base UI React
