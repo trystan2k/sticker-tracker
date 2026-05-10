@@ -1,9 +1,11 @@
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 import { TanStackDevtools } from '@tanstack/react-devtools';
-import { useContext, useEffect } from 'react';
+import { type ReactNode, useContext, useEffect, useMemo } from 'react';
 
 import { AppStateContext, AppStateProvider } from '@/providers/AppStateProvider';
+import { AppShell } from '@/components/AppShell';
+import { LocaleSwitcher } from '@/components/LocaleSwitcher';
 
 // oxlint-disable-next-line import/no-unassigned-import
 import '@/styles.css';
@@ -20,13 +22,27 @@ export const Route = createRootRoute({
       },
       {
         title: 'Sticker Tracker'
+      },
+      {
+        name: 'description',
+        content: 'Track your FIFA 2026 sticker album progress'
+      },
+      {
+        name: 'theme-color',
+        content: 'var(--color-brand-primary)'
       }
     ]
   }),
   shellComponent: RootDocument
 });
 
-function RootDocument({ children }: { children: React.ReactNode }) {
+interface RootDocumentProps {
+  children: ReactNode;
+}
+
+function RootDocument({ children }: RootDocumentProps) {
+  const localeSwitcher = useMemo(() => <LocaleSwitcher />, []);
+
   return (
     <html lang="en">
       <head>
@@ -35,28 +51,28 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body>
         <AppStateProvider>
           <RootLanguageSync />
-          {children}
+          <AppShell localeSwitcher={localeSwitcher}>{children}</AppShell>
+          <TanStackDevtools
+            // oxlint-disable-next-line jsx-no-new-object-as-prop
+            config={{
+              position: 'bottom-right'
+            }}
+            // oxlint-disable-next-line jsx-no-new-array-as-prop
+            plugins={[
+              {
+                name: 'Tanstack Router',
+                render: <TanStackRouterDevtoolsPanel />
+              }
+            ]}
+          />
         </AppStateProvider>
-        <TanStackDevtools
-          // oxlint-disable-next-line jsx-no-new-object-as-prop
-          config={{
-            position: 'bottom-right'
-          }}
-          // oxlint-disable-next-line jsx-no-new-array-as-prop
-          plugins={[
-            {
-              name: 'Tanstack Router',
-              render: <TanStackRouterDevtoolsPanel />
-            }
-          ]}
-        />
         <Scripts />
       </body>
     </html>
   );
 }
 
-function RootLanguageSync() {
+export function RootLanguageSync() {
   const appState = useContext(AppStateContext);
 
   useEffect(() => {

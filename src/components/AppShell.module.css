@@ -1,0 +1,65 @@
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background-color: var(--color-bg-canvas);
+}
+
+/* Header */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: var(--layout-header-z-index);
+  height: var(--component-header-height);
+  background-color: var(--component-header-bg);
+  border-bottom: 1px solid var(--component-header-border-color);
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  padding-inline: var(--component-header-padding-inline);
+}
+
+.logo {
+  font-family: var(--typography-family-heading);
+  font-size: var(--typography-size-lg);
+  font-weight: var(--typography-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+/* Main content area */
+.main {
+  flex: 1;
+  padding-inline: var(--layout-page-padding-inline);
+  padding-block: var(--layout-page-padding-section);
+}
+
+/* Future surface regions — inert until populated by later features */
+.nav {
+  display: none;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-index-modal);
+  pointer-events: none;
+}
+
+.toast {
+  position: fixed;
+  bottom: var(--space-6);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-index-toast);
+  pointer-events: none;
+}

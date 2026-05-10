@@ -1,3 +1,9 @@
+/* Design token imports — order matters */
+@import url('../design-tokens/dist/primitives.css');
+@import url('../design-tokens/dist/semantic.css');
+@import url('../design-tokens/dist/components.css');
+
+/* Global reset */
 * {
   box-sizing: border-box;
 }
@@ -10,4 +16,23 @@ body,
 
 body {
   margin: 0;
+  background-color: var(--color-bg-canvas);
+  color: var(--color-text-primary);
+  font-family: var(--typography-family-body);
+  font-size: var(--typography-size-md);
+  line-height: var(--typography-line-height-normal);
+}
+
+html {
+  color-scheme: light dark;
+}
+
+/* Form control inheritance */
+input,
+button,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
 }
