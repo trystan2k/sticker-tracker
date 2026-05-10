@@ -28,7 +28,7 @@
   - `src/routes/index.tsx` — remove inline locale selector and leave route-specific home content inside the shell content region.
   - `public/manifest.json` — replace starter app name/short name/theme colors so product metadata no longer conflicts with shell branding.
   - `e2e/welcome-message.test.ts` and `e2e/locale-persistence.test.ts` — retarget acceptance checks to shared shell/header behavior.
-  - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/docs/plan/Plan STR-1 EP1: Design Token Consumption + App Shell.md` — generated execution plan file.
+  - `docs/plan/Plan STR-1 EP1: Design Token Consumption + App Shell.md` — generated execution plan file.
 
 ## Implementation Steps
 
