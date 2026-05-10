@@ -18,4 +18,6 @@ todos.json
 playwright-report/
 test-results/
 playwright/.cache/
-**/__screenshots__/
+**/__screenshots/
+**/__video__/
+**/playwright/
