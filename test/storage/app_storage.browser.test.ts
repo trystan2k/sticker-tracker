@@ -6,6 +6,7 @@ import {
   read,
   resetAllData,
   resetStorageStateForTests,
+  setDatabaseNameForTests,
   setStorageDriverForTests,
   write
 } from '@/lib/storage/app_storage';
@@ -14,8 +15,8 @@ describe('app_storage browser adapter', () => {
   describe('real indexeddb flow', () => {
     it('opens database and supports write/read flow', async () => {
       setStorageDriverForTests(null);
+      setDatabaseNameForTests('test-write-read');
       resetStorageStateForTests();
-      await resetAllData();
 
       const initResult = await initializeStorage();
       expect(initResult).toEqual({ state: 'ready' });
@@ -41,8 +42,8 @@ describe('app_storage browser adapter', () => {
 
     it('returns empty first-run reads as null', async () => {
       setStorageDriverForTests(null);
+      setDatabaseNameForTests('test-empty-reads');
       resetStorageStateForTests();
-      await resetAllData();
 
       await initializeStorage();
 
@@ -55,8 +56,8 @@ describe('app_storage browser adapter', () => {
 
     it('resets all data and clears persisted records', async () => {
       setStorageDriverForTests(null);
+      setDatabaseNameForTests('test-reset-data');
       resetStorageStateForTests();
-      await resetAllData();
 
       await initializeStorage();
       await write('locale', 'es');

@@ -8,7 +8,8 @@ import {
 
 import type { PageId, StickerIdentifier } from '@/data/album';
 
-const DATABASE_NAME = 'sticker-tracker-app-storage';
+const DEFAULT_DATABASE_NAME = 'sticker-tracker-app-storage';
+let databaseName = DEFAULT_DATABASE_NAME;
 const DATABASE_VERSION = 1;
 const STORE_NAME = 'app-storage';
 const UNRECOVERABLE_FAILURE_THRESHOLD = 2;
@@ -21,7 +22,7 @@ type OpenDatabaseFunction = (
   callbacks?: OpenDBCallbacks<AppStorageDatabaseSchema>
 ) => Promise<IDBPDatabase<AppStorageDatabaseSchema>>;
 
-type DeleteDatabaseFunction = (name: string) => Promise<void>;
+type DeleteDatabaseFunction = (name: string, callbacks?: { blocked?: () => void }) => Promise<void>;
 
 type StorageDriver = {
   openDatabase: OpenDatabaseFunction;
@@ -75,7 +76,8 @@ let readFailureCount = 0;
 
 const defaultStorageDriver: StorageDriver = {
   openDatabase,
-  deleteDatabase
+  deleteDatabase: (name, callbacks) =>
+    deleteDatabase(name, callbacks?.blocked ? { blocked: callbacks.blocked } : undefined)
 };
 
 let storageDriver: StorageDriver = defaultStorageDriver;
@@ -113,13 +115,17 @@ async function getDatabase(): Promise<IDBPDatabase<AppStorageDatabaseSchema> | n
     return database;
   }
 
-  database = await storageDriver.openDatabase(DATABASE_NAME, DATABASE_VERSION, {
+  database = await storageDriver.openDatabase(databaseName, DATABASE_VERSION, {
     upgrade(upgradingDatabase) {
       if (!upgradingDatabase.objectStoreNames.contains(STORE_NAME)) {
         upgradingDatabase.createObjectStore(STORE_NAME, {
           keyPath: 'key'
         });
       }
+    },
+    blocking() {
+      database?.close();
+      database = null;
     }
   });
 
@@ -161,6 +167,11 @@ export function resetStorageStateForTests(): void {
   database = null;
   openFailureCount = 0;
   readFailureCount = 0;
+}
+
+export function setDatabaseNameForTests(name: string | null): void {
+  databaseName = name ?? DEFAULT_DATABASE_NAME;
+  database = null;
 }
 
 export async function initializeStorage(): Promise<InitializeStorageResult> {
@@ -248,7 +259,12 @@ export async function resetAllData(): Promise<ResetAllDataResult> {
       database = null;
     }
 
-    await storageDriver.deleteDatabase(DATABASE_NAME);
+    await storageDriver.deleteDatabase(databaseName, {
+      blocked() {
+        database?.close();
+        database = null;
+      }
+    });
 
     openFailureCount = 0;
     readFailureCount = 0;
