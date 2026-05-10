@@ -1,11 +1,17 @@
 import { test, expect } from '@playwright/test';
 
-test('should render welcome message', async ({ page }) => {
+test('should render translated foundation screen', async ({ page }) => {
   await page.goto('/');
 
-  // Check that the welcome heading is visible
-  await expect(page.locator('h1')).toHaveText('Welcome to TanStack Start');
+  await expect(page.getByRole('heading', { name: 'Sticker Tracker' })).toBeVisible();
+  await expect(page.getByText('Internationalization foundation ready.')).toBeVisible();
+  await expect(page.getByLabel('Language')).toBeVisible();
+});
 
-  // Check that the paragraph is visible
-  await expect(page.locator('p')).toContainText('Edit src/routes/index.tsx to get started.');
+test('should switch locale on the screen', async ({ page }) => {
+  await page.goto('/');
+
+  await page.getByLabel('Language').selectOption('pt-BR');
+
+  await expect(page.getByText('Base de internacionalização pronta.')).toBeVisible();
 });

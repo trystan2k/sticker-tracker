@@ -1,0 +1,38 @@
+{
+  "app": {
+    "title": "Sticker Tracker",
+    "subtitle": "Base de internacionalização pronta.",
+    "success": "Troca de idioma salva. Recarregue para confirmar.",
+    "currentLanguage": "Idioma atual: {{locale}}"
+  },
+  "storage": {
+    "loading": "Carregando estado do aplicativo...",
+    "error": "Armazenamento indisponível. O app não pode continuar.",
+    "retry": "Tentar novamente",
+    "unrecoverableWarning": "O armazenamento local parece corrompido. A redefinição remove todo progresso salvo.",
+    "reset": "Redefinir dados locais"
+  },
+  "locale": {
+    "label": "Idioma",
+    "en": "Inglês",
+    "pt-BR": "Português (Brasil)",
+    "es": "Espanhol"
+  },
+  "team": {
+    "home": "Time da casa",
+    "away": "Time visitante"
+  },
+  "special": {
+    "legends": "Lendas",
+    "stadiums": "Estádios"
+  },
+  "group": {
+    "a": "Grupo A",
+    "b": "Grupo B",
+    "c": "Grupo C"
+  },
+  "scanner": {
+    "title": "Scanner",
+    "empty": "Tela do scanner em breve."
+  }
+}

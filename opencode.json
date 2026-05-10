@@ -10,7 +10,7 @@
         "--app",
         "desktop"
       ],
-      "enabled": false,
+      "enabled": true,
       "type": "local"
     },
     "mcp_engram": {

@@ -1,0 +1,38 @@
+{
+  "app": {
+    "title": "Sticker Tracker",
+    "subtitle": "Base de internacionalización lista.",
+    "success": "Cambio de idioma guardado. Recarga para confirmar.",
+    "currentLanguage": "Idioma actual: {{locale}}"
+  },
+  "storage": {
+    "loading": "Cargando estado de la aplicación...",
+    "error": "Almacenamiento no disponible. La aplicación no puede continuar.",
+    "retry": "Reintentar",
+    "unrecoverableWarning": "El almacenamiento local parece dañado. Restablecer elimina todo el progreso guardado.",
+    "reset": "Restablecer datos locales"
+  },
+  "locale": {
+    "label": "Idioma",
+    "en": "Inglés",
+    "pt-BR": "Portugués (Brasil)",
+    "es": "Español"
+  },
+  "team": {
+    "home": "Equipo local",
+    "away": "Equipo visitante"
+  },
+  "special": {
+    "legends": "Leyendas",
+    "stadiums": "Estadios"
+  },
+  "group": {
+    "a": "Grupo A",
+    "b": "Grupo B",
+    "c": "Grupo C"
+  },
+  "scanner": {
+    "title": "Escáner",
+    "empty": "Pantalla del escáner próximamente."
+  }
+}

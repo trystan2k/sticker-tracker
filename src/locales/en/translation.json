@@ -1,0 +1,38 @@
+{
+  "app": {
+    "title": "Sticker Tracker",
+    "subtitle": "Internationalization foundation ready.",
+    "success": "Locale switch persisted. Reload to confirm.",
+    "currentLanguage": "Current language: {{locale}}"
+  },
+  "storage": {
+    "loading": "Loading app state...",
+    "error": "Storage unavailable. App cannot continue.",
+    "retry": "Retry",
+    "unrecoverableWarning": "Local storage appears corrupted. Reset removes all saved progress.",
+    "reset": "Reset local data"
+  },
+  "locale": {
+    "label": "Language",
+    "en": "English",
+    "pt-BR": "Portuguese (Brazil)",
+    "es": "Spanish"
+  },
+  "team": {
+    "home": "Home Team",
+    "away": "Away Team"
+  },
+  "special": {
+    "legends": "Legends",
+    "stadiums": "Stadiums"
+  },
+  "group": {
+    "a": "Group A",
+    "b": "Group B",
+    "c": "Group C"
+  },
+  "scanner": {
+    "title": "Scanner",
+    "empty": "Scanner screen coming soon."
+  }
+}
