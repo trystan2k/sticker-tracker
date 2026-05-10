@@ -1,6 +1,9 @@
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 import { TanStackDevtools } from '@tanstack/react-devtools';
+import { useContext, useEffect } from 'react';
+
+import { AppStateContext, AppStateProvider } from '@/providers/app_state_provider';
 
 // oxlint-disable-next-line import/no-unassigned-import
 import '@/styles.css';
@@ -16,7 +19,7 @@ export const Route = createRootRoute({
         content: 'width=device-width, initial-scale=1'
       },
       {
-        title: 'TanStack Start Starter'
+        title: 'Sticker Tracker'
       }
     ]
   }),
@@ -30,7 +33,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        {children}
+        <AppStateProvider>
+          <RootLanguageSync />
+          {children}
+        </AppStateProvider>
         <TanStackDevtools
           // oxlint-disable-next-line jsx-no-new-object-as-prop
           config={{
@@ -48,4 +54,18 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </body>
     </html>
   );
+}
+
+function RootLanguageSync() {
+  const appState = useContext(AppStateContext);
+
+  useEffect(() => {
+    if (appState?.renderState !== 'ready') {
+      return;
+    }
+
+    document.documentElement.lang = appState.locale;
+  }, [appState?.locale, appState?.renderState]);
+
+  return null;
 }
