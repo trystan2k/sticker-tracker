@@ -4,7 +4,7 @@ import {
   type PersistedCollection,
   type StorageState,
   write
-} from '@/lib/storage/app_storage';
+} from '@/lib/storage/app-storage';
 
 export type CollectionState = Readonly<Record<PageId, ReadonlySet<StickerIdentifier>>>;
 

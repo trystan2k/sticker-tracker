@@ -2,8 +2,8 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useCallback, useContext, type ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { AppStateContext } from '@/providers/app_state_provider';
-import { SUPPORTED_LOCALES, type SupportedLocale } from '@/services/locale_service';
+import { AppStateContext } from '@/providers/AppStateProvider';
+import { SUPPORTED_LOCALES, type SupportedLocale } from '@/services/locale-service';
 
 export const Route = createFileRoute('/')({ component: Home });
 

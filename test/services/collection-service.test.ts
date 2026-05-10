@@ -6,14 +6,14 @@ import {
   loadCollectionState,
   serializeCollectionState,
   toggleStickerCollectionState
-} from '@/services/collection_service';
+} from '@/services/collection-service';
 
 const { readMock, writeMock } = vi.hoisted(() => ({
   readMock: vi.fn<() => Promise<unknown>>(),
   writeMock: vi.fn<() => Promise<unknown>>()
 }));
 
-vi.mock('@/lib/storage/app_storage', () => ({
+vi.mock('@/lib/storage/app-storage', () => ({
   read: readMock,
   write: writeMock
 }));
@@ -28,7 +28,7 @@ function asStickerIdentifier(value: string): StickerIdentifier {
   return value as StickerIdentifier;
 }
 
-describe('collection_service', () => {
+describe('collection-service', () => {
   it('hydrates null persisted state into empty object', () => {
     expect(hydrateCollectionState(null)).toEqual({});
   });

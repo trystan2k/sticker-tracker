@@ -4,7 +4,7 @@ const { saveSupportedLocaleMock } = vi.hoisted(() => ({
   saveSupportedLocaleMock: vi.fn<() => Promise<unknown>>()
 }));
 
-vi.mock('@/services/locale_service', () => ({
+vi.mock('@/services/locale-service', () => ({
   saveSupportedLocale: saveSupportedLocaleMock
 }));
 

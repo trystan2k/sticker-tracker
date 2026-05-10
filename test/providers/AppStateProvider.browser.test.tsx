@@ -3,14 +3,14 @@ import { describe, expect, it } from 'vitest';
 import React from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 
-import { AppStateContext, AppStateProvider } from '@/providers/app_state_provider';
+import { AppStateContext, AppStateProvider } from '@/providers/AppStateProvider';
 import type { PageId, StickerIdentifier } from '@/data/album';
 import {
   initializeStorage,
   resetAllData,
   resetStorageStateForTests,
   setStorageDriverForTests
-} from '@/lib/storage/app_storage';
+} from '@/lib/storage/app-storage';
 
 function asPageId(value: string): PageId {
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion

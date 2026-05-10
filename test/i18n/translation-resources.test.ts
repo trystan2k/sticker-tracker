@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import enTranslation from '@/locales/en/translation.json';
 import esTranslation from '@/locales/es/translation.json';
 import ptBrTranslation from '@/locales/pt-BR/translation.json';
-import { resolveSupportedLocale } from '@/services/locale_service';
+import { resolveSupportedLocale } from '@/services/locale-service';
 
 type JsonObject = Record<string, unknown>;
 

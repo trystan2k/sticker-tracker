@@ -1,4 +1,4 @@
-import { read, type StorageState, write } from '@/lib/storage/app_storage';
+import { read, type StorageState, write } from '@/lib/storage/app-storage';
 
 export const SUPPORTED_LOCALES = ['en', 'pt-BR', 'es'] as const;
 

@@ -2,18 +2,18 @@ import { createContext, useCallback, useEffect, useMemo, useState, type ReactNod
 import { I18nextProvider } from 'react-i18next';
 
 import { changeLocale, getI18nInstance, initializeI18n } from '@/i18n/config';
-import { initializeStorage, resetAllData, type StorageState } from '@/lib/storage/app_storage';
+import { initializeStorage, resetAllData, type StorageState } from '@/lib/storage/app-storage';
 import {
   loadCollectionState,
   type CollectionState,
   toggleStickerCollectionState
-} from '@/services/collection_service';
+} from '@/services/collection-service';
 import {
   loadSavedLocale,
   resolveSupportedLocale,
   saveSupportedLocale,
   type SupportedLocale
-} from '@/services/locale_service';
+} from '@/services/locale-service';
 
 type AppRenderState = 'loading' | 'ready' | 'storage-error';
 

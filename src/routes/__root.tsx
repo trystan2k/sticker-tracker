@@ -3,7 +3,7 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 import { TanStackDevtools } from '@tanstack/react-devtools';
 import { useContext, useEffect } from 'react';
 
-import { AppStateContext, AppStateProvider } from '@/providers/app_state_provider';
+import { AppStateContext, AppStateProvider } from '@/providers/AppStateProvider';
 
 // oxlint-disable-next-line import/no-unassigned-import
 import '@/styles.css';

@@ -5,19 +5,19 @@ import {
   resolveSupportedLocale,
   saveSupportedLocale,
   SUPPORTED_LOCALES
-} from '@/services/locale_service';
+} from '@/services/locale-service';
 
 const { readMock, writeMock } = vi.hoisted(() => ({
   readMock: vi.fn<() => Promise<unknown>>(),
   writeMock: vi.fn<() => Promise<unknown>>()
 }));
 
-vi.mock('@/lib/storage/app_storage', () => ({
+vi.mock('@/lib/storage/app-storage', () => ({
   read: readMock,
   write: writeMock
 }));
 
-describe('locale_service', () => {
+describe('locale-service', () => {
   it('exposes expected supported locales', () => {
     expect(SUPPORTED_LOCALES).toEqual(['en', 'pt-BR', 'es']);
   });

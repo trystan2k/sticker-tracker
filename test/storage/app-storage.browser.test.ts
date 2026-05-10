@@ -9,9 +9,9 @@ import {
   setDatabaseNameForTests,
   setStorageDriverForTests,
   write
-} from '@/lib/storage/app_storage';
+} from '@/lib/storage/app-storage';
 
-describe('app_storage browser adapter', () => {
+describe('app-storage browser adapter', () => {
   describe('real indexeddb flow', () => {
     it('opens database and supports write/read flow', async () => {
       setStorageDriverForTests(null);

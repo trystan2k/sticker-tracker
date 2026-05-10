@@ -78,3 +78,7 @@ This project uses Linear for issue tracking and project management. GitHub is us
 
 - Always prefer **Serena MCP** for supported operations (file search, content search, code intelligence) when available
 - Fall back to native opencode tools only when Serena MCP is unavailable
+
+## Session Name
+
+After the session is created in Opencode, append the `Sticker Tracker` prefix to the session name.
