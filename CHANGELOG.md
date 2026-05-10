@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/trystan2k/sticker-tracker/compare/v1.2.0...v1.3.0) (2026-05-10)
+
+
+### Features
+
+* EP1 - Design Token Consumption + App Shell ([#8](https://github.com/trystan2k/sticker-tracker/issues/8)) ([39248f4](https://github.com/trystan2k/sticker-tracker/commit/39248f4a41194aaaf7e27c9454facfd36c21784e))
+
 ## [1.2.0](https://github.com/trystan2k/sticker-tracker/compare/v1.1.0...v1.2.0) (2026-05-10)
 
 
