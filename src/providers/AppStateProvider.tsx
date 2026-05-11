@@ -171,10 +171,6 @@ export function AppStateProvider({ children }: AppStateProviderProps) {
     [renderState, storageState, locale, collection, retryBootstrap, setLocale, toggleCollected]
   );
 
-  if (renderState === 'loading') {
-    return <div role="status">{t('storage.loading')}</div>;
-  }
-
   if (renderState === 'storage-error') {
     return (
       <div role="alert" aria-live="assertive">

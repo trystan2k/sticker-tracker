@@ -6,5 +6,11 @@
   "ignoreIssues": {
     "src/data/album.ts": ["types"]
   },
-  "ignoreDependencies": ["wrangler"]
+  "ignoreDependencies": [
+    "wrangler",
+    "flag-icons",
+    "@fontsource/barlow",
+    "@fontsource/barlow-condensed",
+    "@fontsource/inter"
+  ]
 }

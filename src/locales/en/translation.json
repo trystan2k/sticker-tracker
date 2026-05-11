@@ -14,22 +14,112 @@
   },
   "locale": {
     "label": "Language",
+    "sheetTitle": "Language / Idioma",
+    "close": "Close",
     "en": "English",
     "pt-BR": "Portuguese (Brazil)",
     "es": "Spanish"
   },
   "team": {
     "home": "Home Team",
-    "away": "Away Team"
+    "away": "Away Team",
+    "mex": "Mexico",
+    "rsa": "South Africa",
+    "kor": "South Korea",
+    "cze": "Czechia",
+    "can": "Canada",
+    "bih": "Bosnia and Herzegovina",
+    "qat": "Qatar",
+    "sui": "Switzerland",
+    "bra": "Brazil",
+    "mar": "Morocco",
+    "hai": "Haiti",
+    "sco": "Scotland",
+    "usa": "United States",
+    "par": "Paraguay",
+    "aus": "Australia",
+    "tur": "Turkey",
+    "ger": "Germany",
+    "cuw": "Curaçao",
+    "civ": "Ivory Coast",
+    "ecu": "Ecuador",
+    "ned": "Netherlands",
+    "jpn": "Japan",
+    "swe": "Sweden",
+    "tun": "Tunisia",
+    "bel": "Belgium",
+    "egy": "Egypt",
+    "irn": "Iran",
+    "nzl": "New Zealand",
+    "esp": "Spain",
+    "cpv": "Cape Verde",
+    "ksa": "Saudi Arabia",
+    "uru": "Uruguay",
+    "fra": "France",
+    "sen": "Senegal",
+    "irq": "Iraq",
+    "nor": "Norway",
+    "arg": "Argentina",
+    "alg": "Algeria",
+    "aut": "Austria",
+    "jor": "Jordan",
+    "por": "Portugal",
+    "cod": "DR Congo",
+    "uzb": "Uzbekistan",
+    "col": "Colombia",
+    "eng": "England",
+    "cro": "Croatia",
+    "gha": "Ghana",
+    "pan": "Panama"
   },
   "special": {
     "legends": "Legends",
-    "stadiums": "Stadiums"
+    "stadiums": "Stadiums",
+    "fwc-opening": "FIFA World Cup",
+    "fwc-closing": "FIFA World Cup",
+    "coca-cola": "Coca-Cola"
   },
   "group": {
     "a": "Group A",
     "b": "Group B",
-    "c": "Group C"
+    "c": "Group C",
+    "d": "Group D",
+    "e": "Group E",
+    "f": "Group F",
+    "g": "Group G",
+    "h": "Group H",
+    "i": "Group I",
+    "j": "Group J",
+    "k": "Group K",
+    "l": "Group L"
+  },
+  "album": {
+    "loading": "Loading album...",
+    "swipeHint": "Swipe left or right to change pages",
+    "filters": {
+      "label": "Sticker filters",
+      "all": "All",
+      "collected": "Collected",
+      "missing": "Missing"
+    },
+    "specialSection": {
+      "fwc-opening": "History",
+      "fwc-closing": "History",
+      "coca-cola": "Sponsor Section"
+    },
+    "progress": {
+      "label": "Page progress",
+      "collected": "{{collected}} / {{total}} collected",
+      "barAriaLabel": "Collected stickers progress"
+    },
+    "sticker": {
+      "ariaLabel": "Sticker {{id}} - {{state}}",
+      "collected": "collected",
+      "missing": "missing"
+    },
+    "pageHeader": {
+      "ariaLabel": "Album page header"
+    }
   },
   "scanner": {
     "title": "Scanner",

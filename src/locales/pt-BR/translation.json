@@ -14,22 +14,112 @@
   },
   "locale": {
     "label": "Idioma",
+    "sheetTitle": "Idioma / Language",
+    "close": "Fechar",
     "en": "Inglês",
     "pt-BR": "Português (Brasil)",
     "es": "Espanhol"
   },
   "team": {
     "home": "Time da casa",
-    "away": "Time visitante"
+    "away": "Time visitante",
+    "mex": "México",
+    "rsa": "África do Sul",
+    "kor": "Coreia do Sul",
+    "cze": "Tchéquia",
+    "can": "Canadá",
+    "bih": "Bósnia e Herzegovina",
+    "qat": "Catar",
+    "sui": "Suíça",
+    "bra": "Brasil",
+    "mar": "Marrocos",
+    "hai": "Haiti",
+    "sco": "Escócia",
+    "usa": "Estados Unidos",
+    "par": "Paraguai",
+    "aus": "Austrália",
+    "tur": "Turquia",
+    "ger": "Alemanha",
+    "cuw": "Curaçao",
+    "civ": "Costa do Marfim",
+    "ecu": "Equador",
+    "ned": "Holanda",
+    "jpn": "Japão",
+    "swe": "Suécia",
+    "tun": "Tunísia",
+    "bel": "Bélgica",
+    "egy": "Egito",
+    "irn": "Irã",
+    "nzl": "Nova Zelândia",
+    "esp": "Espanha",
+    "cpv": "Cabo Verde",
+    "ksa": "Arábia Saudita",
+    "uru": "Uruguai",
+    "fra": "França",
+    "sen": "Senegal",
+    "irq": "Iraque",
+    "nor": "Noruega",
+    "arg": "Argentina",
+    "alg": "Argélia",
+    "aut": "Áustria",
+    "jor": "Jordânia",
+    "por": "Portugal",
+    "cod": "RD Congo",
+    "uzb": "Uzbequistão",
+    "col": "Colômbia",
+    "eng": "Inglaterra",
+    "cro": "Croácia",
+    "gha": "Gana",
+    "pan": "Panamá"
   },
   "special": {
     "legends": "Lendas",
-    "stadiums": "Estádios"
+    "stadiums": "Estádios",
+    "fwc-opening": "Copa do Mundo FIFA",
+    "fwc-closing": "Copa do Mundo FIFA",
+    "coca-cola": "Coca-Cola"
   },
   "group": {
     "a": "Grupo A",
     "b": "Grupo B",
-    "c": "Grupo C"
+    "c": "Grupo C",
+    "d": "Grupo D",
+    "e": "Grupo E",
+    "f": "Grupo F",
+    "g": "Grupo G",
+    "h": "Grupo H",
+    "i": "Grupo I",
+    "j": "Grupo J",
+    "k": "Grupo K",
+    "l": "Grupo L"
+  },
+  "album": {
+    "loading": "Carregando álbum...",
+    "swipeHint": "Deslize para a esquerda ou direita para trocar de página",
+    "filters": {
+      "label": "Filtros de figurinhas",
+      "all": "Todas",
+      "collected": "Colecionadas",
+      "missing": "Faltando"
+    },
+    "specialSection": {
+      "fwc-opening": "História",
+      "fwc-closing": "História",
+      "coca-cola": "Seção de patrocinador"
+    },
+    "progress": {
+      "label": "Progresso da página",
+      "collected": "{{collected}} / {{total}} colecionadas",
+      "barAriaLabel": "Progresso de figurinhas colecionadas"
+    },
+    "sticker": {
+      "ariaLabel": "Figurinha {{id}} - {{state}}",
+      "collected": "colecionada",
+      "missing": "faltando"
+    },
+    "pageHeader": {
+      "ariaLabel": "Cabeçalho da página do álbum"
+    }
   },
   "scanner": {
     "title": "Scanner",

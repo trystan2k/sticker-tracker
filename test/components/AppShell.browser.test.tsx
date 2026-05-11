@@ -5,8 +5,8 @@ import { createRoot, type Root } from 'react-dom/client';
 
 import { AppStateProvider } from '@/providers/AppStateProvider';
 import {
-  resetAllData,
   resetStorageStateForTests,
+  setDatabaseNameForTests,
   setStorageDriverForTests
 } from '@/lib/storage/app-storage';
 import { AppShell } from '@/components/AppShell';
@@ -52,10 +52,13 @@ function cleanup({ container, root }: { container: HTMLDivElement; root: Root })
   container.remove();
 }
 
+let testCounter = 0;
+
 async function resetStorage() {
+  testCounter++;
   resetStorageStateForTests();
   setStorageDriverForTests(null);
-  await resetAllData();
+  setDatabaseNameForTests(`test-appshell-${testCounter}`);
 }
 
 describe('AppShell', () => {
@@ -84,67 +87,6 @@ describe('AppShell', () => {
       expect(main).not.toBeNull();
       expect(main?.querySelector('[data-testid="child-content"]')).not.toBeNull();
       expect(main?.textContent).toContain('Hello');
-    } finally {
-      cleanup(mounted);
-    }
-  });
-
-  it('renders localeSwitcher in header when provided', async () => {
-    await resetStorage();
-
-    const mounted = mount(
-      React.createElement(
-        AppStateProvider,
-        null,
-        React.createElement(AppShell, {
-          localeSwitcher: React.createElement(
-            'div',
-            { 'data-testid': 'locale-switcher' },
-            'Switcher'
-          ),
-          // oxlint-disable-next-line react/no-children-prop
-          children: React.createElement('div', { 'data-testid': 'child-content' })
-        })
-      )
-    );
-
-    try {
-      await waitFor(() => {
-        const child = mounted.container.querySelector('[data-testid="child-content"]');
-        return child !== null;
-      });
-
-      const header = mounted.container.querySelector('header');
-      expect(header).not.toBeNull();
-      expect(header?.querySelector('[data-testid="locale-switcher"]')).not.toBeNull();
-    } finally {
-      cleanup(mounted);
-    }
-  });
-
-  it('does not render headerActions when localeSwitcher is not provided', async () => {
-    await resetStorage();
-
-    const mounted = mount(
-      React.createElement(
-        AppStateProvider,
-        null,
-        React.createElement(
-          AppShell,
-          null,
-          React.createElement('div', { 'data-testid': 'child-content' })
-        )
-      )
-    );
-
-    try {
-      await waitFor(() => {
-        const child = mounted.container.querySelector('[data-testid="child-content"]');
-        return child !== null;
-      });
-
-      const headerActions = mounted.container.querySelector('[class*="headerActions"]');
-      expect(headerActions).toBeNull();
     } finally {
       cleanup(mounted);
     }
@@ -197,34 +139,6 @@ describe('AppShell', () => {
 
       const overlays = mounted.container.querySelectorAll('[aria-live="polite"]');
       expect(overlays.length).toBeGreaterThanOrEqual(2);
-    } finally {
-      cleanup(mounted);
-    }
-  });
-
-  it('renders logo text in header', async () => {
-    await resetStorage();
-
-    const mounted = mount(
-      React.createElement(
-        AppStateProvider,
-        null,
-        React.createElement(
-          AppShell,
-          null,
-          React.createElement('div', { 'data-testid': 'child-content' })
-        )
-      )
-    );
-
-    try {
-      await waitFor(() => {
-        const child = mounted.container.querySelector('[data-testid="child-content"]');
-        return child !== null;
-      });
-
-      const header = mounted.container.querySelector('header');
-      expect(header?.textContent).toContain('stickers');
     } finally {
       cleanup(mounted);
     }

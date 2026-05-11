@@ -36,7 +36,7 @@
     "bg": {
       "canvas": {
         "$type": "color",
-        "$value": "{color.palette.forest.50}",
+        "$value": "{color.palette.cream.50}",
         "$extensions": {
           "sticker-tracker": {
             "modes": {
@@ -72,11 +72,11 @@
       },
       "header": {
         "$type": "color",
-        "$value": "{color.palette.forest.0}",
+        "$value": "{color.palette.cream.200}",
         "$extensions": {
           "sticker-tracker": {
             "modes": {
-              "dark": "{color.palette.forest.900}"
+              "dark": "#243024"
             }
           }
         },
@@ -90,7 +90,7 @@
         "$extensions": {
           "sticker-tracker": {
             "modes": {
-              "dark": "{color.palette.forest.100}"
+              "dark": "{color.palette.cream.300}"
             }
           }
         }
@@ -101,7 +101,7 @@
         "$extensions": {
           "sticker-tracker": {
             "modes": {
-              "dark": "{color.palette.forest.400}"
+              "dark": "#8AAA8A"
             }
           }
         }
@@ -151,6 +151,129 @@
     }
   },
   "surface": {
+    "album": {
+      "primary": {
+        "$type": "color",
+        "$value": "{color.palette.cream.50}",
+        "$extensions": {
+          "sticker-tracker": {
+            "modes": {
+              "dark": "{color.palette.forest.950}"
+            }
+          }
+        },
+        "$description": "Album viewer main background"
+      },
+      "secondary": {
+        "$type": "color",
+        "$value": "{color.palette.cream.100}",
+        "$extensions": {
+          "sticker-tracker": {
+            "modes": {
+              "dark": "{color.palette.forest.850}"
+            }
+          }
+        },
+        "$description": "Album viewer header and progress section background"
+      },
+      "tertiary": {
+        "$type": "color",
+        "$value": "{color.palette.forest.100}",
+        "$extensions": {
+          "sticker-tracker": {
+            "modes": {
+              "dark": "{color.palette.forest.800}"
+            }
+          }
+        },
+        "$description": "Album viewer swipe hint background"
+      }
+    },
+    "sticker": {
+      "collected": {
+        "bg": {
+          "$type": "color",
+          "$value": "{color.brand.primary}",
+          "$extensions": {
+            "sticker-tracker": {
+              "modes": {
+                "dark": "{color.brand.primary}"
+              }
+            }
+          },
+          "$description": "Collected sticker cell background"
+        },
+        "text": {
+          "$type": "color",
+          "$value": "{color.palette.forest.0}",
+          "$description": "Collected sticker cell text color"
+        }
+      },
+      "missing": {
+        "bg": {
+          "$type": "color",
+          "$value": "{color.palette.forest.0}",
+          "$extensions": {
+            "sticker-tracker": {
+              "modes": {
+                "dark": "{color.palette.forest.850}"
+              }
+            }
+          },
+          "$description": "Missing sticker cell background"
+        },
+        "border": {
+          "$type": "color",
+          "$value": "{color.palette.forest.300}",
+          "$extensions": {
+            "sticker-tracker": {
+              "modes": {
+                "dark": "{color.palette.forest.600}"
+              }
+            }
+          },
+          "$description": "Missing sticker cell border color"
+        },
+        "text": {
+          "$type": "color",
+          "$value": "{color.palette.forest.400}",
+          "$extensions": {
+            "sticker-tracker": {
+              "modes": {
+                "dark": "{color.palette.forest.500}"
+              }
+            }
+          },
+          "$description": "Missing sticker cell text color"
+        }
+      }
+    },
+    "filter": {
+      "active": {
+        "$type": "color",
+        "$value": "{color.brand.primary}",
+        "$extensions": {
+          "sticker-tracker": {
+            "modes": {
+              "dark": "{color.brand.primary}"
+            }
+          }
+        },
+        "$description": "Active filter pill background"
+      },
+      "inactive": {
+        "$type": "color",
+        "$value": "{color.palette.forest.100}",
+        "$extensions": {
+          "sticker-tracker": {
+            "modes": {
+              "dark": "{color.palette.forest.800}"
+            }
+          }
+        },
+        "$description": "Inactive filter pill background"
+      }
+    },
     "interactive": {
       "selected": {
         "$type": "color",
