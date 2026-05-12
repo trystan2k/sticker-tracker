@@ -78,6 +78,7 @@ export function SwipeNavigator({ initialPageId, children }: SwipeNavigatorProps)
 
   const goToPage = useCallback(
     (pageId: PageId): void => {
+      if (pageId === activePageId) return;
       const targetPage = getActivePage(pageId);
       const currentIndex = albumPages.findIndex((p) => p.pageId === activePageId);
       const targetIndex = albumPages.findIndex((p) => p.pageId === targetPage.pageId);
