@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/trystan2k/sticker-tracker/compare/v1.4.0...v1.5.0) (2026-05-12)
+
+
+### Features
+
+* implement navigation, filtering, and collection filter behavior ([8de1add](https://github.com/trystan2k/sticker-tracker/commit/8de1add32d6363aa33929c51565c502c81a7935d))
+
 ## [1.4.0](https://github.com/trystan2k/sticker-tracker/compare/v1.3.0...v1.4.0) (2026-05-12)
 
 
