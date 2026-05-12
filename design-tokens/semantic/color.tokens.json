@@ -152,7 +152,7 @@
     "overlay": {
       "backdrop": {
         "$type": "color",
-        "$value": "rgba(0, 0, 0, 0.4)",
+        "$value": "rgba(0, 0, 0, 0.7)",
         "$description": "Modal overlay backdrop color"
       }
     }
