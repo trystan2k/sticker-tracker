@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/trystan2k/sticker-tracker/compare/v1.3.0...v1.4.0) (2026-05-12)
+
+
+### Features
+
+* implement core album tracking experience ([#10](https://github.com/trystan2k/sticker-tracker/issues/10)) ([f05f92d](https://github.com/trystan2k/sticker-tracker/commit/f05f92d8c9692988204828b310c2f2eeedc52934))
+
 ## [1.3.0](https://github.com/trystan2k/sticker-tracker/compare/v1.2.0...v1.3.0) (2026-05-10)
 
 
