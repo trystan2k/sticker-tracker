@@ -14,22 +14,112 @@
   },
   "locale": {
     "label": "Idioma",
+    "sheetTitle": "Idioma / Language",
+    "close": "Cerrar",
     "en": "Inglés",
     "pt-BR": "Portugués (Brasil)",
     "es": "Español"
   },
   "team": {
     "home": "Equipo local",
-    "away": "Equipo visitante"
+    "away": "Equipo visitante",
+    "mex": "México",
+    "rsa": "Sudáfrica",
+    "kor": "Corea del Sur",
+    "cze": "Chequia",
+    "can": "Canadá",
+    "bih": "Bosnia y Herzegovina",
+    "qat": "Catar",
+    "sui": "Suiza",
+    "bra": "Brasil",
+    "mar": "Marruecos",
+    "hai": "Haití",
+    "sco": "Escocia",
+    "usa": "Estados Unidos",
+    "par": "Paraguay",
+    "aus": "Australia",
+    "tur": "Turquía",
+    "ger": "Alemania",
+    "cuw": "Curazao",
+    "civ": "Costa de Marfil",
+    "ecu": "Ecuador",
+    "ned": "Países Bajos",
+    "jpn": "Japón",
+    "swe": "Suecia",
+    "tun": "Túnez",
+    "bel": "Bélgica",
+    "egy": "Egipto",
+    "irn": "Irán",
+    "nzl": "Nueva Zelanda",
+    "esp": "España",
+    "cpv": "Cabo Verde",
+    "ksa": "Arabia Saudita",
+    "uru": "Uruguay",
+    "fra": "Francia",
+    "sen": "Senegal",
+    "irq": "Irak",
+    "nor": "Noruega",
+    "arg": "Argentina",
+    "alg": "Argelia",
+    "aut": "Austria",
+    "jor": "Jordania",
+    "por": "Portugal",
+    "cod": "RD del Congo",
+    "uzb": "Uzbekistán",
+    "col": "Colombia",
+    "eng": "Inglaterra",
+    "cro": "Croacia",
+    "gha": "Ghana",
+    "pan": "Panamá"
   },
   "special": {
     "legends": "Leyendas",
-    "stadiums": "Estadios"
+    "stadiums": "Estadios",
+    "fwc-opening": "Copa Mundial FIFA",
+    "fwc-closing": "Copa Mundial FIFA",
+    "coca-cola": "Coca-Cola"
   },
   "group": {
     "a": "Grupo A",
     "b": "Grupo B",
-    "c": "Grupo C"
+    "c": "Grupo C",
+    "d": "Grupo D",
+    "e": "Grupo E",
+    "f": "Grupo F",
+    "g": "Grupo G",
+    "h": "Grupo H",
+    "i": "Grupo I",
+    "j": "Grupo J",
+    "k": "Grupo K",
+    "l": "Grupo L"
+  },
+  "album": {
+    "loading": "Cargando álbum...",
+    "swipeHint": "Desliza a la izquierda o derecha para cambiar de página",
+    "filters": {
+      "label": "Filtros de estampas",
+      "all": "Todas",
+      "collected": "Coleccionadas",
+      "missing": "Faltantes"
+    },
+    "specialSection": {
+      "fwc-opening": "Historia",
+      "fwc-closing": "Historia",
+      "coca-cola": "Sección de patrocinador"
+    },
+    "progress": {
+      "label": "Progreso de la página",
+      "collected": "{{collected}} / {{total}} coleccionadas",
+      "barAriaLabel": "Progreso de estampas coleccionadas"
+    },
+    "sticker": {
+      "ariaLabel": "Estampa {{id}} - {{state}}",
+      "collected": "coleccionada",
+      "missing": "faltante"
+    },
+    "pageHeader": {
+      "ariaLabel": "Encabezado de página del álbum"
+    }
   },
   "scanner": {
     "title": "Escáner",

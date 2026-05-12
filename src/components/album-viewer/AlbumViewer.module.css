@@ -1,0 +1,86 @@
+.viewer {
+  min-height: 100%;
+  background-color: var(--surface-album-primary);
+}
+
+.filterRow {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  background-color: var(--surface-album-secondary);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.filterPill {
+  height: 34px;
+  padding: 0 16px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  font-family: var(--typography-family-body);
+  font-size: 13px;
+  cursor: default;
+}
+
+.filterActive {
+  background-color: var(--surface-filter-active);
+  color: var(--surface-sticker-collected-text);
+  font-weight: 600;
+}
+
+.filterPill:not(.filterActive) {
+  background-color: var(--surface-filter-inactive);
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.loadingState {
+  padding: 12px 16px;
+}
+
+.loadingGrid {
+  margin-top: var(--space-3);
+  display: grid;
+  grid-template-columns: repeat(4, 83px);
+  gap: 8px;
+  justify-content: center;
+}
+
+.loadingCell {
+  width: 83px;
+  height: 83px;
+  border-radius: 10px;
+  background-color: var(--surface-sticker-missing-bg);
+  border: 1.5px solid var(--surface-sticker-missing-border);
+}
+
+.swipeHint {
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: var(--surface-album-tertiary);
+  color: var(--color-text-secondary);
+  font-size: 12px;
+}
+
+.safeArea {
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--surface-album-secondary);
+}
+
+.homeIndicator {
+  width: 134px;
+  height: 5px;
+  border-radius: 3px;
+  background-color: var(--color-text-secondary);
+  opacity: 0.3;
+}

@@ -5,8 +5,8 @@ import { createRoot, type Root } from 'react-dom/client';
 
 import { AppStateContext, AppStateProvider } from '@/providers/AppStateProvider';
 import {
-  resetAllData,
   resetStorageStateForTests,
+  setDatabaseNameForTests,
   setStorageDriverForTests
 } from '@/lib/storage/app-storage';
 
@@ -53,10 +53,13 @@ function cleanup({ container, root }: { container: HTMLDivElement; root: Root })
   container.remove();
 }
 
+let testCounter = 0;
+
 async function resetStorage() {
+  testCounter++;
   resetStorageStateForTests();
   setStorageDriverForTests(null);
-  await resetAllData();
+  setDatabaseNameForTests(`test-home-${testCounter}`);
 }
 
 describe('Home page (index route)', () => {
@@ -65,25 +68,25 @@ describe('Home page (index route)', () => {
     expect(typeof Route.options?.component).toBe('function');
   });
 
-  it('renders title and subtitle when appState is ready', async () => {
+  it('renders AlbumViewer when appState is ready', async () => {
     await resetStorage();
 
     const mounted = mount(React.createElement(AppStateProvider, null, React.createElement(Home)));
 
     try {
+      // Wait for sticker cells to appear (only after bootstrap completes and renderState is ready)
       await waitFor(() => {
-        const h1 = mounted.container.querySelector('h1');
-        return h1 !== null;
+        const stickerButtons = mounted.container.querySelectorAll('button[aria-pressed]');
+        return stickerButtons.length > 0;
       });
 
-      const h1 = mounted.container.querySelector('h1');
-      expect(h1?.textContent).toBe('Sticker Tracker');
+      // StickerGrid renders sticker cells as buttons with aria-pressed
+      const stickerButtons = mounted.container.querySelectorAll('button[aria-pressed]');
+      expect(stickerButtons.length).toBeGreaterThan(0);
 
-      const paragraphs = mounted.container.querySelectorAll('section p');
-      expect(paragraphs.length).toBeGreaterThanOrEqual(2);
-
-      expect(paragraphs[0]?.textContent).toBe('Internationalization foundation ready.');
-      expect(paragraphs[1]?.textContent).toContain('Current language:');
+      // PageProgress renders a progress bar
+      const progressbar = mounted.container.querySelector('[role="progressbar"]');
+      expect(progressbar).not.toBeNull();
     } finally {
       cleanup(mounted);
     }
@@ -97,17 +100,18 @@ describe('Home page (index route)', () => {
       await new Promise((r) => requestAnimationFrame(r));
       await new Promise((r) => requestAnimationFrame(r));
 
-      const h1 = mounted.container.querySelector('h1');
-      expect(h1).toBeNull();
+      // Home returns null when no provider — no album viewer content
+      const progressbar = mounted.container.querySelector('[role="progressbar"]');
+      expect(progressbar).toBeNull();
 
-      const section = mounted.container.querySelector('section');
-      expect(section).toBeNull();
+      const stickerButtons = mounted.container.querySelectorAll('button[aria-pressed]');
+      expect(stickerButtons.length).toBe(0);
     } finally {
       cleanup(mounted);
     }
   });
 
-  it('displays correct locale value in currentLanguage text', async () => {
+  it('renders sticker grid after bootstrap completes', async () => {
     await resetStorage();
 
     let capturedContext:
@@ -135,11 +139,13 @@ describe('Home page (index route)', () => {
     try {
       await waitFor(() => capturedContext !== null && capturedContext.renderState === 'ready');
 
-      const paragraphs = mounted.container.querySelectorAll('section p');
-      const currentLangP = Array.from(paragraphs).find((p) =>
-        p.textContent?.includes('Current language:')
-      );
-      expect(currentLangP?.textContent).toContain(capturedContext!.locale);
+      // After bootstrap, AlbumViewer should render sticker cells
+      const stickerButtons = mounted.container.querySelectorAll('button[aria-pressed]');
+      expect(stickerButtons.length).toBeGreaterThan(0);
+
+      // Progress bar should be present
+      const progressbar = mounted.container.querySelector('[role="progressbar"]');
+      expect(progressbar).not.toBeNull();
     } finally {
       cleanup(mounted);
     }

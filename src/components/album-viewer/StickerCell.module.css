@@ -1,0 +1,59 @@
+.cell {
+  width: 83px;
+  height: 83px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.cell:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
+}
+
+.collected {
+  background-color: var(--surface-sticker-collected-bg);
+  color: var(--surface-sticker-collected-text);
+}
+
+.missing {
+  background-color: var(--surface-sticker-missing-bg);
+  color: var(--surface-sticker-missing-text);
+  border: 1.5px solid var(--surface-sticker-missing-border);
+}
+
+.code {
+  font-family: var(--typography-family-heading);
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0.75;
+  text-align: center;
+  line-height: 1;
+}
+
+.number {
+  font-family: var(--typography-family-heading);
+  font-size: 18px;
+  text-align: center;
+  line-height: 1;
+}
+
+.collected .number {
+  font-weight: 700;
+}
+
+.missing .number {
+  font-weight: 600;
+}
+
+.checkIcon {
+  position: absolute;
+  opacity: 0.8;
+}

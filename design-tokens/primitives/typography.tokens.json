@@ -16,7 +16,8 @@
       "regular": { "$type": "number", "$value": 400 },
       "medium": { "$type": "number", "$value": 500 },
       "semibold": { "$type": "number", "$value": 600 },
-      "bold": { "$type": "number", "$value": 700 }
+      "bold": { "$type": "number", "$value": 700 },
+      "extrabold": { "$type": "number", "$value": 800 }
     },
     "size": {
       "xs": { "$type": "dimension", "$value": "10rpx" },

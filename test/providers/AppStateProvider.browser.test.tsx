@@ -7,8 +7,8 @@ import { AppStateContext, AppStateProvider } from '@/providers/AppStateProvider'
 import type { PageId, StickerIdentifier } from '@/data/album';
 import {
   initializeStorage,
-  resetAllData,
   resetStorageStateForTests,
+  setDatabaseNameForTests,
   setStorageDriverForTests
 } from '@/lib/storage/app-storage';
 
@@ -69,12 +69,20 @@ function cleanup({ container, root }: { container: HTMLDivElement; root: Root })
   container.remove();
 }
 
+// Use unique database name per reset to avoid deleteDatabase blocking on in-flight IDB transactions.
+let testCounter = 0;
+
+async function resetStorage() {
+  testCounter++;
+  resetStorageStateForTests();
+  setStorageDriverForTests(null);
+  setDatabaseNameForTests(`test-provider-${testCounter}`);
+}
+
 describe('AppStateProvider', () => {
   describe('bootstrap happy path', () => {
     it('transitions from loading to ready with real storage', async () => {
-      resetStorageStateForTests();
-      setStorageDriverForTests(null);
-      await resetAllData();
+      await resetStorage();
 
       let capturedContext:
         | (typeof AppStateContext extends React.Context<infer T> ? T : never)
@@ -99,9 +107,7 @@ describe('AppStateProvider', () => {
     });
 
     it('renders child content after bootstrap', async () => {
-      resetStorageStateForTests();
-      setStorageDriverForTests(null);
-      await resetAllData();
+      await resetStorage();
 
       const mounted = mountProvider();
 
@@ -197,8 +203,8 @@ describe('AppStateProvider', () => {
         });
 
         setStorageDriverForTests(null);
-        resetStorageStateForTests();
-        await resetAllData();
+        testCounter++;
+        setDatabaseNameForTests(`test-provider-retry-${testCounter}`);
 
         const retryButton = mounted.container.querySelector('button');
         retryButton?.click();
@@ -236,8 +242,8 @@ describe('AppStateProvider', () => {
         });
 
         setStorageDriverForTests(null);
-        resetStorageStateForTests();
-        await resetAllData();
+        testCounter++;
+        setDatabaseNameForTests(`test-provider-reset-${testCounter}`);
 
         const resetButton = mounted.container.querySelectorAll('button')[1];
         resetButton?.click();
@@ -257,9 +263,7 @@ describe('AppStateProvider', () => {
 
   describe('context actions after bootstrap', () => {
     it('setLocale updates locale through context', async () => {
-      resetStorageStateForTests();
-      setStorageDriverForTests(null);
-      await resetAllData();
+      await resetStorage();
 
       let capturedContext:
         | (typeof AppStateContext extends React.Context<infer T> ? T : never)
@@ -284,9 +288,7 @@ describe('AppStateProvider', () => {
     });
 
     it('toggleCollected updates collection through context', async () => {
-      resetStorageStateForTests();
-      setStorageDriverForTests(null);
-      await resetAllData();
+      await resetStorage();
 
       let capturedContext:
         | (typeof AppStateContext extends React.Context<infer T> ? T : never)

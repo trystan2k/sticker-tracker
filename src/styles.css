@@ -3,6 +3,21 @@
 @import url('../design-tokens/dist/semantic.css');
 @import url('../design-tokens/dist/components.css');
 
+/* Fonts */
+@import url('@fontsource/barlow/400.css');
+@import url('@fontsource/barlow/500.css');
+@import url('@fontsource/barlow/600.css');
+@import url('@fontsource/barlow/700.css');
+@import url('@fontsource/barlow-condensed/400.css');
+@import url('@fontsource/barlow-condensed/500.css');
+@import url('@fontsource/barlow-condensed/600.css');
+@import url('@fontsource/barlow-condensed/700.css');
+@import url('@fontsource/barlow-condensed/800.css');
+@import url('@fontsource/inter/400.css');
+
+/* Flag icons */
+@import url('flag-icons/css/flag-icons.min.css');
+
 /* Global reset */
 * {
   box-sizing: border-box;

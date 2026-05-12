@@ -12,6 +12,12 @@
       "red": {
         "600": { "$type": "color", "$value": "#CC0000" }
       },
+      "cream": {
+        "50": { "$type": "color", "$value": "#FBF8EE" },
+        "100": { "$type": "color", "$value": "#FFF9E6" },
+        "200": { "$type": "color", "$value": "#F0E8C8" },
+        "300": { "$type": "color", "$value": "#E8F0E8" }
+      },
       "forest": {
         "0": { "$type": "color", "$value": "#FFFFFF" },
         "50": { "$type": "color", "$value": "#F5F7F5" },

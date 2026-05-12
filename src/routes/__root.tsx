@@ -1,11 +1,10 @@
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 import { TanStackDevtools } from '@tanstack/react-devtools';
-import { type ReactNode, useContext, useEffect, useMemo } from 'react';
+import { type ReactNode, useContext, useEffect } from 'react';
 
 import { AppStateContext, AppStateProvider } from '@/providers/AppStateProvider';
 import { AppShell } from '@/components/AppShell';
-import { LocaleSwitcher } from '@/components/LocaleSwitcher';
 
 // oxlint-disable-next-line import/no-unassigned-import
 import '@/styles.css';
@@ -41,8 +40,6 @@ interface RootDocumentProps {
 }
 
 function RootDocument({ children }: RootDocumentProps) {
-  const localeSwitcher = useMemo(() => <LocaleSwitcher />, []);
-
   return (
     <html lang="en">
       <head>
@@ -51,7 +48,7 @@ function RootDocument({ children }: RootDocumentProps) {
       <body>
         <AppStateProvider>
           <RootLanguageSync />
-          <AppShell localeSwitcher={localeSwitcher}>{children}</AppShell>
+          <AppShell>{children}</AppShell>
           <TanStackDevtools
             // oxlint-disable-next-line jsx-no-new-object-as-prop
             config={{

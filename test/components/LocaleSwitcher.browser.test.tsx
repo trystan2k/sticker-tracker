@@ -5,8 +5,8 @@ import { createRoot, type Root } from 'react-dom/client';
 
 import { AppStateContext, AppStateProvider } from '@/providers/AppStateProvider';
 import {
-  resetAllData,
   resetStorageStateForTests,
+  setDatabaseNameForTests,
   setStorageDriverForTests
 } from '@/lib/storage/app-storage';
 import { LocaleSwitcher } from '@/components/LocaleSwitcher';
@@ -53,87 +53,134 @@ function cleanup({ container, root }: { container: HTMLDivElement; root: Root })
   container.remove();
 }
 
+let testCounter = 0;
+
 async function resetStorage() {
+  testCounter++;
   resetStorageStateForTests();
   setStorageDriverForTests(null);
-  await resetAllData();
+  setDatabaseNameForTests(`test-locale-${testCounter}`);
 }
 
 describe('LocaleSwitcher', () => {
-  it('renders select with correct options', async () => {
+  it('does not render when closed', async () => {
     await resetStorage();
 
     const mounted = mount(
-      React.createElement(AppStateProvider, null, React.createElement(LocaleSwitcher))
+      React.createElement(
+        AppStateProvider,
+        null,
+        React.createElement(LocaleSwitcher, { isOpen: false, onClose: () => {} })
+      )
+    );
+
+    try {
+      const dialog = mounted.container.querySelector('[role="dialog"]');
+      expect(dialog).toBeNull();
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('renders modal with locale rows when open', async () => {
+    await resetStorage();
+
+    const mounted = mount(
+      React.createElement(
+        AppStateProvider,
+        null,
+        React.createElement(LocaleSwitcher, { isOpen: true, onClose: () => {} })
+      )
     );
 
     try {
       await waitFor(() => {
-        const select = mounted.container.querySelector('select#locale-switcher');
-        return select !== null;
+        const dialog = mounted.container.querySelector('[role="dialog"]');
+        return dialog !== null;
       });
 
-      const select = mounted.container.querySelector('select#locale-switcher') as HTMLSelectElement;
-      expect(select).not.toBeNull();
+      const title = mounted.container.querySelector('span');
+      expect(title?.textContent).toContain('Language / Idioma');
 
-      const options = select.querySelectorAll('option');
-      expect(options.length).toBe(SUPPORTED_LOCALES.length);
-
-      const optionValues = Array.from(options).map((opt) => opt.value);
-      expect(optionValues).toEqual([...SUPPORTED_LOCALES]);
+      const localeRows = mounted.container.querySelectorAll(
+        'button[aria-label="English"], button[aria-label="Portuguese (Brazil)"], button[aria-label="Spanish"]'
+      );
+      expect(localeRows.length).toBe(SUPPORTED_LOCALES.length);
     } finally {
       cleanup(mounted);
     }
   });
 
-  it('renders label element linked to select', async () => {
+  it('calls onClose when overlay is clicked', async () => {
     await resetStorage();
 
+    let closeCalls = 0;
+
     const mounted = mount(
-      React.createElement(AppStateProvider, null, React.createElement(LocaleSwitcher))
+      React.createElement(
+        AppStateProvider,
+        null,
+        React.createElement(LocaleSwitcher, {
+          isOpen: true,
+          onClose: () => {
+            closeCalls += 1;
+          }
+        })
+      )
     );
 
     try {
-      await waitFor(() => {
-        const select = mounted.container.querySelector('select#locale-switcher');
-        return select !== null;
-      });
+      await waitFor(() => mounted.container.querySelector('[role="dialog"]') !== null);
 
-      const label = mounted.container.querySelector('label');
-      expect(label).not.toBeNull();
-      expect(label?.getAttribute('for')).toBe('locale-switcher');
-      expect(label?.textContent).toBeTruthy();
+      const dialog = mounted.container.querySelector('[role="dialog"]') as HTMLDivElement;
+      const backdrop = dialog.querySelector('button') as HTMLButtonElement;
+      backdrop.click();
+
+      expect(closeCalls).toBe(1);
     } finally {
       cleanup(mounted);
     }
   });
 
-  it('does not crash when appState is null (renders without provider)', async () => {
+  it('calls onClose when Escape key is pressed', async () => {
     await resetStorage();
 
-    const mounted = mount(React.createElement(LocaleSwitcher));
+    let closeCalls = 0;
+
+    const mounted = mount(
+      React.createElement(
+        AppStateProvider,
+        null,
+        React.createElement(LocaleSwitcher, {
+          isOpen: true,
+          onClose: () => {
+            closeCalls += 1;
+          }
+        })
+      )
+    );
 
     try {
-      await waitFor(() => {
-        const select = mounted.container.querySelector('select#locale-switcher');
-        return select !== null;
-      });
+      await waitFor(() => mounted.container.querySelector('[role="dialog"]') !== null);
 
-      const select = mounted.container.querySelector('select#locale-switcher') as HTMLSelectElement;
-      expect(select).not.toBeNull();
-      // When appState is null, value falls back to 'en'
-      expect(select.value).toBe('en');
+      // Wait for useEffect to attach keydown listener
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+
+      expect(closeCalls).toBe(1);
     } finally {
       cleanup(mounted);
     }
   });
 
-  it('does not change locale when unsupported value selected', async () => {
+  it('changes locale and closes when supported locale row is clicked', async () => {
     await resetStorage();
 
     let capturedContext:
       | (typeof AppStateContext extends React.Context<infer T> ? T : never)
       | null = null;
+    let closeCalls = 0;
 
     function ContextReader() {
       capturedContext = React.useContext(AppStateContext);
@@ -147,7 +194,12 @@ describe('LocaleSwitcher', () => {
         React.createElement(
           React.Fragment,
           null,
-          React.createElement(LocaleSwitcher),
+          React.createElement(LocaleSwitcher, {
+            isOpen: true,
+            onClose: () => {
+              closeCalls += 1;
+            }
+          }),
           React.createElement(ContextReader)
         )
       )
@@ -156,93 +208,34 @@ describe('LocaleSwitcher', () => {
     try {
       await waitFor(() => capturedContext !== null && capturedContext.renderState === 'ready');
 
-      const select = mounted.container.querySelector('select#locale-switcher') as HTMLSelectElement;
-      expect(select).not.toBeNull();
-
       const originalLocale = capturedContext!.locale;
+      const targetLocale = SUPPORTED_LOCALES.find((locale) => locale !== originalLocale) ?? 'pt-BR';
 
-      // Create and dispatch a change event with unsupported value
-      const option = document.createElement('option');
-      option.value = 'xx-FAKE';
-      select.appendChild(option);
-      select.value = 'xx-FAKE';
+      const targetLabel = mounted.container.querySelector(
+        `button[aria-label="${targetLocale === 'en' ? 'English' : targetLocale === 'es' ? 'Spanish' : 'Portuguese (Brazil)'}"]`
+      ) as HTMLButtonElement;
 
-      select.dispatchEvent(new Event('change', { bubbles: true }));
+      targetLabel.click();
 
-      // Wait a frame for state to settle
-      await new Promise((r) => requestAnimationFrame(r));
-
-      // Locale should not have changed because 'xx-FAKE' is not a supported locale
-      expect(capturedContext!.locale).toBe(originalLocale);
-    } finally {
-      cleanup(mounted);
-    }
-  });
-
-  it('calls setLocale when a supported locale is selected', async () => {
-    await resetStorage();
-
-    let capturedContext:
-      | (typeof AppStateContext extends React.Context<infer T> ? T : never)
-      | null = null;
-
-    function ContextReader() {
-      capturedContext = React.useContext(AppStateContext);
-      return React.createElement('div', { 'data-testid': 'context-captured' });
-    }
-
-    const mounted = mount(
-      React.createElement(
-        AppStateProvider,
-        null,
-        React.createElement(
-          React.Fragment,
-          null,
-          React.createElement(LocaleSwitcher),
-          React.createElement(ContextReader)
-        )
-      )
-    );
-
-    try {
-      await waitFor(() => capturedContext !== null && capturedContext.renderState === 'ready');
-
-      const select = mounted.container.querySelector('select#locale-switcher') as HTMLSelectElement;
-      expect(select).not.toBeNull();
-
-      const originalLocale = capturedContext!.locale;
-
-      // Pick a different supported locale to switch to
-      const targetLocale = SUPPORTED_LOCALES.find((l) => l !== originalLocale) ?? 'pt-BR';
-
-      select.value = targetLocale;
-      select.dispatchEvent(new Event('change', { bubbles: true }));
-
-      // Wait for async setLocale to complete
       await waitFor(() => capturedContext!.locale === targetLocale, 5000);
 
       expect(capturedContext!.locale).toBe(targetLocale);
+      expect(closeCalls).toBe(1);
     } finally {
       cleanup(mounted);
     }
   });
 
-  it('select defaults to current appState locale value', async () => {
+  it('does not crash when appState is null (without provider)', async () => {
     await resetStorage();
 
-    const mounted = mount(
-      React.createElement(AppStateProvider, null, React.createElement(LocaleSwitcher))
-    );
+    const mounted = mount(React.createElement(LocaleSwitcher, { isOpen: true, onClose: () => {} }));
 
     try {
-      await waitFor(() => {
-        const select = mounted.container.querySelector('select#locale-switcher');
-        return select !== null;
-      });
+      await waitFor(() => mounted.container.querySelector('[role="dialog"]') !== null);
 
-      const select = mounted.container.querySelector('select#locale-switcher') as HTMLSelectElement;
-      // Default locale after bootstrap should be 'en' since no saved locale
-      expect(['en', 'pt-BR', 'es']).toContain(select.value);
+      const localeRows = mounted.container.querySelectorAll('button[aria-label]');
+      expect(localeRows.length).toBeGreaterThanOrEqual(SUPPORTED_LOCALES.length);
     } finally {
       cleanup(mounted);
     }
