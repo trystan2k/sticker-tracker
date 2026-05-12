@@ -71,3 +71,11 @@
   box-shadow: var(--shadow-md);
 }
 ```
+
+## Best Practices
+
+- **Use Existing Variables First**: Before hardcoding any value (color, spacing, border-radius, etc.), check if a corresponding CSS Variable already exists in the design system.
+- **Consistency**: Reusing existing tokens ensures that any future theme updates (like changing the primary color) propagate correctly throughout the entire application.
+- **Maintainability**: It's much easier to update a single variable definition than to find and replace hardcoded values across multiple files.
+- **Fallback Values**: When using variables, consider providing a fallback value for robustness: `var(--color-primary, #007bff)`.
+
