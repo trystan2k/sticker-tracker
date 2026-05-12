@@ -1,4 +1,12 @@
-import { useCallback, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type TouchEvent } from 'react';
+import {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+  type TouchEvent
+} from 'react';
 import { flushSync } from 'react-dom';
 
 import { albumPages, type AlbumPage, type PageId } from '@/data/album';
