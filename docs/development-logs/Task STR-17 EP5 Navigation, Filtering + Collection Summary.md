@@ -46,7 +46,7 @@ permalink: docs/development-logs/task-str-17-ep5-navigation-filtering-collection
   - Special entries show translated title and section label
 - Updated `AlbumPageHeader.tsx` — center metadata block is clickable picker trigger
 - Updated `AlbumViewer.tsx` — props for picker trigger, filter state plumbing
-- Updated route composition — `Home` deven stricter controller, filter state at route level
+- Updated route composition — `Home` even stricter controller, filter state at route level
 
 ### STR-20: Collection Filter Behavior
 
