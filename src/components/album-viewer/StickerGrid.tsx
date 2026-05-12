@@ -5,6 +5,7 @@ import styles from './StickerGrid.module.css';
 
 type StickerGridProps = Readonly<{
   page: AlbumPage;
+  visibleStickerIds?: readonly StickerIdentifier[];
   collectedStickerIds: ReadonlySet<StickerIdentifier>;
   onToggleSticker: (stickerId: StickerIdentifier) => void;
   disabled?: boolean;
@@ -12,16 +13,18 @@ type StickerGridProps = Readonly<{
 
 export function StickerGrid({
   page,
+  visibleStickerIds,
   collectedStickerIds,
   onToggleSticker,
   disabled = false
 }: StickerGridProps) {
   const isCocaColaPage = page.type === 'special' && page.key === 'coca-cola';
+  const stickerIds = visibleStickerIds ?? page.stickerIds;
 
   return (
     <section className={styles.section}>
       <div className={`${styles.grid} ${isCocaColaPage ? styles.gridFive : styles.gridFour}`}>
-        {page.stickerIds.map((stickerId) => (
+        {stickerIds.map((stickerId) => (
           <StickerCell
             key={stickerId}
             page={page}

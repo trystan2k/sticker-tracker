@@ -75,8 +75,8 @@
   "special": {
     "legends": "Leyendas",
     "stadiums": "Estadios",
-    "fwc-opening": "Copa Mundial FIFA",
-    "fwc-closing": "Copa Mundial FIFA",
+    "fwc-opening": "Apertura Copa Mundial FIFA",
+    "fwc-closing": "Cierre Copa Mundial FIFA",
     "coca-cola": "Coca-Cola"
   },
   "group": {
@@ -100,12 +100,37 @@
       "label": "Filtros de estampas",
       "all": "Todas",
       "collected": "Coleccionadas",
-      "missing": "Faltantes"
+      "missing": "Faltantes",
+      "emptyState": "Ninguna estampa coincide con este filtro en esta página."
     },
     "specialSection": {
-      "fwc-opening": "Historia",
-      "fwc-closing": "Historia",
+      "fwc-opening": "Sección de apertura",
+      "fwc-closing": "Sección de cierre",
       "coca-cola": "Sección de patrocinador"
+    },
+    "quickNavigation": {
+      "open": "Abrir selector de navegación rápida",
+      "title": "Seleccionar equipo",
+      "close": "Cerrar selector de navegación rápida",
+      "searchPlaceholder": "Buscar equipos y páginas especiales",
+      "searchAriaLabel": "Buscar páginas",
+      "sections": {
+        "special-fwc-opening": "Apertura FWC",
+        "group-A": "Grupo A",
+        "group-B": "Grupo B",
+        "group-C": "Grupo C",
+        "group-D": "Grupo D",
+        "group-E": "Grupo E",
+        "group-F": "Grupo F",
+        "group-G": "Grupo G",
+        "group-H": "Grupo H",
+        "group-I": "Grupo I",
+        "group-J": "Grupo J",
+        "group-K": "Grupo K",
+        "group-L": "Grupo L",
+        "special-fwc-closing": "Cierre FWC",
+        "special-coca-cola": "Coca-Cola"
+      }
     },
     "progress": {
       "label": "Progreso de la página",
@@ -119,6 +144,10 @@
     },
     "pageHeader": {
       "ariaLabel": "Encabezado de página del álbum"
+    },
+    "actions": {
+      "camera": "Cámara (próximamente)",
+      "share": "Compartir (próximamente)"
     }
   },
   "scanner": {
