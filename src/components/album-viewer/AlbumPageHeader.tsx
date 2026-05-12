@@ -9,9 +9,10 @@ import styles from './AlbumPageHeader.module.css';
 
 type AlbumPageHeaderProps = Readonly<{
   page: AlbumPage;
+  onOpenQuickNavigation: () => void;
 }>;
 
-export function AlbumPageHeader({ page }: AlbumPageHeaderProps) {
+export function AlbumPageHeader({ page, onOpenQuickNavigation }: AlbumPageHeaderProps) {
   const { t } = useTranslation();
   const [isLocaleModalOpen, setIsLocaleModalOpen] = useState(false);
   const handleOpenLocaleModal = useCallback((): void => {
@@ -46,11 +47,32 @@ export function AlbumPageHeader({ page }: AlbumPageHeaderProps) {
       <header className={styles.header} aria-label={t('album.pageHeader.ariaLabel')}>
         <div className={styles.logo}>COPA 26</div>
 
-        <div className={styles.center}>{centerContent}</div>
+        <button
+          type="button"
+          className={styles.centerTrigger}
+          onClick={onOpenQuickNavigation}
+          aria-label={t('album.quickNavigation.open')}
+        >
+          <div className={styles.center}>{centerContent}</div>
+        </button>
 
         <div className={styles.actions}>
-          <Camera size={22} aria-hidden="true" />
-          <Share2 size={22} aria-hidden="true" />
+          <button
+            type="button"
+            disabled
+            className={styles.actionBtn}
+            aria-label={t('album.actions.camera')}
+          >
+            <Camera size={22} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            disabled
+            className={styles.actionBtn}
+            aria-label={t('album.actions.share')}
+          >
+            <Share2 size={22} aria-hidden="true" />
+          </button>
           <button
             type="button"
             className={styles.actionBtn}

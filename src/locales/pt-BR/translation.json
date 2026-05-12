@@ -75,8 +75,8 @@
   "special": {
     "legends": "Lendas",
     "stadiums": "Estádios",
-    "fwc-opening": "Copa do Mundo FIFA",
-    "fwc-closing": "Copa do Mundo FIFA",
+    "fwc-opening": "Abertura Copa do Mundo FIFA",
+    "fwc-closing": "Encerramento Copa do Mundo FIFA",
     "coca-cola": "Coca-Cola"
   },
   "group": {
@@ -100,12 +100,37 @@
       "label": "Filtros de figurinhas",
       "all": "Todas",
       "collected": "Colecionadas",
-      "missing": "Faltando"
+      "missing": "Faltando",
+      "emptyState": "Nenhuma figurinha corresponde a este filtro nesta página."
     },
     "specialSection": {
-      "fwc-opening": "História",
-      "fwc-closing": "História",
+      "fwc-opening": "Seção de abertura",
+      "fwc-closing": "Seção de encerramento",
       "coca-cola": "Seção de patrocinador"
+    },
+    "quickNavigation": {
+      "open": "Abrir seletor de navegação rápida",
+      "title": "Selecionar time",
+      "close": "Fechar seletor de navegação rápida",
+      "searchPlaceholder": "Buscar times e páginas especiais",
+      "searchAriaLabel": "Buscar páginas",
+      "sections": {
+        "special-fwc-opening": "Abertura FWC",
+        "group-A": "Grupo A",
+        "group-B": "Grupo B",
+        "group-C": "Grupo C",
+        "group-D": "Grupo D",
+        "group-E": "Grupo E",
+        "group-F": "Grupo F",
+        "group-G": "Grupo G",
+        "group-H": "Grupo H",
+        "group-I": "Grupo I",
+        "group-J": "Grupo J",
+        "group-K": "Grupo K",
+        "group-L": "Grupo L",
+        "special-fwc-closing": "Encerramento FWC",
+        "special-coca-cola": "Coca-Cola"
+      }
     },
     "progress": {
       "label": "Progresso da página",
@@ -119,6 +144,10 @@
     },
     "pageHeader": {
       "ariaLabel": "Cabeçalho da página do álbum"
+    },
+    "actions": {
+      "camera": "Câmera (em breve)",
+      "share": "Compartilhar (em breve)"
     }
   },
   "scanner": {

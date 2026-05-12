@@ -4,10 +4,10 @@ test('click sticker cell, verify progress, reload, verify persistence', async ({
   await page.goto('/');
 
   // Wait for sticker cells to be attached
-  await page.waitForSelector('button[aria-pressed]', { timeout: 10000 });
+  await page.waitForSelector('div[class*="grid"] button[aria-pressed]', { timeout: 10000 });
 
   // Initial state: no stickers collected on first page (fwc-opening has 9 stickers)
-  const stickerCells = page.locator('button[aria-pressed]');
+  const stickerCells = page.locator('div[class*="grid"] button[aria-pressed]');
   const totalStickers = await stickerCells.count();
 
   // All should start as not collected (aria-pressed="false")
@@ -42,10 +42,10 @@ test('click sticker cell, verify progress, reload, verify persistence', async ({
   await page.reload();
 
   // Wait for app to be ready again after reload
-  await page.waitForSelector('button[aria-pressed]', { timeout: 10000 });
+  await page.waitForSelector('div[class*="grid"] button[aria-pressed]', { timeout: 10000 });
 
   // Verify stickers are still collected after reload
-  const reloadedCells = page.locator('button[aria-pressed]');
+  const reloadedCells = page.locator('div[class*="grid"] button[aria-pressed]');
   await expect(reloadedCells.first()).toHaveAttribute('aria-pressed', 'true');
   await expect(reloadedCells.nth(1)).toHaveAttribute('aria-pressed', 'true');
 
@@ -58,9 +58,9 @@ test('uncollect sticker via click toggle persists after reload', async ({ page }
   await page.goto('/');
 
   // Wait for sticker cells to be attached
-  await page.waitForSelector('button[aria-pressed]', { timeout: 10000 });
+  await page.waitForSelector('div[class*="grid"] button[aria-pressed]', { timeout: 10000 });
 
-  const stickerCells = page.locator('button[aria-pressed]');
+  const stickerCells = page.locator('div[class*="grid"] button[aria-pressed]');
 
   // Click to collect first sticker
   await stickerCells.first().click();
@@ -76,9 +76,9 @@ test('uncollect sticker via click toggle persists after reload', async ({ page }
 
   // Reload and verify uncollected state persists
   await page.reload();
-  await page.waitForSelector('button[aria-pressed]', { timeout: 10000 });
+  await page.waitForSelector('div[class*="grid"] button[aria-pressed]', { timeout: 10000 });
 
-  const reloadedCells = page.locator('button[aria-pressed]');
+  const reloadedCells = page.locator('div[class*="grid"] button[aria-pressed]');
   await expect(reloadedCells.first()).toHaveAttribute('aria-pressed', 'false');
 
   const reloadedProgressbar = page.getByRole('progressbar');

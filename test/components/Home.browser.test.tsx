@@ -150,4 +150,26 @@ describe('Home page (index route)', () => {
       cleanup(mounted);
     }
   });
+
+  it('opens quick navigation picker from page header trigger', async () => {
+    await resetStorage();
+
+    const mounted = mount(React.createElement(AppStateProvider, null, React.createElement(Home)));
+
+    try {
+      await waitFor(() => {
+        const headerButtons = mounted.container.querySelectorAll('header button');
+        return headerButtons.length >= 2;
+      });
+
+      const trigger = mounted.container.querySelectorAll('header button')[0] as HTMLButtonElement;
+
+      trigger.click();
+
+      await waitFor(() => mounted.container.querySelector('[role="dialog"]') !== null);
+      expect(mounted.container.querySelector('[role="dialog"]')).not.toBeNull();
+    } finally {
+      cleanup(mounted);
+    }
+  });
 });

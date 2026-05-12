@@ -1,7 +1,13 @@
 .viewer {
-  min-height: 100%;
+  min-height: 100vh;
   background-color: var(--surface-album-primary);
 }
+
+.headerSection {
+  view-transition-name: vt-header;
+}
+
+
 
 .filterRow {
   height: 44px;
@@ -23,7 +29,12 @@
   border: none;
   font-family: var(--typography-family-body);
   font-size: 13px;
-  cursor: default;
+  cursor: pointer;
+}
+
+.filterPill:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
 }
 
 .filterActive {
@@ -56,6 +67,19 @@
   border-radius: 10px;
   background-color: var(--surface-sticker-missing-bg);
   border: 1.5px solid var(--surface-sticker-missing-border);
+}
+
+.emptyState {
+  min-height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 16px;
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-family: var(--typography-family-body);
+  font-size: 14px;
+  line-height: 1.4;
 }
 
 .swipeHint {

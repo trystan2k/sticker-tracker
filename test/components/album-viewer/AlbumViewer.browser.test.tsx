@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import React from 'react';
 import { createRoot, type Root } from 'react-dom/client';
@@ -11,6 +11,7 @@ import {
 } from '@/lib/storage/app-storage';
 
 import { albumPages, type StickerIdentifier } from '@/data/album';
+import type { ViewerFilter } from '@/components/album-viewer/viewer-state';
 import { AlbumViewer } from '@/components/album-viewer/AlbumViewer';
 
 function waitFor(predicate: () => boolean, timeoutMs = 8000): Promise<void> {
@@ -84,6 +85,9 @@ describe('AlbumViewer', () => {
             page: teamPage,
             renderState: 'loading',
             collectedStickerIds: new Set<StickerIdentifier>(),
+            activeFilter: 'all',
+            onChangeFilter: () => {},
+            onOpenQuickNavigation: () => {},
             onToggleSticker: () => {}
           })
         )
@@ -123,6 +127,9 @@ describe('AlbumViewer', () => {
             page: teamPage,
             renderState: 'ready',
             collectedStickerIds: new Set<StickerIdentifier>(),
+            activeFilter: 'all',
+            onChangeFilter: () => {},
+            onOpenQuickNavigation: () => {},
             onToggleSticker: () => {}
           })
         )
@@ -174,6 +181,9 @@ describe('AlbumViewer', () => {
             page: specialPage,
             renderState: 'ready',
             collectedStickerIds: new Set<StickerIdentifier>(),
+            activeFilter: 'all',
+            onChangeFilter: () => {},
+            onOpenQuickNavigation: () => {},
             onToggleSticker: () => {}
           })
         )
@@ -204,10 +214,11 @@ describe('AlbumViewer', () => {
   });
 
   describe('filter pills', () => {
-    it('renders presentational filter pills that are disabled and non-interactive', async () => {
+    it('renders interactive filter pills with aria-pressed state and click handlers', async () => {
       await resetStorage();
 
       const page = albumPages[0]!;
+      const onChangeFilter = vi.fn<(filter: ViewerFilter) => void>();
 
       const mounted = mount(
         React.createElement(
@@ -217,33 +228,141 @@ describe('AlbumViewer', () => {
             page,
             renderState: 'ready',
             collectedStickerIds: new Set<StickerIdentifier>(),
+            activeFilter: 'collected',
+            onChangeFilter,
+            onOpenQuickNavigation: () => {},
             onToggleSticker: () => {}
           })
         )
       );
 
       try {
-        await waitFor(() => {
-          const filterRow = mounted.container.querySelector('[aria-label]');
-          return filterRow !== null;
-        });
+        await waitFor(
+          () => mounted.container.querySelectorAll('button[class*="filterPill"]').length === 3
+        );
 
-        // Filter section exists
-        const filterRow = mounted.container.querySelector('[class*="filterRow"]');
-        expect(filterRow).not.toBeNull();
+        const pills = Array.from(mounted.container.querySelectorAll('button[class*="filterPill"]'));
+        expect(pills).toHaveLength(3);
 
-        // Filter pills are rendered
-        const pills = mounted.container.querySelectorAll('button[class*="filterPill"]');
-        expect(pills.length).toBe(3);
-
-        // All pills are disabled (non-interactive)
         for (const pill of pills) {
-          expect(pill.hasAttribute('disabled')).toBe(true);
+          expect(pill.hasAttribute('disabled')).toBe(false);
         }
 
-        // One pill is active
-        const activePill = mounted.container.querySelector('button[class*="filterActive"]');
-        expect(activePill).not.toBeNull();
+        expect(pills[0]?.getAttribute('aria-pressed')).toBe('false');
+        expect(pills[1]?.getAttribute('aria-pressed')).toBe('true');
+        expect(pills[2]?.getAttribute('aria-pressed')).toBe('false');
+
+        pills[0]?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        pills[2]?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+        expect(onChangeFilter).toHaveBeenNthCalledWith(1, 'all');
+        expect(onChangeFilter).toHaveBeenNthCalledWith(2, 'missing');
+      } finally {
+        cleanup(mounted);
+      }
+    });
+
+    it('renders collected filter subset when active filter is collected', async () => {
+      await resetStorage();
+
+      const page = albumPages.find((candidate) => candidate.pageId === 'mex')!;
+      const collectedStickerIds = new Set<StickerIdentifier>([
+        page.stickerIds[0] as StickerIdentifier,
+        page.stickerIds[2] as StickerIdentifier
+      ]);
+
+      const mounted = mount(
+        React.createElement(
+          AppStateProvider,
+          null,
+          React.createElement(AlbumViewer, {
+            page,
+            renderState: 'ready',
+            collectedStickerIds,
+            activeFilter: 'collected',
+            onChangeFilter: () => {},
+            onOpenQuickNavigation: () => {},
+            onToggleSticker: () => {}
+          })
+        )
+      );
+
+      try {
+        await waitFor(() => mounted.container.querySelectorAll('button[class*="cell"]').length > 0);
+        expect(mounted.container.querySelectorAll('button[class*="cell"]').length).toBe(2);
+      } finally {
+        cleanup(mounted);
+      }
+    });
+
+    it('renders missing filter subset when active filter is missing', async () => {
+      await resetStorage();
+
+      const page = albumPages.find((candidate) => candidate.pageId === 'mex')!;
+      const collectedStickerIds = new Set<StickerIdentifier>([
+        page.stickerIds[0] as StickerIdentifier,
+        page.stickerIds[2] as StickerIdentifier
+      ]);
+
+      const mounted = mount(
+        React.createElement(
+          AppStateProvider,
+          null,
+          React.createElement(AlbumViewer, {
+            page,
+            renderState: 'ready',
+            collectedStickerIds,
+            activeFilter: 'missing',
+            onChangeFilter: () => {},
+            onOpenQuickNavigation: () => {},
+            onToggleSticker: () => {}
+          })
+        )
+      );
+
+      try {
+        await waitFor(() => mounted.container.querySelectorAll('button[class*="cell"]').length > 0);
+        expect(mounted.container.querySelectorAll('button[class*="cell"]').length).toBe(
+          page.stickerIds.length - collectedStickerIds.size
+        );
+      } finally {
+        cleanup(mounted);
+      }
+    });
+
+    it('renders translated empty state when filter has zero stickers', async () => {
+      await resetStorage();
+
+      const page = albumPages.find((candidate) => candidate.pageId === 'mex')!;
+
+      const mounted = mount(
+        React.createElement(
+          AppStateProvider,
+          null,
+          React.createElement(AlbumViewer, {
+            page,
+            renderState: 'ready',
+            collectedStickerIds: new Set<StickerIdentifier>(),
+            activeFilter: 'collected',
+            onChangeFilter: () => {},
+            onOpenQuickNavigation: () => {},
+            onToggleSticker: () => {}
+          })
+        )
+      );
+
+      try {
+        await waitFor(
+          () =>
+            mounted.container.textContent?.includes(
+              'No stickers match this filter on this page.'
+            ) ?? false
+        );
+
+        expect(mounted.container.textContent).toContain(
+          'No stickers match this filter on this page.'
+        );
+        expect(mounted.container.querySelectorAll('button[aria-pressed]').length).toBe(3);
       } finally {
         cleanup(mounted);
       }
@@ -264,6 +383,9 @@ describe('AlbumViewer', () => {
             page,
             renderState: 'ready',
             collectedStickerIds: new Set<StickerIdentifier>(),
+            activeFilter: 'all',
+            onChangeFilter: () => {},
+            onOpenQuickNavigation: () => {},
             onToggleSticker: () => {}
           })
         )

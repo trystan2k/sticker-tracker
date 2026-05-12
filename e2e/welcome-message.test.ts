@@ -4,10 +4,10 @@ test('should render album viewer screen', async ({ page }) => {
   await page.goto('/');
 
   // Wait for sticker cells to be attached (album viewer rendered after bootstrap)
-  await page.waitForSelector('button[aria-pressed]', { timeout: 10000 });
+  await page.waitForSelector('div[class*="grid"] button[aria-pressed]', { timeout: 10000 });
 
   // Sticker cells are present (album viewer is rendered)
-  const stickerCells = page.locator('button[aria-pressed]');
+  const stickerCells = page.locator('div[class*="grid"] button[aria-pressed]');
   await expect(stickerCells).toHaveCount(9); // fwc-opening page has 9 stickers (00..8)
 
   // Progress bar exists (may be small, use toBeAttached)
@@ -27,7 +27,7 @@ test('should switch locale and show translated album content', async ({ page }) 
   await page.goto('/');
 
   // Wait for sticker cells to be attached
-  await page.waitForSelector('button[aria-pressed]', { timeout: 10000 });
+  await page.waitForSelector('div[class*="grid"] button[aria-pressed]', { timeout: 10000 });
 
   // Open locale modal and switch to Portuguese
   await page.getByRole('button', { name: 'Language' }).click();

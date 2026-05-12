@@ -75,8 +75,8 @@
   "special": {
     "legends": "Legends",
     "stadiums": "Stadiums",
-    "fwc-opening": "FIFA World Cup",
-    "fwc-closing": "FIFA World Cup",
+    "fwc-opening": "FIFA World Cup Opening",
+    "fwc-closing": "FIFA World Cup Closing",
     "coca-cola": "Coca-Cola"
   },
   "group": {
@@ -100,12 +100,37 @@
       "label": "Sticker filters",
       "all": "All",
       "collected": "Collected",
-      "missing": "Missing"
+      "missing": "Missing",
+      "emptyState": "No stickers match this filter on this page."
     },
     "specialSection": {
-      "fwc-opening": "History",
-      "fwc-closing": "History",
+      "fwc-opening": "Opening Section",
+      "fwc-closing": "Closing Section",
       "coca-cola": "Sponsor Section"
+    },
+    "quickNavigation": {
+      "open": "Open quick navigation picker",
+      "title": "Select Team",
+      "close": "Close quick navigation picker",
+      "searchPlaceholder": "Search teams and special pages",
+      "searchAriaLabel": "Search pages",
+      "sections": {
+        "special-fwc-opening": "FWC Opening",
+        "group-A": "Group A",
+        "group-B": "Group B",
+        "group-C": "Group C",
+        "group-D": "Group D",
+        "group-E": "Group E",
+        "group-F": "Group F",
+        "group-G": "Group G",
+        "group-H": "Group H",
+        "group-I": "Group I",
+        "group-J": "Group J",
+        "group-K": "Group K",
+        "group-L": "Group L",
+        "special-fwc-closing": "FWC Closing",
+        "special-coca-cola": "Coca-Cola"
+      }
     },
     "progress": {
       "label": "Page progress",
@@ -119,6 +144,10 @@
     },
     "pageHeader": {
       "ariaLabel": "Album page header"
+    },
+    "actions": {
+      "camera": "Camera (coming soon)",
+      "share": "Share (coming soon)"
     }
   },
   "scanner": {

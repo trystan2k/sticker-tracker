@@ -51,3 +51,103 @@ textarea {
   font-size: inherit;
   color: inherit;
 }
+
+/* ===== View Transitions for Swipe Navigation ===== */
+
+/* Card-deck slide: old card slides away, next card slides in.
+ * Both old and new animate to ensure browser renders both snapshots. */
+
+:root {
+  --vt-duration: 400ms;
+}
+
+/* Header stays in place — no slide animation */
+html.nav-forward::view-transition-old(vt-header),
+html.nav-forward::view-transition-new(vt-header),
+html.nav-back::view-transition-old(vt-header),
+html.nav-back::view-transition-new(vt-header) {
+  animation: none;
+}
+
+/* Forward: swipe left — full-page card-deck slide */
+html.nav-forward::view-transition-old(root) {
+  animation: vt-slide-out-left var(--vt-duration) ease-in-out both;
+}
+
+html.nav-forward::view-transition-new(root) {
+  animation: vt-slide-in-right var(--vt-duration) ease-in-out both;
+}
+
+/* Back: swipe right — full-page card-deck slide */
+html.nav-back::view-transition-old(root) {
+  animation: vt-slide-out-right var(--vt-duration) ease-in-out both;
+}
+
+html.nav-back::view-transition-new(root) {
+  animation: vt-slide-in-left var(--vt-duration) ease-in-out both;
+}
+
+@keyframes vt-slide-out-left {
+  from {
+    translate: 0;
+    scale: 1;
+    opacity: 1;
+  }
+
+  to {
+    translate: -30%;
+    scale: 0.92;
+    opacity: 0.4;
+  }
+}
+
+@keyframes vt-slide-out-right {
+  from {
+    translate: 0;
+    scale: 1;
+    opacity: 1;
+  }
+
+  to {
+    translate: 30%;
+    scale: 0.92;
+    opacity: 0.4;
+  }
+}
+
+@keyframes vt-slide-in-right {
+  from {
+    translate: 100%;
+    scale: 0.95;
+    opacity: 0;
+  }
+
+  to {
+    translate: 0;
+    scale: 1;
+    opacity: 1;
+  }
+}
+
+@keyframes vt-slide-in-left {
+  from {
+    translate: -100%;
+    scale: 0.95;
+    opacity: 0;
+  }
+
+  to {
+    translate: 0;
+    scale: 1;
+    opacity: 1;
+  }
+}
+
+/* Reduced motion: instant */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+  }
+}
