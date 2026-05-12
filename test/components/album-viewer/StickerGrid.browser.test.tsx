@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import React from 'react';
 import { createRoot, type Root } from 'react-dom/client';
+import userEvent from '@testing-library/user-event';
 
 import {
   resetStorageStateForTests,
@@ -321,12 +322,9 @@ describe('StickerGrid', () => {
         ) as HTMLButtonElement;
         expect(firstButton).not.toBeNull();
 
-        // Simulate Enter key press
-        firstButton.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
-
-        // Buttons handle click, which is triggered by Enter on native <button>
-        // Since native button handles Enter as click, we just verify click behavior
-        firstButton.click();
+        const user = userEvent.setup();
+        firstButton.focus();
+        await user.keyboard('{Enter}');
 
         expect(toggledStickers.length).toBe(1);
         expect(toggledStickers[0]).toBe(page.stickerIds[0]);
@@ -366,11 +364,9 @@ describe('StickerGrid', () => {
         ) as HTMLButtonElement;
         expect(firstButton).not.toBeNull();
 
-        // Simulate Space key (native button activates on Space)
-        firstButton.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }));
-
-        // Space on native button triggers click
-        firstButton.click();
+        const user = userEvent.setup();
+        firstButton.focus();
+        await user.keyboard(' ');
 
         expect(toggledStickers.length).toBe(1);
       } finally {

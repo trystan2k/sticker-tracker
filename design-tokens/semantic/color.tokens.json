@@ -148,6 +148,13 @@
         },
         "$description": "Outline color for inactive selectable elements"
       }
+    },
+    "overlay": {
+      "backdrop": {
+        "$type": "color",
+        "$value": "rgba(0, 0, 0, 0.4)",
+        "$description": "Modal overlay backdrop color"
+      }
     }
   },
   "surface": {

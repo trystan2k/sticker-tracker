@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -47,6 +48,10 @@ export function StickerCell({
   const { t } = useTranslation();
   const { code, number } = getStickerCodeAndNumber(page, stickerId);
 
+  const handleClick = useCallback(() => {
+    onToggleSticker(stickerId);
+  }, [onToggleSticker, stickerId]);
+
   return (
     <button
       type="button"
@@ -56,7 +61,7 @@ export function StickerCell({
         id: stickerId,
         state: isCollected ? t('album.sticker.collected') : t('album.sticker.missing')
       })}
-      onClick={() => onToggleSticker(stickerId)} // eslint-disable-line react-perf/jsx-no-new-function-as-prop
+      onClick={handleClick}
       disabled={disabled}
     >
       <span className={styles.code}>{code}</span>

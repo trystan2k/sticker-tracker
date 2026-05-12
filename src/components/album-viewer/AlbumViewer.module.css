@@ -28,7 +28,7 @@
 
 .filterActive {
   background-color: var(--surface-filter-active);
-  color: #fff;
+  color: var(--surface-sticker-collected-text);
   font-weight: 600;
 }
 
