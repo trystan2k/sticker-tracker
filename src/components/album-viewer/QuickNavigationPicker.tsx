@@ -184,7 +184,7 @@ export function QuickNavigationPicker({
         aria-label={t('album.quickNavigation.close')}
       />
 
-      <div className={styles.sheet}>
+      <div ref={sheetRef} className={styles.sheet}>
         <div className={styles.dragHandleRow}>
           <span className={styles.dragHandle} aria-hidden="true" />
         </div>

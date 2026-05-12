@@ -86,6 +86,9 @@ describe('SwipeNavigator', () => {
         () => mounted.container.querySelector('[data-testid="swipe-surface"]') !== null
       );
 
+      // useEffect attaches the touchmove listener after paint; wait one frame
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+
       const surface = mounted.container.querySelector(
         '[data-testid="swipe-surface"]'
       ) as HTMLElement;
@@ -113,6 +116,9 @@ describe('SwipeNavigator', () => {
       await waitFor(
         () => mounted.container.querySelector('[data-testid="swipe-surface"]') !== null
       );
+
+      // useEffect attaches the touchmove listener after paint; wait one frame
+      await new Promise((resolve) => requestAnimationFrame(resolve));
 
       const surface = mounted.container.querySelector(
         '[data-testid="swipe-surface"]'
@@ -144,6 +150,9 @@ describe('SwipeNavigator', () => {
         () => mounted.container.querySelector('[data-testid="swipe-surface"]') !== null
       );
 
+      // useEffect attaches the touchmove listener after paint; wait one frame
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+
       const surface = mounted.container.querySelector(
         '[data-testid="swipe-surface"]'
       ) as HTMLElement;
@@ -169,6 +178,9 @@ describe('SwipeNavigator', () => {
       await waitFor(
         () => mounted.container.querySelector('[data-testid="swipe-surface"]') !== null
       );
+
+      // useEffect attaches the touchmove listener after paint; wait one frame
+      await new Promise((resolve) => requestAnimationFrame(resolve));
 
       const surface = mounted.container.querySelector(
         '[data-testid="swipe-surface"]'

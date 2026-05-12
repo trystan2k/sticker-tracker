@@ -1,6 +1,6 @@
 import {
   useCallback,
-  useLayoutEffect,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -143,7 +143,7 @@ export function SwipeNavigator({ initialPageId, children }: SwipeNavigatorProps)
     }
   }, []);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const element = swipeSurfaceRef.current;
     if (!element) {
       return undefined;

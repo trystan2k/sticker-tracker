@@ -1,15 +1,18 @@
 import { expect, test, type Page } from '@playwright/test';
 
-const SWIPE_THRESHOLD_PX = 48;
-
 async function swipeLeft(page: Page) {
-  await page.evaluate((threshold) => {
+  const swipeThreshold = await page
+    .locator('[data-testid="swipe-surface"]')
+    .getAttribute('data-swipe-threshold');
+  const threshold = Number(swipeThreshold);
+
+  await page.evaluate((thresholdValue) => {
     const target = document.querySelector('[data-testid="swipe-surface"]');
     if (!target) throw new Error('Missing swipe surface');
 
     const startX = 220;
     const startY = 180;
-    const endX = startX - threshold - 24;
+    const endX = startX - thresholdValue - 24;
     const endY = startY;
 
     const start = new Event('touchstart', { bubbles: true, cancelable: true });
@@ -29,14 +32,14 @@ async function swipeLeft(page: Page) {
     target.dispatchEvent(start);
     target.dispatchEvent(move);
     target.dispatchEvent(end);
-  }, SWIPE_THRESHOLD_PX);
+  }, threshold);
 }
 
 test('collection filter stays active across page changes', async ({ page }) => {
   await page.goto('/');
 
   await page.waitForSelector('[data-testid="swipe-surface"]', { timeout: 10000 });
-  await page.waitForSelector('button[aria-pressed]', { timeout: 10000 });
+  await page.waitForSelector('div[class*="grid"] button[aria-pressed]', { timeout: 10000 });
 
   const filterRow = page.getByLabel('Sticker filters');
   const allFilter = filterRow.getByRole('button', { name: 'All', exact: true });
