@@ -1,4 +1,4 @@
-import { Menu, Share2 } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { useCallback } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
@@ -6,10 +6,10 @@ import { useTranslation } from 'react-i18next';
 import styles from './HomeHeader.module.css';
 
 interface HomeHeaderProps {
-  onOpenLocaleSwitcher: () => void;
+  onMenuClick: () => void;
 }
 
-export function HomeHeader({ onOpenLocaleSwitcher }: HomeHeaderProps) {
+export function HomeHeader({ onMenuClick }: HomeHeaderProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -22,8 +22,8 @@ export function HomeHeader({ onOpenLocaleSwitcher }: HomeHeaderProps) {
       <button
         type="button"
         className={`${styles.actionButton} ${styles.menuButton}`}
-        onClick={onOpenLocaleSwitcher}
-        aria-label={t('home.header.openLocaleMenu')}
+        onClick={onMenuClick}
+        aria-label={t('home.header.openMenu')}
       >
         <Menu size={22} aria-hidden="true" />
       </button>
@@ -35,15 +35,6 @@ export function HomeHeader({ onOpenLocaleSwitcher }: HomeHeaderProps) {
         aria-label={t('home.header.title')}
       >
         <span className={styles.title}>{t('home.header.title')}</span>
-      </button>
-
-      <button
-        type="button"
-        className={`${styles.actionButton} ${styles.shareButton}`}
-        aria-label={t('home.header.shareAlbum')}
-        disabled
-      >
-        <Share2 size={22} aria-hidden="true" />
       </button>
     </header>
   );

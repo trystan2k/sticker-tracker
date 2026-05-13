@@ -8,6 +8,7 @@ import {
   getActivePage,
   getAlbumPageByRoute,
   getAlbumPath,
+  getNavigationDirection,
   getNextPage,
   getPrevPage,
   isValidPageId
@@ -168,6 +169,28 @@ describe('viewer-state helpers', () => {
     it('returns undefined for invalid pageId with undefined group', () => {
       const page = getAlbumPageByRoute(undefined, 'nonexistent');
       expect(page).toBeUndefined();
+    });
+  });
+
+  describe('getNavigationDirection', () => {
+    it('returns forward when target page is after current page', () => {
+      expect(getNavigationDirection('fwc-opening' as PageId, 'mex' as PageId)).toBe('forward');
+    });
+
+    it('returns back when target page is before current page', () => {
+      expect(getNavigationDirection('mex' as PageId, 'fwc-opening' as PageId)).toBe('back');
+    });
+
+    it('returns forward when current and target page are the same', () => {
+      expect(getNavigationDirection('mex' as PageId, 'mex' as PageId)).toBe('forward');
+    });
+
+    it('returns forward when current page id is invalid', () => {
+      expect(getNavigationDirection('nonexistent' as PageId, 'mex' as PageId)).toBe('forward');
+    });
+
+    it('returns forward when target page id is invalid', () => {
+      expect(getNavigationDirection('mex' as PageId, 'nonexistent' as PageId)).toBe('forward');
     });
   });
 });

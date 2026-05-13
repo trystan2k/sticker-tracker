@@ -5,6 +5,7 @@ import { type ReactNode, useContext, useEffect } from 'react';
 
 import { AppStateContext, AppStateProvider } from '@/providers/AppStateProvider';
 import { AppShell } from '@/components/AppShell';
+import { NotFoundPage } from '@/components/not-found/NotFoundPage';
 
 // oxlint-disable-next-line import/no-unassigned-import
 import '@/styles.css';
@@ -32,6 +33,7 @@ export const Route = createRootRoute({
       }
     ]
   }),
+  notFoundComponent: NotFoundPage,
   shellComponent: RootDocument
 });
 

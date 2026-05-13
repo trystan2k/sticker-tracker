@@ -95,16 +95,12 @@ describe('StickerGrid', () => {
         // Team pages use gridFour class
         const gridFour = mounted.container.querySelector('[class*="gridFour"]');
         expect(gridFour).not.toBeNull();
-
-        // gridFive should NOT be present
-        const gridFive = mounted.container.querySelector('[class*="gridFive"]');
-        expect(gridFive).toBeNull();
       } finally {
         cleanup(mounted);
       }
     });
 
-    it('uses 5-column layout for coca-cola special page', async () => {
+    it('uses 4-column layout for coca-cola special page', async () => {
       await resetStorage();
 
       const cocaColaPage = albumPages.find((p) => p.type === 'special' && p.key === 'coca-cola')!;
@@ -127,13 +123,9 @@ describe('StickerGrid', () => {
           return grid !== null;
         });
 
-        // Coca-Cola page uses gridFive class
-        const gridFive = mounted.container.querySelector('[class*="gridFive"]');
-        expect(gridFive).not.toBeNull();
-
-        // gridFour should NOT be present
+        // Coca-Cola page now uses same gridFour class as all pages
         const gridFour = mounted.container.querySelector('[class*="gridFour"]');
-        expect(gridFour).toBeNull();
+        expect(gridFour).not.toBeNull();
       } finally {
         cleanup(mounted);
       }
@@ -167,9 +159,6 @@ describe('StickerGrid', () => {
         // FWC opening page uses gridFour class (not coca-cola)
         const gridFour = mounted.container.querySelector('[class*="gridFour"]');
         expect(gridFour).not.toBeNull();
-
-        const gridFive = mounted.container.querySelector('[class*="gridFive"]');
-        expect(gridFive).toBeNull();
       } finally {
         cleanup(mounted);
       }

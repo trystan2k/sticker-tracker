@@ -1,0 +1,210 @@
+## Task Analysis
+
+- Main objective: Deliver Epic STR-44 as 4 sequential changes with lowest-risk order: normalize Coca-Cola page grid layout, restore visible special-page swipe/quick-jump transitions, add a real 404 surface, then replace the home header menu flow with a left-side Base UI drawer.
+- Identified dependencies:
+  - STR-45 depends on current album grid implementation in `src/components/album-viewer/StickerGrid.tsx`, `src/components/album-viewer/StickerGrid.module.css`, and existing layout assertions in `test/components/album-viewer/StickerGrid.browser.test.tsx`.
+  - STR-46 depends on current manual View Transition contract already split across `src/components/album-viewer/SwipeNavigator.tsx`, `src/components/album-viewer/QuickNavigationPicker.tsx`, `src/components/album-viewer/AlbumRouteScreen.tsx`, `src/components/album-viewer/viewer-state.ts`, and transition CSS in `src/styles.css`.
+  - STR-47 depends on TanStack Router root wiring in `src/routes/__root.tsx`, route guards in `src/routes/album/$pageId.tsx` and `src/routes/album/$group/$pageId.tsx`, reusable header markup in `src/components/home/HomeHeader.tsx`, and locale resources in `src/locales/en/translation.json`, `src/locales/es/translation.json`, and `src/locales/pt-BR/translation.json`.
+  - STR-48 depends on adding Base UI to `package.json`/`pnpm-lock.yaml`, keeping `src/components/LocaleSwitcher.tsx` as the existing language sheet, and styling against generated tokens already exposed by `design-tokens/dist/semantic.css` and `design-tokens/dist/components.css`.
+  - Shared UI constraint: `HomeHeader` currently uses album-specific surface tokens and hardcoded layout values; STR-47/48 should move it onto generated header tokens (`--component-header-*`) so home, drawer, and 404 stay aligned with Pencil.
+- System impact:
+  - Album viewer behavior changes in 2 places: layout selection for Coca-Cola, and navigation transition coordination for same-route-shape special pages.
+  - Router behavior changes globally: unmatched URLs and invalid album URLs should stop redirecting to `/` and render a consistent translated 404 surface instead.
+  - Home-shell behavior changes: locale entry moves behind a lateral drawer, share action leaves the header, and both home + not-found surfaces must coordinate drawer state with the existing `LocaleSwitcher` modal.
+  - Dependency graph changes: Base UI package added, lockfile updated, and new drawer/not-found component files introduced.
+  - Plan file: `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/docs/plan/STR-44-execution-plan.md` (mirror copy also saved to `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/docs/plan/Plan STR-44 EP11: UI Polish & Bug Fixes.md`).
+
+## Chosen Approach
+
+- Proposed solution:
+  - Keep epic execution strictly sequential: STR-45 → STR-46 → STR-47 → STR-48.
+  - Use a minimal-patch strategy per issue: remove the Coca-Cola exception instead of redesigning grid logic; keep the existing `document.startViewTransition` pipeline and fix special-page transitions by forcing a distinct route/viewer snapshot on page changes; add a dedicated not-found component at the router root and route invalid album params into that flow; introduce a controlled Base UI drawer component that reuses the current `LocaleSwitcher` rather than replacing it.
+  - Shape `HomeHeader` only once so STR-47 and STR-48 can both reuse it: make left-action wiring configurable, make the right action optional, and retokenize its CSS to shared header tokens.
+- Justification for simplicity:
+  - Reject a shell-wide navigation refactor in `AppShell`; epic scope is limited to home/not-found surfaces, not the album viewer shell.
+  - Reject a new global store for drawer/locale state; local state in `HomeScreen` and `NotFoundPage` is enough.
+  - Reject query-param or timestamp cache-busting to force transitions; keying the viewer subtree by canonical page and keeping existing router paths is cleaner and history-safe.
+  - Reject replacing the current locale bottom sheet with a second Base UI language picker; `LocaleSwitcher` already exists, already persists locale, and already has tests.
+  - Reject redirect-based invalid-route handling once STR-47 lands; a proper 404 is simpler for users and matches acceptance criteria.
+- Components to be modified/created:
+  - STR-45:
+    - Modify `src/components/album-viewer/StickerGrid.tsx`
+    - Modify `src/components/album-viewer/StickerGrid.module.css`
+    - Modify `test/components/album-viewer/StickerGrid.browser.test.tsx`
+  - STR-46:
+    - Modify `src/components/album-viewer/AlbumRouteScreen.tsx`
+    - Modify `src/components/album-viewer/SwipeNavigator.tsx`
+    - Modify `src/components/album-viewer/QuickNavigationPicker.tsx`
+    - Modify `src/components/album-viewer/viewer-state.ts`
+    - Modify `test/components/album-viewer/SwipeNavigator.browser.test.tsx`
+    - Modify `test/components/album-viewer/QuickNavigationPicker.browser.test.tsx`
+    - Modify `e2e/swipe-navigation.test.ts`
+    - Modify `e2e/quick-navigation-picker.test.ts`
+  - STR-47:
+    - Modify `src/routes/__root.tsx`
+    - Modify `src/routes/album/$pageId.tsx`
+    - Modify `src/routes/album/$group/$pageId.tsx`
+    - Create `src/components/not-found/NotFoundPage.tsx`
+    - Create `src/components/not-found/NotFoundPage.module.css`
+    - Modify `src/components/home/HomeHeader.tsx`
+    - Modify `src/components/home/HomeHeader.module.css`
+    - Modify `src/locales/en/translation.json`
+    - Modify `src/locales/es/translation.json`
+    - Modify `src/locales/pt-BR/translation.json`
+    - Modify `test/components/RootRoute.browser.test.tsx`
+    - Create `test/components/not-found/NotFoundPage.browser.test.tsx`
+    - Modify `test/i18n/translation-resources.test.ts`
+    - Create `e2e/not-found-page.test.ts`
+  - STR-48:
+    - Modify `package.json`
+    - Modify `pnpm-lock.yaml`
+    - Create `src/components/MenuDrawer.tsx`
+    - Create `src/components/MenuDrawer.module.css`
+    - Modify `src/components/home/HomeHeader.tsx`
+    - Modify `src/components/home/HomeHeader.module.css`
+    - Modify `src/components/home/HomeScreen.tsx`
+    - Modify `src/components/not-found/NotFoundPage.tsx`
+    - Modify `src/locales/en/translation.json`
+    - Modify `src/locales/es/translation.json`
+    - Modify `src/locales/pt-BR/translation.json`
+    - Modify `test/components/Home.browser.test.tsx`
+    - Create `test/components/MenuDrawer.browser.test.tsx`
+    - Modify `test/components/not-found/NotFoundPage.browser.test.tsx`
+    - Modify `test/i18n/translation-resources.test.ts`
+    - Modify `e2e/locale-persistence.test.ts`
+    - Create `e2e/home-menu-drawer.test.ts`
+
+## Implementation Steps
+
+1. Execute STR-45 first: remove the Coca-Cola-only 5-column exception and collapse `StickerGrid` onto one 4-column layout path.
+   - Files to change:
+     - `src/components/album-viewer/StickerGrid.tsx`
+     - `src/components/album-viewer/StickerGrid.module.css`
+     - `test/components/album-viewer/StickerGrid.browser.test.tsx`
+   - What to change:
+     - Delete `isCocaColaPage` and always append `styles.gridFour` in `StickerGrid.tsx`.
+     - Delete the `.gridFive` rule from `StickerGrid.module.css`.
+     - Update `StickerGrid.browser.test.tsx` so the Coca-Cola case now asserts the same 4-column class as every other page and explicitly verifies `gridFive` is absent.
+   - Why this order:
+     - Lowest risk. Isolated DOM/CSS cleanup. No router/i18n/package dependency.
+     - Removes a special-case branch before transition testing, so later album-page checks do not carry a known visual mismatch.
+   - Checkpoint:
+     - `test/components/album-viewer/StickerGrid.browser.test.tsx` passes with Coca-Cola, non-Coca-Cola special, and team page cases all green.
+   - Rollback / mitigation:
+     - If an unexpected design mismatch appears, restore only the deleted CSS class temporarily while keeping the test rewritten around the accepted 4-column target; do not add new conditional branching.
+
+2. Execute STR-46 second: fix same-shape special-page transitions without replacing the current animation system.
+   - Files to change:
+     - `src/components/album-viewer/AlbumRouteScreen.tsx`
+     - `src/components/album-viewer/SwipeNavigator.tsx`
+     - `src/components/album-viewer/QuickNavigationPicker.tsx`
+     - `src/components/album-viewer/viewer-state.ts`
+     - `test/components/album-viewer/SwipeNavigator.browser.test.tsx`
+     - `test/components/album-viewer/QuickNavigationPicker.browser.test.tsx`
+     - `e2e/swipe-navigation.test.ts`
+     - `e2e/quick-navigation-picker.test.ts`
+   - What to change:
+     - First reproduce the bug specifically on `/album/fwc-opening` → `/album/coca-cola` and the reverse, so the implementation is anchored to the broken same-route-pattern path instead of generic navigation.
+     - Add a small pure helper in `viewer-state.ts` for page-order lookup/direction (`getPageIndex` or equivalent) so `SwipeNavigator` and `QuickNavigationPicker` stop duplicating `albumPages.findIndex` logic.
+     - In `AlbumRouteScreen.tsx`, key the `SwipeNavigator`/viewer subtree by `activePage.pageId` or canonical `getAlbumPath(activePage)` so special-to-special navigation produces a fresh React subtree even when TanStack Router keeps the same route pattern mounted.
+     - Keep `document.startViewTransition`, `flushSync`, and the existing `nav-forward` / `nav-back` CSS contract in both `SwipeNavigator.tsx` and `QuickNavigationPicker.tsx`; only swap in the shared direction helper and the keyed subtree fix.
+     - Preserve current reduced-motion behavior in `src/styles.css`; this step should not rework CSS animation rules unless reproduction proves the bug is in CSS instead of route reuse.
+   - How to verify during implementation:
+     - In browser tests, stub `document.startViewTransition`, navigate special → special, and assert both the transition callback executes and router pathname changes to the expected special-page URL.
+     - In E2E, extend existing swipe/quick-navigation coverage to assert URL updates for `/album/coca-cola` and `/album/M/mex` style targets, not only sticker counts.
+     - Add one reduced-motion smoke check in Playwright or browser-level media emulation to confirm navigation still works cleanly when transitions are effectively disabled.
+   - Elevated risk and mitigation:
+     - Risk: keyed subtree alone may not be enough if the router update still commits asynchronously.
+     - Mitigation: fallback to lifting the key into `src/routes/album/$pageId.tsx` and `src/routes/album/$group/$pageId.tsx` while keeping URLs clean; do not introduce dummy search params or replace navigation history entries unless reproduction proves it is necessary.
+
+3. Execute STR-47 third: add a real translated not-found surface and route invalid album params into it.
+   - Files to change:
+     - `src/routes/__root.tsx`
+     - `src/routes/album/$pageId.tsx`
+     - `src/routes/album/$group/$pageId.tsx`
+     - `src/components/not-found/NotFoundPage.tsx`
+     - `src/components/not-found/NotFoundPage.module.css`
+     - `src/components/home/HomeHeader.tsx`
+     - `src/components/home/HomeHeader.module.css`
+     - `src/locales/en/translation.json`
+     - `src/locales/es/translation.json`
+     - `src/locales/pt-BR/translation.json`
+     - `test/components/RootRoute.browser.test.tsx`
+     - `test/components/not-found/NotFoundPage.browser.test.tsx`
+     - `test/i18n/translation-resources.test.ts`
+     - `e2e/not-found-page.test.ts`
+   - What to change:
+     - Create `NotFoundPage` as a focused surface under `src/components/not-found/` with `SearchX` icon, translated heading/description/CTA, and a CTA button that navigates to `/`.
+     - Expand `HomeHeader` just enough to support reuse on 404: configurable left action, optional right action visibility, and no hard dependency on the home-only share button.
+     - Retokenize `HomeHeader.module.css` to generated header tokens (`--component-header-bg`, `--component-header-height`, `--component-header-border-color`, `--component-header-padding-inline`) so home + not-found stay aligned with Pencil and later drawer work.
+     - Add `notFound.heading`, `notFound.description`, `notFound.ctaLabel`, plus any header aria/close labels needed, to all 3 locale JSON files.
+     - Wire `notFoundComponent` in `src/routes/__root.tsx`.
+     - Replace redirect-based invalid album guards in `src/routes/album/$pageId.tsx` and `src/routes/album/$group/$pageId.tsx` with TanStack Router’s not-found flow so `/album/unknown` and `/album/x/unknown` render the same 404 instead of redirecting home.
+   - How to verify during implementation:
+     - Browser tests should assert `Route.options.notFoundComponent` exists and `NotFoundPage` renders translated copy + CTA.
+     - Translation resource test must continue enforcing identical key trees across `en`, `es`, and `pt-BR`.
+     - E2E should cover both a truly unknown route (`/does-not-exist`) and an invalid matched album route (`/album/not-a-page`).
+   - Elevated risk and mitigation:
+     - Risk: TanStack Router not-found API name/signature can differ by version.
+     - Mitigation: confirm the exact API exported by the installed router version before editing route guards; keep the route-file validation logic intact and only swap the error path from redirect to not-found.
+
+4. Execute STR-48 last: replace the home header locale trigger with a controlled Base UI left drawer that reuses `LocaleSwitcher`.
+   - Files to change:
+     - `package.json`
+     - `pnpm-lock.yaml`
+     - `src/components/MenuDrawer.tsx`
+     - `src/components/MenuDrawer.module.css`
+     - `src/components/home/HomeHeader.tsx`
+     - `src/components/home/HomeHeader.module.css`
+     - `src/components/home/HomeScreen.tsx`
+     - `src/components/not-found/NotFoundPage.tsx`
+     - `src/locales/en/translation.json`
+     - `src/locales/es/translation.json`
+     - `src/locales/pt-BR/translation.json`
+     - `test/components/Home.browser.test.tsx`
+     - `test/components/MenuDrawer.browser.test.tsx`
+     - `test/components/not-found/NotFoundPage.browser.test.tsx`
+     - `test/i18n/translation-resources.test.ts`
+     - `e2e/locale-persistence.test.ts`
+     - `e2e/home-menu-drawer.test.ts`
+   - What to change:
+     - Add `@base-ui-components/react` to `package.json` and commit the resulting `pnpm-lock.yaml` update. If the Linear issue explicitly expects the beta package, pin the repo-approved beta version and verify the import path used in code matches that package.
+     - Create a controlled `MenuDrawer` component using Base UI drawer primitives (`Drawer.Root`, `Drawer.Portal`, `Drawer.Backdrop`, `Drawer.Viewport`, `Drawer.Popup`, `Drawer.Content`, `Drawer.Title`, `Drawer.Close`) with a 280px left-aligned full-height panel, token-backed surfaces, and CSS-module transitions.
+     - Use `swipeDirection="left"` so the drawer dismisses toward the left edge, matching a left-side panel.
+     - Keep `HomeHeader` dumb: it should only render the menu trigger button and title; `HomeScreen` and `NotFoundPage` should own `isMenuDrawerOpen` and `isLocaleSwitcherOpen` state.
+     - Replace the current direct menu → `LocaleSwitcher` wiring in `HomeScreen.tsx` with menu → `MenuDrawer`. The drawer language row should close the drawer first, then open `LocaleSwitcher` in the parent so Base UI focus-lock and the custom bottom-sheet portal do not overlap.
+     - Remove the share icon button from `HomeHeader`; adjust title centering/max-width for a 2-control header instead of 3-control header.
+     - Keep the share row inside the drawer enabled but no-op for now, with translated label text only.
+     - Show the current locale name through `t(`locale.${locale}`)` and a tiny local flag-code map inside `MenuDrawer.tsx` unless a second consumer appears and justifies extracting shared locale presentation data.
+     - Reuse the same drawer wiring in `NotFoundPage.tsx` so home and 404 stay behaviorally consistent.
+   - How to verify during implementation:
+     - Browser tests should cover drawer open/close, drawer close via backdrop/Escape, visible share row, and the language row opening `LocaleSwitcher`.
+     - Update locale persistence E2E so it goes through the new drawer path before switching to Spanish, then reloads and confirms `html[lang="es"]` still persists.
+     - Add a drawer smoke E2E to verify the left panel appears, the panel width/close affordance exist, and the drawer also works from the 404 surface if wired there.
+   - Elevated risk and mitigation:
+     - Risk: Base UI version/package naming drift and modal stacking with the existing portal-based `LocaleSwitcher`.
+     - Mitigation: validate package import API before coding; sequence locale-sheet opening from parent state after drawer close; avoid moving `LocaleSwitcher` to Base UI in this epic.
+
+## Validation
+
+- Success criteria:
+  - STR-45: Coca-Cola page renders with the same 4-column layout class as all other pages, and `.gridFive` no longer exists in source or tests.
+  - STR-46: Swiping and quick-picker navigation between special pages visibly follows the existing slide-direction contract, router URLs update correctly, team-page navigation remains intact, and reduced-motion users still navigate without animation regressions.
+  - STR-47: Unknown URLs and invalid album URLs render a translated 404 page with `HomeHeader`, body copy, and a working “go home” CTA instead of redirecting silently to `/`.
+  - STR-48: Home header menu opens a left drawer, header share button is removed, share + language rows render with Pencil-aligned styling, language row opens the existing locale sheet, and locale persistence still works after reload.
+  - Cross-epic: locale key trees remain aligned across all 3 locales, light/dark token usage stays CSS-variable-based, and final QA passes through `pnpm complete-check`.
+- Checkpoints:
+  - Pre-implementation assumptions check:
+    - Confirm Base UI package name/version expected by STR-48 before installation.
+    - Confirm TanStack Router not-found API for the installed version before replacing redirects.
+    - Confirm generated token coverage for drawer/header surfaces; if missing, update token-source JSON and rerun `pnpm tokens:build` before component styling.
+  - During-implementation correctness checks:
+    - After STR-45, run the `StickerGrid` browser suite before touching transition logic.
+    - Before changing STR-46 code, reproduce the special→special transition failure manually or in a focused browser test, then keep that case as the guardrail until the fix is green.
+    - After STR-47, manually hit `/does-not-exist` and `/album/not-a-page` to confirm 404 rendering before starting drawer work.
+    - During STR-48, verify drawer keyboard/backdrop dismissal and `MenuDrawer` → `LocaleSwitcher` sequencing in both light and dark themes.
+  - Post-implementation verification and regression checks:
+    - Run targeted Vitest files touched in each step.
+    - Run Playwright coverage for swipe navigation, quick navigation, locale persistence, and the new not-found/drawer scenarios.
+    - Run `pnpm complete-check` as final regression gate.
+    - If any high-risk step fails late, keep already-completed earlier tasks merged cleanly and revert only the current task’s surface-level files rather than undoing the whole epic.

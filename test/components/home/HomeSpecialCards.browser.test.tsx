@@ -229,7 +229,7 @@ describe('HomeSpecialCards', () => {
       const articles = mounted.container.querySelectorAll('article');
       const openingArticle = Array.from(articles).find((article) => {
         const text = article.textContent;
-        return text?.includes('Opening') || text?.includes('opening');
+        return text?.includes('FIFA World Cup');
       });
       expect(openingArticle?.className).toContain('cardComplete');
     } finally {

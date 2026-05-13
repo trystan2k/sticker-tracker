@@ -11,7 +11,7 @@ test('should render home screen content', async ({ page }) => {
   await expect(progressSection).toBeVisible();
 
   // Language control is in the home header
-  await expect(page.getByLabel('Open language menu')).toBeVisible();
+  await expect(page.getByLabel('Open menu')).toBeVisible();
 
   // Group cards section is present
   await expect(page.getByRole('heading', { name: 'Groups' })).toBeVisible();
@@ -26,11 +26,12 @@ test('should switch locale from home screen', async ({ page }) => {
   // Home header title button is visible
   await expect(page.getByRole('button', { name: 'FIFA World Cup 2026' })).toBeVisible();
 
-  // Open locale modal and switch to Portuguese
-  await page.getByLabel('Open language menu').click();
+  // Open menu drawer, then language row, then switch to Portuguese
+  await page.getByLabel('Open menu').click();
+  await page.getByLabel('Language').click();
   await page.getByRole('button', { name: 'Portuguese (Brazil)' }).click();
   await expect(page.getByRole('dialog')).not.toBeVisible();
 
-  // Home header title should still be visible (translated or not)
-  await expect(page.getByLabel('Abrir menu de idioma')).toBeVisible();
+  // Menu button should now show Portuguese label
+  await expect(page.getByLabel('Abrir menu')).toBeVisible();
 });

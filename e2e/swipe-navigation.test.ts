@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 
 test('swipe navigation follows album order with wraparound', async ({ page }) => {
   await page.goto('/album/fwc-opening');
+  await expect(page).toHaveURL(/\/album\/fwc-opening$/);
 
   await page.waitForSelector('[data-testid="swipe-surface"]', { timeout: 10000 });
   await page.waitForSelector('div[class*="grid"] button[aria-pressed]', { timeout: 10000 });
@@ -44,6 +45,7 @@ test('swipe navigation follows album order with wraparound', async ({ page }) =>
   }, threshold);
 
   await expect(stickerCells).toHaveCount(20);
+  await expect(page).toHaveURL(/\/album\/(?:[A-Z]\/)?mex$/);
 
   await page.evaluate((swipeThresholdValue) => {
     const target = document.querySelector('[data-testid="swipe-surface"]');
@@ -74,6 +76,7 @@ test('swipe navigation follows album order with wraparound', async ({ page }) =>
   }, threshold);
 
   await expect(stickerCells).toHaveCount(9);
+  await expect(page).toHaveURL(/\/album\/fwc-opening$/);
 
   await page.evaluate((swipeThresholdValue) => {
     const target = document.querySelector('[data-testid="swipe-surface"]');
@@ -104,4 +107,5 @@ test('swipe navigation follows album order with wraparound', async ({ page }) =>
   }, threshold);
 
   await expect(stickerCells).toHaveCount(14);
+  await expect(page).toHaveURL(/\/album\/coca-cola$/);
 });

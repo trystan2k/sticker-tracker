@@ -30,7 +30,7 @@ export function AlbumRouteScreen({
   }
 
   return (
-    <SwipeNavigator activePageId={activePage.pageId}>
+    <SwipeNavigator key={activePage.pageId} activePageId={activePage.pageId}>
       {({ activePage: visiblePage, openQuickNavigation }) => (
         <AlbumViewerContent
           activePage={visiblePage}

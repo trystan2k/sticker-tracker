@@ -24,12 +24,25 @@
   outline-offset: 2px;
 }
 
+.menuButton {
+  height: 24px;
+  border: none;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.menuButton:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
+}
+
 .center {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   flex: 1;
-  justify-content: center;
+  justify-content: flex-end;
   min-width: 0;
 }
 
@@ -80,21 +93,4 @@
 
 .dot {
   color: var(--color-text-secondary);
-}
-
-.actions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  color: var(--color-text-primary);
-}
-
-.actionBtn {
-  background: none;
-  border: none;
-  color: inherit;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  padding: 0;
 }

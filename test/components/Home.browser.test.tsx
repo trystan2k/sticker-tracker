@@ -92,7 +92,7 @@ describe('Home page (index route)', () => {
       const title = mounted.container.querySelector('[class*="title"]');
       expect(title).not.toBeNull();
 
-      // Action buttons in header (menu + share)
+      // Action buttons in header (menu + title)
       const headerButtons = mounted.container.querySelectorAll('header button');
       expect(headerButtons.length).toBeGreaterThanOrEqual(2);
     } finally {
@@ -167,7 +167,7 @@ describe('Home page (index route)', () => {
     }
   });
 
-  it('opens locale switcher from header menu trigger', async () => {
+  it('opens drawer from header menu trigger', async () => {
     await resetStorage();
 
     const mounted = mount(React.createElement(AppStateProvider, null, React.createElement(Home)));
@@ -178,21 +178,21 @@ describe('Home page (index route)', () => {
         return headerButtons.length >= 2;
       });
 
-      // First header button is the menu button (opens locale switcher)
+      // First header button is menu button (opens drawer)
       const menuButton = mounted.container.querySelectorAll(
         'header button'
       )[0] as HTMLButtonElement;
 
       menuButton.click();
 
-      await waitFor(() => document.body.querySelector('[role="dialog"]') !== null);
-      expect(document.body.querySelector('[role="dialog"]')).not.toBeNull();
+      await waitFor(() => document.body.textContent?.includes('Share') ?? false);
+      expect(document.body.textContent).toContain('Share');
     } finally {
       cleanup(mounted);
     }
   });
 
-  it('closes locale switcher when backdrop or close is triggered', async () => {
+  it('opens locale switcher from drawer language row', async () => {
     await resetStorage();
 
     const mounted = mount(React.createElement(AppStateProvider, null, React.createElement(Home)));
@@ -203,20 +203,49 @@ describe('Home page (index route)', () => {
         return headerButtons.length >= 2;
       });
 
-      // Open locale switcher
+      // Open drawer
       const menuButton = mounted.container.querySelectorAll(
         'header button'
       )[0] as HTMLButtonElement;
       menuButton.click();
 
-      await waitFor(() => document.body.querySelector('[role="dialog"]') !== null);
-      expect(document.body.querySelector('[role="dialog"]')).not.toBeNull();
+      await waitFor(() => document.body.textContent?.includes('Language') ?? false);
 
-      // Close by pressing Escape
+      const languageButton = Array.from(document.body.querySelectorAll('button')).find((button) =>
+        button.textContent?.includes('Language')
+      );
+
+      languageButton?.click();
+
+      await waitFor(() => document.body.textContent?.includes('Language / Idioma') ?? false);
+      expect(document.body.textContent).toContain('Language / Idioma');
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('closes drawer when escape is pressed', async () => {
+    await resetStorage();
+
+    const mounted = mount(React.createElement(AppStateProvider, null, React.createElement(Home)));
+
+    try {
+      await waitFor(() => {
+        const headerButtons = mounted.container.querySelectorAll('header button');
+        return headerButtons.length >= 2;
+      });
+
+      const menuButton = mounted.container.querySelectorAll(
+        'header button'
+      )[0] as HTMLButtonElement;
+      menuButton.click();
+
+      await waitFor(() => document.body.textContent?.includes('Share') ?? false);
+
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
 
-      await waitFor(() => document.body.querySelector('[role="dialog"]') === null);
-      expect(document.body.querySelector('[role="dialog"]')).toBeNull();
+      await waitFor(() => !(document.body.textContent?.includes('Share') ?? false));
+      expect(document.body.textContent).not.toContain('Share');
     } finally {
       cleanup(mounted);
     }

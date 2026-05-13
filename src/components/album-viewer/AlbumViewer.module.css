@@ -1,10 +1,26 @@
 .viewer {
-  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
   background-color: var(--surface-album-primary);
 }
 
 .headerSection {
   view-transition-name: vt-header;
+}
+
+.stickyTop {
+  flex-shrink: 0;
+}
+
+.scrollArea {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.stickyBottom {
+  flex-shrink: 0;
 }
 
 .filterRow {

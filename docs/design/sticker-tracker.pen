@@ -8351,15 +8351,15 @@
                   "type": "frame",
                   "id": "UbvQl",
                   "name": "ringWrap",
-                  "width": 200,
-                  "height": 200,
+                  "width": 160,
+                  "height": 160,
                   "layout": "none",
                   "children": [
                     {
                       "type": "ellipse",
                       "id": "Zmj8k",
-                      "x": 20,
-                      "y": 20,
+                      "x": -1,
+                      "y": 1,
                       "name": "progressRing",
                       "fill": "#00000000",
                       "width": 160,
@@ -8373,8 +8373,8 @@
                     {
                       "type": "ellipse",
                       "id": "PoSsP",
-                      "x": 20,
-                      "y": 20,
+                      "x": -2,
+                      "y": 1,
                       "name": "progressRingFill",
                       "startAngle": 90,
                       "sweepAngle": -182.5,
@@ -8390,8 +8390,8 @@
                     {
                       "type": "ellipse",
                       "id": "EXbnF",
-                      "x": 30,
-                      "y": 30,
+                      "x": 12,
+                      "y": 11,
                       "name": "ringHole",
                       "fill": "$surface-secondary",
                       "width": 140,
@@ -8403,8 +8403,8 @@
                       "x": 0,
                       "y": 0,
                       "name": "heroStats",
-                      "width": 200,
-                      "height": 200,
+                      "width": 160,
+                      "height": 160,
                       "layout": "vertical",
                       "gap": 4,
                       "justifyContent": "center",
@@ -11493,13 +11493,16 @@
                   "width": "fill_container",
                   "height": 56,
                   "fill": "#00000000",
-                  "layout": "none",
+                  "gap": 16,
+                  "padding": [
+                    0,
+                    16
+                  ],
+                  "alignItems": "center",
                   "children": [
                     {
                       "type": "icon_font",
                       "id": "KrXcC",
-                      "x": 16,
-                      "y": 17,
                       "name": "share-icon",
                       "width": 22,
                       "height": 22,
@@ -11510,8 +11513,6 @@
                     {
                       "type": "text",
                       "id": "gSfbJ",
-                      "x": 54,
-                      "y": 17,
                       "name": "label",
                       "fill": "$text-primary",
                       "textGrowth": "fixed-width",
@@ -11538,13 +11539,16 @@
                   "width": "fill_container",
                   "height": 56,
                   "fill": "#00000000",
-                  "layout": "none",
+                  "gap": 16,
+                  "padding": [
+                    0,
+                    16
+                  ],
+                  "alignItems": "center",
                   "children": [
                     {
                       "type": "frame",
                       "id": "qF88h",
-                      "x": 16,
-                      "y": 20,
                       "name": "flag",
                       "width": 24,
                       "height": 16,
@@ -11554,8 +11558,6 @@
                     {
                       "type": "text",
                       "id": "pIhEK",
-                      "x": 54,
-                      "y": 17,
                       "name": "label",
                       "fill": "$text-primary",
                       "textGrowth": "fixed-width",
@@ -11564,20 +11566,16 @@
                       "fontFamily": "Barlow",
                       "fontSize": 16,
                       "fontWeight": "600"
-                    },
-                    {
-                      "type": "icon_font",
-                      "id": "H1DIw",
-                      "x": 246,
-                      "y": 19,
-                      "name": "chevron",
-                      "width": 18,
-                      "height": 18,
-                      "iconFontName": "chevron-right",
-                      "iconFontFamily": "lucide",
-                      "fill": "$text-secondary"
                     }
                   ]
+                },
+                {
+                  "type": "rectangle",
+                  "id": "RWeVJ",
+                  "name": "divider",
+                  "fill": "$border",
+                  "width": "fill_container",
+                  "height": 1
                 }
               ]
             }

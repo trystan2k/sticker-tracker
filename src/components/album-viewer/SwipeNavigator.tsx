@@ -10,12 +10,13 @@ import {
 import { useNavigate } from '@tanstack/react-router';
 import { flushSync } from 'react-dom';
 
-import { albumPages, type AlbumPage, type PageId } from '@/data/album';
+import { type AlbumPage, type PageId } from '@/data/album';
 
 import {
   SWIPE_THRESHOLD_PX,
   getActivePage,
   getAlbumPath,
+  getNavigationDirection,
   getNextPage,
   getPrevPage
 } from './viewer-state';
@@ -77,9 +78,7 @@ export function SwipeNavigator({ activePageId, children }: SwipeNavigatorProps) 
       if (pageId === activePageId) return;
 
       const targetPage = getActivePage(pageId);
-      const currentIndex = albumPages.findIndex((p) => p.pageId === activePageId);
-      const targetIndex = albumPages.findIndex((p) => p.pageId === targetPage.pageId);
-      const direction: 'forward' | 'back' = targetIndex > currentIndex ? 'forward' : 'back';
+      const direction = getNavigationDirection(activePageId, targetPage.pageId);
       navigateTo(targetPage, direction);
     },
     [activePageId, navigateTo]

@@ -75,8 +75,8 @@
   "special": {
     "legends": "Lendas",
     "stadiums": "Estádios",
-    "fwc-opening": "Abertura Copa do Mundo FIFA",
-    "fwc-closing": "Encerramento Copa do Mundo FIFA",
+    "fwc-opening": "Copa do Mundo FIFA",
+    "fwc-closing": "Copa do Mundo FIFA",
     "coca-cola": "Coca-Cola"
   },
   "group": {
@@ -105,9 +105,9 @@
       "emptyState": "Nenhuma figurinha corresponde a este filtro nesta página."
     },
     "specialSection": {
-      "fwc-opening": "Seção de abertura",
-      "fwc-closing": "Seção de encerramento",
-      "coca-cola": "Seção de patrocinador"
+      "fwc-opening": "Abertura",
+      "fwc-closing": "Encerramento",
+      "coca-cola": "Patrocinador"
     },
     "quickNavigation": {
       "open": "Abrir seletor de navegação rápida",
@@ -155,8 +155,7 @@
     "header": {
       "ariaLabel": "Cabeçalho da tela inicial",
       "title": "Copa do Mundo FIFA 2026",
-      "openLocaleMenu": "Abrir menu de idioma",
-      "shareAlbum": "Compartilhar álbum (em breve)"
+      "openMenu": "Abrir menu"
     },
     "hero": {
       "ariaLabel": "Progresso do álbum",
@@ -174,5 +173,15 @@
   "scanner": {
     "title": "Scanner",
     "empty": "Tela do scanner em breve."
+  },
+  "notFound": {
+    "heading": "Página não encontrada",
+    "description": "A página que você está procurando não existe ou foi movida.",
+    "ctaLabel": "Voltar para o início"
+  },
+  "drawer": {
+    "share": "Compartilhar",
+    "language": "Idioma",
+    "close": "Fechar painel"
   }
 }

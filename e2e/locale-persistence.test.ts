@@ -10,8 +10,10 @@ test('persists locale after reload', async ({ page }) => {
     timeout: 10000
   });
 
-  const localeMenuTrigger = page.getByLabel('Open language menu');
-  await localeMenuTrigger.click();
+  const menuTrigger = page.getByRole('button', { name: /Open menu|Abrir menú|Abrir menu/ });
+  await menuTrigger.click();
+
+  await page.getByRole('button', { name: /Language|Idioma/ }).click();
 
   const spanishRow = page.getByRole('button', { name: 'Spanish' });
   await spanishRow.click();
