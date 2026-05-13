@@ -1,0 +1,41 @@
+.screen {
+  min-height: 100dvh;
+  background-color: var(--surface-album-primary);
+}
+
+.scrollArea {
+  min-height: calc(
+    100dvh - 56px
+  ); /* 56px = header height; use --layout-header-height when available */
+
+  max-height: calc(
+    100dvh - 56px
+  ); /* 56px = header height; use --layout-header-height when available */
+
+  overflow-y: auto;
+}
+
+.safeArea {
+  height: var(--layout-safe-area-bottom);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--surface-album-secondary);
+}
+
+.homeIndicator {
+  width: 134px;
+  height: 5px;
+  border-radius: 3px;
+  background-color: var(--color-text-secondary);
+  opacity: 0.3;
+}
+
+.loading {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  color: var(--color-text-secondary);
+}

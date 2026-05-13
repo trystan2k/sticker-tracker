@@ -4,7 +4,7 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  background-color: color-mix(in srgb, var(--color-black) 40%, transparent);
+  background-color: var(--color-overlay-backdrop);
   z-index: var(--z-index-modal);
 }
 

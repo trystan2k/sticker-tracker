@@ -1,4 +1,5 @@
 import { useCallback, useContext, useEffect, type MouseEvent } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 
 import { AppStateContext } from '@/providers/AppStateProvider';
@@ -65,7 +66,7 @@ export function LocaleSwitcher({ isOpen, onClose }: LocaleSwitcherProps) {
     return null;
   }
 
-  return (
+  return createPortal(
     <div className={styles.overlay} role="dialog" aria-modal="true" aria-label={t('locale.label')}>
       <button
         type="button"
@@ -116,6 +117,7 @@ export function LocaleSwitcher({ isOpen, onClose }: LocaleSwitcherProps) {
           })}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

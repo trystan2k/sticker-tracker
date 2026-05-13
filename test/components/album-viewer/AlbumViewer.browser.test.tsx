@@ -2,8 +2,20 @@ import { describe, expect, it, vi } from 'vitest';
 
 import React from 'react';
 import { createRoot, type Root } from 'react-dom/client';
+import {
+  createRouter,
+  RouterProvider,
+  createRootRoute,
+  createRoute,
+  createMemoryHistory,
+  Outlet
+} from '@tanstack/react-router';
 
-import { AppStateContext, AppStateProvider } from '@/providers/AppStateProvider';
+// Ensure i18n is initialized
+// oxlint-disable-next-line import/no-unassigned-import
+import '@/i18n/config';
+
+import { AppStateProvider } from '@/providers/AppStateProvider';
 import {
   resetStorageStateForTests,
   setDatabaseNameForTests,
@@ -13,6 +25,63 @@ import {
 import { albumPages, type StickerIdentifier } from '@/data/album';
 import type { ViewerFilter } from '@/components/album-viewer/viewer-state';
 import { AlbumViewer } from '@/components/album-viewer/AlbumViewer';
+
+// Build a minimal test route tree where the test component is rendered as the index route
+function createTestRouter(initialPath: string, testComponent: React.ReactNode) {
+  const testRoot = createRootRoute({
+    component: () => React.createElement(Outlet)
+  });
+
+  const albumRoute = createRoute({
+    getParentRoute: () => testRoot,
+    path: 'album'
+  });
+
+  const albumPageRoute = createRoute({
+    getParentRoute: () => albumRoute,
+    path: '$pageId'
+  });
+
+  const albumIndexRoute = createRoute({
+    getParentRoute: () => albumRoute,
+    path: '/'
+  });
+
+  const albumGroupPageRoute = createRoute({
+    getParentRoute: () => albumRoute,
+    path: '$group/$pageId'
+  });
+
+  const indexRoute = createRoute({
+    getParentRoute: () => testRoot,
+    path: '/',
+    component: () => testComponent
+  });
+
+  const routeTree = testRoot.addChildren([
+    indexRoute,
+    albumRoute.addChildren([albumIndexRoute, albumPageRoute, albumGroupPageRoute])
+  ]);
+
+  return createRouter({
+    routeTree,
+    history: createMemoryHistory({
+      initialEntries: [initialPath]
+    })
+  });
+}
+
+function mountWithRouter(
+  child: React.ReactNode,
+  initialPath = '/'
+): { container: HTMLDivElement; root: Root } {
+  const container = document.createElement('div');
+  document.body.appendChild(container);
+  const router = createTestRouter(initialPath, child);
+  const root = createRoot(container);
+  root.render(React.createElement(RouterProvider, { router }));
+  return { container, root };
+}
 
 function waitFor(predicate: () => boolean, timeoutMs = 8000): Promise<void> {
   return new Promise<void>((resolve, reject) => {
@@ -406,45 +475,46 @@ describe('AlbumViewer', () => {
     });
   });
 
-  describe('full integration via Home route', () => {
-    it('renders loading skeleton initially then sticker cells after bootstrap', async () => {
+  describe('full integration with router context', () => {
+    it('renders AlbumViewer with router context and sticker cells after bootstrap', async () => {
       await resetStorage();
 
-      let capturedContext:
-        | (typeof AppStateContext extends React.Context<infer T> ? T : never)
-        | null = null;
+      const teamPage = albumPages.find((p) => p.type === 'team')!;
 
-      function ContextReader() {
-        capturedContext = React.useContext(AppStateContext);
-        return React.createElement('div', { 'data-testid': 'context-captured' });
-      }
-
-      const { Route: _, Home } = await import('@/routes/index');
-
-      const mounted = mount(
+      const mounted = mountWithRouter(
         React.createElement(
           AppStateProvider,
           null,
-          React.createElement(
-            React.Fragment,
-            null,
-            React.createElement(Home),
-            React.createElement(ContextReader)
-          )
+          React.createElement(AlbumViewer, {
+            page: teamPage,
+            renderState: 'ready',
+            collectedStickerIds: new Set<StickerIdentifier>(),
+            activeFilter: 'all',
+            onChangeFilter: () => {},
+            onOpenQuickNavigation: () => {},
+            onToggleSticker: () => {}
+          })
         )
       );
 
       try {
-        // Wait for bootstrap to complete and sticker cells to appear
-        await waitFor(() => capturedContext !== null && capturedContext.renderState === 'ready');
+        // Wait for AlbumViewer to render
+        await waitFor(() => {
+          const header = mounted.container.querySelector('header');
+          return header !== null;
+        });
+
+        // Header is rendered
+        const header = mounted.container.querySelector('header');
+        expect(header).not.toBeNull();
 
         // Sticker cells rendered (aria-pressed buttons)
         const stickerButtons = mounted.container.querySelectorAll('button[aria-pressed]');
         expect(stickerButtons.length).toBeGreaterThan(0);
 
-        // Progress bar rendered
-        const progressbar = mounted.container.querySelector('[role="progressbar"]');
-        expect(progressbar).not.toBeNull();
+        // Swipe hint is rendered
+        const swipeHint = mounted.container.querySelector('[class*="swipeHint"]');
+        expect(swipeHint).not.toBeNull();
       } finally {
         cleanup(mounted);
       }

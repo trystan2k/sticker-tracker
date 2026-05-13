@@ -1,16 +1,16 @@
+import { useNavigate } from '@tanstack/react-router';
 import { Search, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { AlbumPage, PageId } from '@/data/album';
 
-import { isValidPageId, PAGE_SECTION_RUNS } from './viewer-state';
+import { getAlbumPath, isValidPageId, PAGE_SECTION_RUNS } from './viewer-state';
 import styles from './QuickNavigationPicker.module.css';
 
 type QuickNavigationPickerProps = Readonly<{
   isOpen: boolean;
   activePageId: PageId;
-  onSelectPage: (pageId: PageId) => void;
   onClose: () => void;
 }>;
 
@@ -24,9 +24,9 @@ type PickerEntry = Readonly<{
 export function QuickNavigationPicker({
   isOpen,
   activePageId,
-  onSelectPage,
   onClose
 }: QuickNavigationPickerProps) {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const sheetRef = useRef<HTMLDivElement>(null);
@@ -103,10 +103,17 @@ export function QuickNavigationPicker({
         return;
       }
 
-      onSelectPage(rawId);
+      const page = PAGE_SECTION_RUNS.flatMap((run) => run.pages).find(
+        (entry) => entry.pageId === rawId
+      );
+      if (!page) {
+        return;
+      }
+
+      void navigate({ to: getAlbumPath(page) });
       onClose();
     },
-    [onClose, onSelectPage]
+    [navigate, onClose]
   );
 
   useEffect(() => {

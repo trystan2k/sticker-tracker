@@ -80,6 +80,7 @@
     "coca-cola": "Coca-Cola"
   },
   "group": {
+    "label": "Group {{group}}",
     "a": "Group A",
     "b": "Group B",
     "c": "Group C",
@@ -148,6 +149,24 @@
     "actions": {
       "camera": "Camera (coming soon)",
       "share": "Share (coming soon)"
+    }
+  },
+  "home": {
+    "header": {
+      "ariaLabel": "Home header",
+      "title": "FIFA World Cup 2026",
+      "openLocaleMenu": "Open language menu",
+      "shareAlbum": "Share album (coming soon)"
+    },
+    "hero": {
+      "complete": "complete",
+      "collected": "collected"
+    },
+    "groups": {
+      "title": "Groups"
+    },
+    "specials": {
+      "title": "Special Pages"
     }
   },
   "scanner": {
