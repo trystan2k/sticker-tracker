@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/trystan2k/sticker-tracker/compare/v1.5.0...v1.6.0) (2026-05-13)
+
+
+### Features
+
+* implement home screen + routing (STR-37) ([#14](https://github.com/trystan2k/sticker-tracker/issues/14)) ([3d30fb9](https://github.com/trystan2k/sticker-tracker/commit/3d30fb9a951ef727b8b5b16461291c27372d4dab))
+
 ## [1.5.0](https://github.com/trystan2k/sticker-tracker/compare/v1.4.0...v1.5.0) (2026-05-12)
 
 
