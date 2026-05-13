@@ -7,6 +7,12 @@ import { SUPPORTED_LOCALES, type SupportedLocale } from '@/services/locale-servi
 
 import styles from './LocaleSwitcher.module.css';
 
+const LOCALE_FLAGS: Record<string, string> = {
+  en: 'us',
+  es: 'es',
+  'pt-BR': 'br'
+};
+
 interface LocaleSwitcherProps {
   isOpen: boolean;
   onClose: () => void;
@@ -110,9 +116,10 @@ export function LocaleSwitcher({ isOpen, onClose }: LocaleSwitcherProps) {
                 aria-label={t(`locale.${locale}`)}
                 data-locale={locale}
               >
-                <span className={styles.globeIcon} aria-hidden="true">
-                  🌐
-                </span>
+                <span
+                  className={`fi fi-${LOCALE_FLAGS[locale] ?? 'us'} ${styles.flagIcon}`}
+                  aria-hidden="true"
+                />
                 <span className={styles.localeName}>{t(`locale.${locale}`)}</span>
                 <span className={styles.checkIcon} aria-hidden="true">
                   {isSelected ? '✓' : ''}

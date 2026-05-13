@@ -78,6 +78,24 @@ export function getPrevPage(currentPageId: PageId): AlbumPage {
   return albumPages[prevIndex]!;
 }
 
+function getPageIndex(pageId: PageId): number {
+  return albumPages.findIndex((page) => page.pageId === pageId);
+}
+
+export function getNavigationDirection(
+  currentPageId: PageId,
+  targetPageId: PageId
+): 'forward' | 'back' {
+  const currentIndex = getPageIndex(currentPageId);
+  const targetIndex = getPageIndex(targetPageId);
+
+  if (currentIndex === -1 || targetIndex === -1) {
+    return 'forward';
+  }
+
+  return targetIndex > currentIndex ? 'forward' : 'back';
+}
+
 export function derivePageSectionRuns(): readonly ViewerPageSectionRun[] {
   assertAlbumHasPages();
 

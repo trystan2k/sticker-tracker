@@ -2,6 +2,7 @@ import { useCallback, useContext, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { LocaleSwitcher } from '@/components/LocaleSwitcher';
+import { MenuDrawer } from '@/components/MenuDrawer';
 import { AppStateContext } from '@/providers/AppStateProvider';
 
 import type { CollectionState } from '@/services/collection-service';
@@ -18,6 +19,7 @@ const EMPTY_COLLECTION: CollectionState = {};
 export function HomeScreen() {
   const appState = useContext(AppStateContext);
   const { t, i18n } = useTranslation();
+  const [isMenuDrawerOpen, setIsMenuDrawerOpen] = useState(false);
   const [isLocaleSwitcherOpen, setIsLocaleSwitcherOpen] = useState(false);
 
   const collection = appState?.collection ?? EMPTY_COLLECTION;
@@ -52,6 +54,14 @@ export function HomeScreen() {
   );
   const openingSpecialCards = useMemo(() => (openingCard ? [openingCard] : []), [openingCard]);
 
+  const handleOpenMenuDrawer = useCallback(() => {
+    setIsMenuDrawerOpen(true);
+  }, []);
+
+  const handleCloseMenuDrawer = useCallback(() => {
+    setIsMenuDrawerOpen(false);
+  }, []);
+
   const handleOpenLocaleSwitcher = useCallback(() => {
     setIsLocaleSwitcherOpen(true);
   }, []);
@@ -70,7 +80,7 @@ export function HomeScreen() {
 
   return (
     <main className={styles.screen}>
-      <HomeHeader onOpenLocaleSwitcher={handleOpenLocaleSwitcher} />
+      <HomeHeader onMenuClick={handleOpenMenuDrawer} />
 
       <div className={styles.scrollArea}>
         <HomeHeroProgress
@@ -95,6 +105,12 @@ export function HomeScreen() {
         </section>
       </div>
 
+      <MenuDrawer
+        isOpen={isMenuDrawerOpen}
+        onClose={handleCloseMenuDrawer}
+        onOpenLocaleSwitcher={handleOpenLocaleSwitcher}
+        currentLocale={appState.locale}
+      />
       <LocaleSwitcher isOpen={isLocaleSwitcherOpen} onClose={handleCloseLocaleSwitcher} />
     </main>
   );

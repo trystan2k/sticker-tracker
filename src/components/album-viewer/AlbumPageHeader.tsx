@@ -1,9 +1,10 @@
-import { Camera, EllipsisVertical, Share2 } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 
 import { LocaleSwitcher } from '@/components/LocaleSwitcher';
+import { MenuDrawer } from '@/components/MenuDrawer';
 import type { AlbumPage } from '@/data/album';
 
 import styles from './AlbumPageHeader.module.css';
@@ -14,15 +15,30 @@ type AlbumPageHeaderProps = Readonly<{
 }>;
 
 export function AlbumPageHeader({ page, onOpenQuickNavigation }: AlbumPageHeaderProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const [isMenuDrawerOpen, setIsMenuDrawerOpen] = useState(false);
   const [isLocaleModalOpen, setIsLocaleModalOpen] = useState(false);
-  const handleOpenLocaleModal = useCallback((): void => {
-    setIsLocaleModalOpen(true);
+
+  const handleOpenMenuDrawer = useCallback((): void => {
+    setIsMenuDrawerOpen(true);
   }, []);
+
+  const handleCloseMenuDrawer = useCallback((): void => {
+    setIsMenuDrawerOpen(false);
+  }, []);
+
+  const handleOpenLocaleModalFromDrawer = useCallback((): void => {
+    setIsMenuDrawerOpen(false);
+    window.setTimeout(() => {
+      setIsLocaleModalOpen(true);
+    }, 100);
+  }, []);
+
   const handleCloseLocaleModal = useCallback((): void => {
     setIsLocaleModalOpen(false);
   }, []);
+
   const handleNavigateHome = useCallback((): void => {
     void navigate({ to: '/' });
   }, [navigate]);
@@ -50,6 +66,15 @@ export function AlbumPageHeader({ page, onOpenQuickNavigation }: AlbumPageHeader
   return (
     <>
       <header className={styles.header} aria-label={t('album.pageHeader.ariaLabel')}>
+        <button
+          type="button"
+          className={styles.menuButton}
+          onClick={handleOpenMenuDrawer}
+          aria-label={t('home.header.openMenu')}
+        >
+          <Menu size={24} aria-hidden="true" />
+        </button>
+
         <button type="button" className={styles.logo} onClick={handleNavigateHome}>
           COPA 26
         </button>
@@ -62,35 +87,14 @@ export function AlbumPageHeader({ page, onOpenQuickNavigation }: AlbumPageHeader
         >
           <div className={styles.center}>{centerContent}</div>
         </button>
-
-        <div className={styles.actions}>
-          <button
-            type="button"
-            disabled
-            className={styles.actionBtn}
-            aria-label={t('album.actions.camera')}
-          >
-            <Camera size={22} aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            disabled
-            className={styles.actionBtn}
-            aria-label={t('album.actions.share')}
-          >
-            <Share2 size={22} aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            className={styles.actionBtn}
-            onClick={handleOpenLocaleModal}
-            aria-label={t('locale.label')}
-          >
-            <EllipsisVertical size={22} aria-hidden="true" />
-          </button>
-        </div>
       </header>
 
+      <MenuDrawer
+        isOpen={isMenuDrawerOpen}
+        onClose={handleCloseMenuDrawer}
+        onOpenLocaleSwitcher={handleOpenLocaleModalFromDrawer}
+        currentLocale={i18n.resolvedLanguage ?? i18n.language ?? 'en'}
+      />
       <LocaleSwitcher isOpen={isLocaleModalOpen} onClose={handleCloseLocaleModal} />
     </>
   );

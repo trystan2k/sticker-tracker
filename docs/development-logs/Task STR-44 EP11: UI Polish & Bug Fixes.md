@@ -21,33 +21,37 @@ permalink: docs/development-logs/task-STR-44-ep11-ui-polish-bug-fixes
 ## Implementation Summary
 
 STR-45
+
 - Modified src/components/album-viewer/StickerGrid.tsx — removed isCocaColaPage branch, always use gridFour
 - Modified src/components/album-viewer/StickerGrid.module.css — removed .gridFive rule
 - Updated tests to assert 4-column layout for Coca-Cola pages
 
 STR-46
+
 - Added shared getPageIndex and getNavigationDirection helpers in src/components/album-viewer/viewer-state.ts
 - Keyed <SwipeNavigator> by activePage.pageId in src/components/album-viewer/AlbumRouteScreen.tsx to force fresh subtree on same-route navigation
 - Refactored src/components/album-viewer/SwipeNavigator.tsx and src/components/album-viewer/QuickNavigationPicker.tsx to use shared helpers
 - Added URL assertions to E2E tests
 
 STR-47
+
 - Created src/components/not-found/NotFoundPage.tsx with HomeHeader, search-x icon, translated copy, CTA to home
 - Created src/components/not-found/NotFoundPage.module.css with token-based styling
-- Wired notFoundComponent in src/routes/__root.tsx
+- Wired notFoundComponent in src/routes/\_\_root.tsx
 - Replaced redirect-to-home guards with throw notFound() in album route files
 - Refactored HomeHeader (src/components/home/HomeHeader.tsx) for reuse (configurable menu action, optional right action)
 - Retokenized HomeHeader.module.css to component tokens
-- Added notFound.* i18n keys in locales
+- Added notFound.\* i18n keys in locales
 - Added E2E tests for unknown routes and invalid album routes
 
 STR-48
+
 - Created src/components/MenuDrawer.tsx — custom left drawer (280px) with portal, slide animation, focus management
 - Created src/components/MenuDrawer.module.css with token-based styling
 - Updated HomeHeader — removed share button and added onMenuClick prop (2-control layout)
 - Updated src/screens/HomeScreen.tsx — drawer state, locale switcher via drawer language row
 - Updated NotFoundPage to wire drawer
-- Added drawer.* i18n keys (share, language, close) and removed orphaned home.header.shareAlbum key
+- Added drawer.\* i18n keys (share, language, close) and removed orphaned home.header.shareAlbum key
 - Added browser tests for drawer open/close/escape/locale flow
 - Added E2E tests for drawer and updated locale persistence test
 
@@ -56,6 +60,7 @@ STR-48
 Explicit list of files changed during this epic (grouped by area):
 
 Album viewer / Navigation
+
 - src/components/album-viewer/StickerGrid.tsx
 - src/components/album-viewer/StickerGrid.module.css
 - src/components/album-viewer/SwipeNavigator.tsx
@@ -69,13 +74,15 @@ Album viewer / Navigation
 - test/components/album-viewer/StickerGrid.browser.test.tsx
 
 Not Found / Routing
+
 - src/components/not-found/NotFoundPage.tsx
 - src/components/not-found/NotFoundPage.module.css
-- src/routes/__root.tsx
+- src/routes/\_\_root.tsx
 - e2e/not-found-page.test.ts
 - e2e/tests/not_found.spec.ts (if present)
 
 Header / Menu / Drawer
+
 - src/components/home/HomeHeader.tsx
 - src/components/home/HomeHeader.module.css
 - src/components/MenuDrawer.tsx
@@ -86,13 +93,15 @@ Header / Menu / Drawer
 - test/components/Home.browser.test.tsx
 
 Localization
+
 - src/locales/en/translation.json
 - src/locales/es/translation.json
 - src/locales/pt-BR/translation.json
 - Removed: home.header.shareAlbum key (from above locale files)
-- Added: notFound.* and drawer.* keys in all locales
+- Added: notFound._ and drawer._ keys in all locales
 
 Tests / E2E / Browser
+
 - e2e/home-menu-drawer.test.ts
 - e2e/not-found-page.test.ts
 - e2e/swipe-navigation.test.ts
@@ -104,6 +113,7 @@ Tests / E2E / Browser
 - test/components/Home.browser.test.tsx
 
 Other
+
 - docs/plan/Plan STR-44 EP11: UI Polish & Bug Fixes.md (planning artifact)
 
 > Note: File list includes tracked and untracked files observed in the working tree at time of logging. Update this log if more files surface.
@@ -135,4 +145,3 @@ Other
 - Follow-up: Consider extracting drawer state to a shared hook if multiple screens require it
 - Follow-up: Add visual regression tests for MenuDrawer and NotFoundPage
 - Follow-up: Improve branch coverage on QuickNavigationPicker to raise branch coverage above 75%
-

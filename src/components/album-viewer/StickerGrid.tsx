@@ -18,12 +18,11 @@ export function StickerGrid({
   onToggleSticker,
   disabled = false
 }: StickerGridProps) {
-  const isCocaColaPage = page.type === 'special' && page.key === 'coca-cola';
   const stickerIds = visibleStickerIds ?? page.stickerIds;
 
   return (
     <section className={styles.section}>
-      <div className={`${styles.grid} ${isCocaColaPage ? styles.gridFive : styles.gridFour}`}>
+      <div className={`${styles.grid} ${styles.gridFour}`}>
         {stickerIds.map((stickerId) => (
           <StickerCell
             key={stickerId}

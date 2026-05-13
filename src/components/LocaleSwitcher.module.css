@@ -89,10 +89,10 @@
   cursor: pointer;
 }
 
-.globeIcon {
-  width: 20px;
-  height: 20px;
-  color: var(--color-text-secondary);
+.flagIcon {
+  width: 24px;
+  height: 16px;
+  border-radius: 2px;
   flex-shrink: 0;
 }
 

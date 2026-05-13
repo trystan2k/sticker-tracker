@@ -112,4 +112,9 @@ describe('Root head() function', () => {
     const routeOptions = Route.options as { shellComponent?: unknown };
     expect(routeOptions.shellComponent).toBeTypeOf('function');
   });
+
+  it('notFoundComponent function is defined on Route options', () => {
+    const routeOptions = Route.options as { notFoundComponent?: unknown };
+    expect(routeOptions.notFoundComponent).toBeTypeOf('function');
+  });
 });

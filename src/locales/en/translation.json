@@ -75,8 +75,8 @@
   "special": {
     "legends": "Legends",
     "stadiums": "Stadiums",
-    "fwc-opening": "FIFA World Cup Opening",
-    "fwc-closing": "FIFA World Cup Closing",
+    "fwc-opening": "FIFA World Cup",
+    "fwc-closing": "FIFA World Cup",
     "coca-cola": "Coca-Cola"
   },
   "group": {
@@ -105,9 +105,9 @@
       "emptyState": "No stickers match this filter on this page."
     },
     "specialSection": {
-      "fwc-opening": "Opening Section",
-      "fwc-closing": "Closing Section",
-      "coca-cola": "Sponsor Section"
+      "fwc-opening": "Opening",
+      "fwc-closing": "Closing",
+      "coca-cola": "Sponsor"
     },
     "quickNavigation": {
       "open": "Open quick navigation picker",
@@ -155,8 +155,7 @@
     "header": {
       "ariaLabel": "Home header",
       "title": "FIFA World Cup 2026",
-      "openLocaleMenu": "Open language menu",
-      "shareAlbum": "Share album (coming soon)"
+      "openMenu": "Open menu"
     },
     "hero": {
       "ariaLabel": "Album progress",
@@ -174,5 +173,15 @@
   "scanner": {
     "title": "Scanner",
     "empty": "Scanner screen coming soon."
+  },
+  "notFound": {
+    "heading": "Page not found",
+    "description": "The page you're looking for doesn't exist or was moved.",
+    "ctaLabel": "Go to home"
+  },
+  "drawer": {
+    "share": "Share",
+    "language": "Language",
+    "close": "Close drawer"
   }
 }

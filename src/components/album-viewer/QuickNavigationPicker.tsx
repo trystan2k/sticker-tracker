@@ -5,9 +5,13 @@ import { flushSync } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 
 import type { AlbumPage, PageId } from '@/data/album';
-import { albumPages } from '@/data/album';
 
-import { getAlbumPath, isValidPageId, PAGE_SECTION_RUNS } from './viewer-state';
+import {
+  getAlbumPath,
+  getNavigationDirection,
+  isValidPageId,
+  PAGE_SECTION_RUNS
+} from './viewer-state';
 import styles from './QuickNavigationPicker.module.css';
 
 type QuickNavigationPickerProps = Readonly<{
@@ -114,15 +118,13 @@ export function QuickNavigationPicker({
 
       const path = getAlbumPath(page);
 
-      // Compute transition direction based on page order
-      const currentIndex = albumPages.findIndex((p) => p.pageId === activePageId);
-      const targetIndex = albumPages.findIndex((p) => p.pageId === rawId);
-      const direction = targetIndex >= currentIndex ? 'nav-forward' : 'nav-back';
+      const directionClass =
+        getNavigationDirection(activePageId, rawId) === 'forward' ? 'nav-forward' : 'nav-back';
 
       // Apply view transition for smooth navigation
       if (typeof document !== 'undefined' && document.startViewTransition) {
         const html = document.documentElement;
-        html.classList.add(direction);
+        html.classList.add(directionClass);
         const transition = document.startViewTransition(() => {
           flushSync(() => {
             void navigate({ to: path });

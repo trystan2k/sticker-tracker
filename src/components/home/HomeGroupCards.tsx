@@ -15,7 +15,7 @@ const FLAG_FALLBACK_MAP: Record<string, string> = {
 };
 
 function buildFlagUrl(flagCode: string): string {
-  return `https://flagcdn.com/w80/${flagCode.toLowerCase()}.png`;
+  return `https://flagcdn.com/w160/${flagCode.toLowerCase()}.png`;
 }
 
 function getSafeFlagCode(flagCode: string): string {
