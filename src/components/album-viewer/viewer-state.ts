@@ -29,6 +29,35 @@ export function isValidPageId(rawId: string): rawId is PageId {
   return albumPages.some((page) => page.pageId === rawId);
 }
 
+export function getAlbumPath(page: AlbumPage): string {
+  if (page.type === 'team') {
+    return `/album/${page.group}/${page.pageId}`;
+  }
+
+  return `/album/${page.pageId}`;
+}
+
+export function getAlbumPageByRoute(
+  groupOrUndefined: string | undefined,
+  pageId: string
+): AlbumPage | undefined {
+  const page = albumPages.find((candidate) => candidate.pageId === pageId);
+
+  if (!page) {
+    return undefined;
+  }
+
+  if (groupOrUndefined === undefined) {
+    return page.type === 'special' ? page : undefined;
+  }
+
+  if (page.type !== 'team') {
+    return undefined;
+  }
+
+  return page.group === groupOrUndefined ? page : undefined;
+}
+
 export function getNextPage(currentPageId: PageId): AlbumPage {
   assertAlbumHasPages();
 

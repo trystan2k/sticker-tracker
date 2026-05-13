@@ -3,10 +3,14 @@ import { expect, test } from '@playwright/test';
 test('persists locale after reload', async ({ page }) => {
   await page.goto('/');
 
-  // Wait for sticker cells to be attached
-  await page.waitForSelector('button[aria-pressed]', { timeout: 10000 });
+  // Wait for home screen header title button to be visible
+  await expect(
+    page.getByRole('button', { name: /FIFA World Cup|Copa Mundial/ }).first()
+  ).toBeVisible({
+    timeout: 10000
+  });
 
-  const localeMenuTrigger = page.getByRole('button', { name: 'Language' });
+  const localeMenuTrigger = page.getByLabel('Open language menu');
   await localeMenuTrigger.click();
 
   const spanishRow = page.getByRole('button', { name: 'Spanish' });
@@ -14,17 +18,18 @@ test('persists locale after reload', async ({ page }) => {
 
   await expect(page.getByRole('dialog')).not.toBeVisible();
 
-  // Album filter pills should switch to Spanish
-  await expect(page.getByText('Todas').first()).toBeAttached();
-  await expect(page.getByText('Faltantes').first()).toBeAttached();
+  // Home header title button should still be visible (now in Spanish)
+  await expect(page.getByRole('button', { name: 'Copa Mundial FIFA 2026' })).toBeVisible();
 
   await page.reload();
 
-  // Wait for app to be ready again after reload
-  await page.waitForSelector('button[aria-pressed]', { timeout: 10000 });
+  // Wait for home screen title button to be ready again after reload
+  await expect(page.getByRole('button', { name: 'Copa Mundial FIFA 2026' })).toBeVisible({
+    timeout: 10000
+  });
 
   await expect(page.locator('html')).toHaveAttribute('lang', 'es');
 
-  // Spanish album content should still be visible after reload
-  await expect(page.getByText('Todas').first()).toBeAttached();
+  // Home screen title button should still be visible after reload
+  await expect(page.getByRole('button', { name: 'Copa Mundial FIFA 2026' })).toBeVisible();
 });

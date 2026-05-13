@@ -1,5 +1,6 @@
 import { Camera, EllipsisVertical, Share2 } from 'lucide-react';
 import { useCallback, useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 
 import { LocaleSwitcher } from '@/components/LocaleSwitcher';
@@ -14,6 +15,7 @@ type AlbumPageHeaderProps = Readonly<{
 
 export function AlbumPageHeader({ page, onOpenQuickNavigation }: AlbumPageHeaderProps) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [isLocaleModalOpen, setIsLocaleModalOpen] = useState(false);
   const handleOpenLocaleModal = useCallback((): void => {
     setIsLocaleModalOpen(true);
@@ -21,6 +23,9 @@ export function AlbumPageHeader({ page, onOpenQuickNavigation }: AlbumPageHeader
   const handleCloseLocaleModal = useCallback((): void => {
     setIsLocaleModalOpen(false);
   }, []);
+  const handleNavigateHome = useCallback((): void => {
+    void navigate({ to: '/' });
+  }, [navigate]);
 
   const centerContent =
     page.type === 'team' ? (
@@ -45,7 +50,9 @@ export function AlbumPageHeader({ page, onOpenQuickNavigation }: AlbumPageHeader
   return (
     <>
       <header className={styles.header} aria-label={t('album.pageHeader.ariaLabel')}>
-        <div className={styles.logo}>COPA 26</div>
+        <button type="button" className={styles.logo} onClick={handleNavigateHome}>
+          COPA 26
+        </button>
 
         <button
           type="button"

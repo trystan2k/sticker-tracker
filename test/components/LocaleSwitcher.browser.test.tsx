@@ -75,7 +75,7 @@ describe('LocaleSwitcher', () => {
     );
 
     try {
-      const dialog = mounted.container.querySelector('[role="dialog"]');
+      const dialog = document.body.querySelector('[role="dialog"]');
       expect(dialog).toBeNull();
     } finally {
       cleanup(mounted);
@@ -95,14 +95,14 @@ describe('LocaleSwitcher', () => {
 
     try {
       await waitFor(() => {
-        const dialog = mounted.container.querySelector('[role="dialog"]');
+        const dialog = document.body.querySelector('[role="dialog"]');
         return dialog !== null;
       });
 
-      const title = mounted.container.querySelector('span');
+      const title = document.body.querySelector('span');
       expect(title?.textContent).toContain('Language / Idioma');
 
-      const localeRows = mounted.container.querySelectorAll(
+      const localeRows = document.body.querySelectorAll(
         'button[aria-label="English"], button[aria-label="Portuguese (Brazil)"], button[aria-label="Spanish"]'
       );
       expect(localeRows.length).toBe(SUPPORTED_LOCALES.length);
@@ -130,9 +130,9 @@ describe('LocaleSwitcher', () => {
     );
 
     try {
-      await waitFor(() => mounted.container.querySelector('[role="dialog"]') !== null);
+      await waitFor(() => document.body.querySelector('[role="dialog"]') !== null);
 
-      const dialog = mounted.container.querySelector('[role="dialog"]') as HTMLDivElement;
+      const dialog = document.body.querySelector('[role="dialog"]') as HTMLDivElement;
       const backdrop = dialog.querySelector('button') as HTMLButtonElement;
       backdrop.click();
 
@@ -161,7 +161,7 @@ describe('LocaleSwitcher', () => {
     );
 
     try {
-      await waitFor(() => mounted.container.querySelector('[role="dialog"]') !== null);
+      await waitFor(() => document.body.querySelector('[role="dialog"]') !== null);
 
       // Wait for useEffect to attach keydown listener
       await new Promise((resolve) => requestAnimationFrame(resolve));
@@ -211,7 +211,7 @@ describe('LocaleSwitcher', () => {
       const originalLocale = capturedContext!.locale;
       const targetLocale = SUPPORTED_LOCALES.find((locale) => locale !== originalLocale) ?? 'pt-BR';
 
-      const targetLabel = mounted.container.querySelector(
+      const targetLabel = document.body.querySelector(
         `button[aria-label="${targetLocale === 'en' ? 'English' : targetLocale === 'es' ? 'Spanish' : 'Portuguese (Brazil)'}"]`
       ) as HTMLButtonElement;
 
@@ -232,9 +232,9 @@ describe('LocaleSwitcher', () => {
     const mounted = mount(React.createElement(LocaleSwitcher, { isOpen: true, onClose: () => {} }));
 
     try {
-      await waitFor(() => mounted.container.querySelector('[role="dialog"]') !== null);
+      await waitFor(() => document.body.querySelector('[role="dialog"]') !== null);
 
-      const localeRows = mounted.container.querySelectorAll('button[aria-label]');
+      const localeRows = document.body.querySelectorAll('button[aria-label]');
       expect(localeRows.length).toBeGreaterThanOrEqual(SUPPORTED_LOCALES.length);
     } finally {
       cleanup(mounted);

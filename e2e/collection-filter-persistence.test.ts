@@ -36,7 +36,7 @@ async function swipeLeft(page: Page) {
 }
 
 test('collection filter stays active across page changes', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/album/fwc-opening');
 
   await page.waitForSelector('[data-testid="swipe-surface"]', { timeout: 10000 });
   await page.waitForSelector('div[class*="grid"] button[aria-pressed]', { timeout: 10000 });

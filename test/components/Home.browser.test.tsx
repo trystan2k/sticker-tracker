@@ -3,6 +3,10 @@ import { describe, expect, it } from 'vitest';
 import React from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 
+// Ensure i18n is initialized (HomeScreen uses useTranslation)
+// oxlint-disable-next-line import/no-unassigned-import
+import '@/i18n/config';
+
 import { AppStateContext, AppStateProvider } from '@/providers/AppStateProvider';
 import {
   resetStorageStateForTests,
@@ -68,25 +72,29 @@ describe('Home page (index route)', () => {
     expect(typeof Route.options?.component).toBe('function');
   });
 
-  it('renders AlbumViewer when appState is ready', async () => {
+  it('renders HomeScreen content when appState is ready', async () => {
     await resetStorage();
 
     const mounted = mount(React.createElement(AppStateProvider, null, React.createElement(Home)));
 
     try {
-      // Wait for sticker cells to appear (only after bootstrap completes and renderState is ready)
+      // Wait for HomeScreen to render (header should be present)
       await waitFor(() => {
-        const stickerButtons = mounted.container.querySelectorAll('button[aria-pressed]');
-        return stickerButtons.length > 0;
+        const header = mounted.container.querySelector('header');
+        return header !== null;
       });
 
-      // StickerGrid renders sticker cells as buttons with aria-pressed
-      const stickerButtons = mounted.container.querySelectorAll('button[aria-pressed]');
-      expect(stickerButtons.length).toBeGreaterThan(0);
+      // Header is rendered
+      const header = mounted.container.querySelector('header');
+      expect(header).not.toBeNull();
 
-      // PageProgress renders a progress bar
-      const progressbar = mounted.container.querySelector('[role="progressbar"]');
-      expect(progressbar).not.toBeNull();
+      // Title is rendered (span inside button, not h1 — valid HTML)
+      const title = mounted.container.querySelector('[class*="title"]');
+      expect(title).not.toBeNull();
+
+      // Action buttons in header (menu + share)
+      const headerButtons = mounted.container.querySelectorAll('header button');
+      expect(headerButtons.length).toBeGreaterThanOrEqual(2);
     } finally {
       cleanup(mounted);
     }
@@ -100,18 +108,18 @@ describe('Home page (index route)', () => {
       await new Promise((r) => requestAnimationFrame(r));
       await new Promise((r) => requestAnimationFrame(r));
 
-      // Home returns null when no provider — no album viewer content
-      const progressbar = mounted.container.querySelector('[role="progressbar"]');
-      expect(progressbar).toBeNull();
+      // Home returns null when no provider — no home screen content
+      const header = mounted.container.querySelector('header');
+      expect(header).toBeNull();
 
-      const stickerButtons = mounted.container.querySelectorAll('button[aria-pressed]');
-      expect(stickerButtons.length).toBe(0);
+      const title = mounted.container.querySelector('[class*="title"]');
+      expect(title).toBeNull();
     } finally {
       cleanup(mounted);
     }
   });
 
-  it('renders sticker grid after bootstrap completes', async () => {
+  it('renders hero progress and group cards after bootstrap completes', async () => {
     await resetStorage();
 
     let capturedContext:
@@ -139,19 +147,27 @@ describe('Home page (index route)', () => {
     try {
       await waitFor(() => capturedContext !== null && capturedContext.renderState === 'ready');
 
-      // After bootstrap, AlbumViewer should render sticker cells
-      const stickerButtons = mounted.container.querySelectorAll('button[aria-pressed]');
-      expect(stickerButtons.length).toBeGreaterThan(0);
+      // Header is rendered
+      const header = mounted.container.querySelector('header');
+      expect(header).not.toBeNull();
 
-      // Progress bar should be present
-      const progressbar = mounted.container.querySelector('[role="progressbar"]');
-      expect(progressbar).not.toBeNull();
+      // Hero progress section renders SVG ring
+      const heroSection = mounted.container.querySelector('[aria-label="Album progress"]');
+      expect(heroSection).not.toBeNull();
+
+      // Stats are rendered
+      const mainStat = mounted.container.querySelector('[class*="mainStat"]');
+      expect(mainStat).not.toBeNull();
+
+      // Group cards section exists
+      const scrollArea = mounted.container.querySelector('[class*="scrollArea"]');
+      expect(scrollArea).not.toBeNull();
     } finally {
       cleanup(mounted);
     }
   });
 
-  it('opens quick navigation picker from page header trigger', async () => {
+  it('opens locale switcher from header menu trigger', async () => {
     await resetStorage();
 
     const mounted = mount(React.createElement(AppStateProvider, null, React.createElement(Home)));
@@ -162,12 +178,45 @@ describe('Home page (index route)', () => {
         return headerButtons.length >= 2;
       });
 
-      const trigger = mounted.container.querySelectorAll('header button')[0] as HTMLButtonElement;
+      // First header button is the menu button (opens locale switcher)
+      const menuButton = mounted.container.querySelectorAll(
+        'header button'
+      )[0] as HTMLButtonElement;
 
-      trigger.click();
+      menuButton.click();
 
-      await waitFor(() => mounted.container.querySelector('[role="dialog"]') !== null);
-      expect(mounted.container.querySelector('[role="dialog"]')).not.toBeNull();
+      await waitFor(() => document.body.querySelector('[role="dialog"]') !== null);
+      expect(document.body.querySelector('[role="dialog"]')).not.toBeNull();
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('closes locale switcher when backdrop or close is triggered', async () => {
+    await resetStorage();
+
+    const mounted = mount(React.createElement(AppStateProvider, null, React.createElement(Home)));
+
+    try {
+      await waitFor(() => {
+        const headerButtons = mounted.container.querySelectorAll('header button');
+        return headerButtons.length >= 2;
+      });
+
+      // Open locale switcher
+      const menuButton = mounted.container.querySelectorAll(
+        'header button'
+      )[0] as HTMLButtonElement;
+      menuButton.click();
+
+      await waitFor(() => document.body.querySelector('[role="dialog"]') !== null);
+      expect(document.body.querySelector('[role="dialog"]')).not.toBeNull();
+
+      // Close by pressing Escape
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+
+      await waitFor(() => document.body.querySelector('[role="dialog"]') === null);
+      expect(document.body.querySelector('[role="dialog"]')).toBeNull();
     } finally {
       cleanup(mounted);
     }

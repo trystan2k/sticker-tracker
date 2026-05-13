@@ -1,0 +1,70 @@
+.hero {
+  display: flex;
+  justify-content: center;
+  padding: 24px 16px;
+  background-color: var(--surface-album-secondary);
+}
+
+.ringWrap {
+  width: 200px;
+  height: 200px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ringSvg {
+  width: 160px;
+  height: 160px;
+}
+
+.track,
+.progress {
+  fill: none;
+  stroke-width: 10px;
+}
+
+.track {
+  stroke: var(--surface-progress-track);
+}
+
+.progress {
+  stroke: var(--color-brand-primary);
+  transform: rotate(-90deg);
+  transform-origin: 80px 80px;
+  stroke-linecap: round;
+}
+
+.hole {
+  fill: var(--surface-album-secondary);
+}
+
+.stats {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.mainStat {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-family: var(--typography-family-heading);
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.subStat {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-family: var(--typography-family-body);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.2;
+}

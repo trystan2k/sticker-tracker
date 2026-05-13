@@ -1,0 +1,317 @@
+## Task Analysis
+
+- Main objective: Split current single-screen `/` experience into a real home screen plus deep-linkable album routes, while preserving existing album viewer behavior already implemented in `src/components/album-viewer/` and aligning the new `/` screen with Pencil `S0 Home – Light` / `S5 Locale Switcher – Light`.
+- Identified dependencies:
+  - `src/routes/index.tsx` currently owns the route-level controller for `AlbumViewer`, `SwipeNavigator`, `activeFilter`, and collection toggles. This logic must move under `/album/...` so `/` can become the new home screen.
+  - `src/components/album-viewer/AlbumViewer.tsx`, `SwipeNavigator.tsx`, `QuickNavigationPicker.tsx`, and `viewer-state.ts` already cover filters, quick jumps, swipe math, and View Transitions. Epic should reuse and adapt these, not rebuild album navigation from scratch.
+  - `src/providers/AppStateProvider.tsx` and `src/services/collection-service.ts` already provide the only durable sources of truth for locale and collection state. Home hero, group cards, and special cards should derive from `appState.collection` only.
+  - `src/data/album.ts` is canonical for page order, team/special discrimination, `group`, `flagCode`, `translationKey`, and totals. Important discovery: real album total is `ALBUM_TOTAL = 994`, so home hero must be data-driven and must not copy the Pencil mock number `960`.
+  - Current browser/E2E coverage already asserts swipe order, quick navigation, filter persistence across page changes, locale persistence, and translation-key integrity. Those tests must be retargeted from `/` to `/album/...` and expanded for new home behavior instead of replaced blindly.
+  - `src/components/LocaleSwitcher.tsx` + `LocaleSwitcher.module.css` already implement the same bottom-sheet structure shown in Pencil `S5 Locale Switcher – Light`, including active-locale checkmark behavior. Reuse is cheaper and lower-risk than introducing a second drawer/sheet component.
+  - `design-tokens/semantic/color.tokens.json` already defines the required semantic colors, including sponsor red (`color.brand.sponsor.cocaCola`), header/background tokens, and progress tokens. Home styling should stay token-backed through CSS Modules; raw design hex values should remain a fallback-free last resort.
+  - TanStack Start route generation is already configured in `vite.config.ts` and writes `src/routeTree.gen.ts`. New route files should be added under `src/routes/`, then the generated tree should be refreshed by normal Vite/TanStack generation; `src/routeTree.gen.ts` must never be hand-edited.
+  - Existing filter-persistence behavior must survive page changes. Because team and special pages will live on different route shapes (`/album/:group/:pageId` vs `/album/:pageId`), the simplest safe way to preserve this behavior is a thin parent `/album` route that keeps filter state alive above both child routes.
+- System impact:
+  - Route architecture changes from one route (`/`) that renders album pages to a three-surface flow: `/` home, `/album/:pageId` special pages, and `/album/:group/:pageId` team pages.
+  - Album viewer page ownership shifts from route-local page state to router-backed navigation, but collection persistence, quick navigation, filter logic, and View Transition behavior should remain in the existing feature area.
+  - New home UI components, translation keys, and navigation helpers will be added; `AppShell` should remain mostly inert unless home scrolling or safe-area layout reveals a concrete shell bug.
+  - QA entrypoints change: home smoke/locale tests start at `/`, while swipe/quick-navigation/filter regression tests start at concrete `/album/...` routes.
+
+## Chosen Approach
+
+- Proposed solution:
+  - Add a thin parent route at `src/routes/album.tsx` that keeps `activeFilter` alive across both album path shapes, then move the current route-controller logic into a shared `AlbumRouteScreen` used by `src/routes/album/$pageId.tsx` and `src/routes/album/$group/$pageId.tsx`.
+  - Extend `src/components/album-viewer/viewer-state.ts` with route helpers (`AlbumPage -> path`, param validation helpers, maybe bare `/album` redirect helper) so swipe navigation, quick navigation, home cards, and route validation all share one canonical mapping.
+  - Keep `SwipeNavigator` as the gesture/View Transition wrapper, but make it router-aware: swipes and picker selections should navigate to the next canonical album URL instead of only mutating hidden local page state.
+  - Build the new `/` home screen under `src/components/home/` with small focused pieces: route container, header, hero progress ring, group cards, special cards, and a pure summary helper module that derives everything from `albumPages` + `CollectionState`.
+  - Reuse the existing `LocaleSwitcher` sheet behind the home hamburger trigger instead of introducing a new drawer package or second locale UI flow.
+- Justification for simplicity:
+  - Reject a new global store or provider change; epic only needs route reshaping and a new home surface, not new persistence or cross-app state architecture.
+  - Reject duplicating album viewer logic in two route files; one shared album route screen plus one parent `/album` state owner is the narrowest structure that preserves current filter persistence.
+  - Reject URL search params for filter persistence; a tiny parent route state is enough and keeps album permalinks clean.
+  - Reject rebuilding swipe logic around a new animation library; current `document.startViewTransition` flow already exists and only needs router integration.
+  - Reject hardcoded home counts, group ordering, or first-page links; every progress value and navigation target can be derived from `src/data/album.ts`.
+  - Reject cloning the locale sheet into a “home drawer”; `LocaleSwitcher` already matches the S5 bottom-sheet pattern and active checkmark behavior.
+- Components to be modified/created:
+  - Route layer:
+    - Modify `src/routes/index.tsx`
+    - Create `src/routes/album.tsx`
+    - Create `src/routes/album/index.tsx`
+    - Create `src/routes/album/$pageId.tsx`
+    - Create `src/routes/album/$group/$pageId.tsx`
+    - Regenerate `src/routeTree.gen.ts`
+  - Shared album-viewer layer:
+    - Create `src/components/album-viewer/AlbumRouteScreen.tsx`
+    - Modify `src/components/album-viewer/SwipeNavigator.tsx`
+    - Modify `src/components/album-viewer/QuickNavigationPicker.tsx`
+    - Modify `src/components/album-viewer/viewer-state.ts`
+    - Keep `AlbumViewer.tsx`, `AlbumPageHeader.tsx`, `StickerGrid.tsx`, and related CSS mostly intact unless route/home changes expose a concrete mismatch
+  - Home feature layer:
+    - Create `src/components/home/HomeScreen.tsx`
+    - Create `src/components/home/HomeScreen.module.css`
+    - Create `src/components/home/HomeHeader.tsx`
+    - Create `src/components/home/HomeHeader.module.css`
+    - Create `src/components/home/HomeHeroProgress.tsx`
+    - Create `src/components/home/HomeHeroProgress.module.css`
+    - Create `src/components/home/HomeGroupCards.tsx`
+    - Create `src/components/home/HomeGroupCards.module.css`
+    - Create `src/components/home/HomeSpecialCards.tsx`
+    - Create `src/components/home/HomeSpecialCards.module.css`
+    - Create `src/components/home/home-state.ts`
+  - Shared UI / i18n:
+    - Modify `src/components/LocaleSwitcher.tsx` and `src/components/LocaleSwitcher.module.css` only if S5 parity gaps are real
+    - Modify `src/locales/en/translation.json`
+    - Modify `src/locales/es/translation.json`
+    - Modify `src/locales/pt-BR/translation.json`
+  - Test layer:
+    - Modify `test/components/Home.browser.test.tsx`
+    - Modify `test/components/album-viewer/SwipeNavigator.browser.test.tsx`
+    - Modify `test/components/album-viewer/QuickNavigationPicker.browser.test.tsx`
+    - Modify `test/components/album-viewer/AlbumViewer.browser.test.tsx` only where route assumptions changed
+    - Modify `test/components/album-viewer/viewer-state.test.ts`
+    - Modify `test/i18n/translation-resources.test.ts`
+    - Create `test/components/home/HomeScreen.browser.test.tsx`
+    - Create `e2e/album-routing.test.ts`
+    - Modify `e2e/welcome-message.test.ts`
+    - Modify `e2e/swipe-navigation.test.ts`
+    - Modify `e2e/quick-navigation-picker.test.ts`
+    - Modify `e2e/collection-filter-persistence.test.ts`
+    - Modify `e2e/locale-persistence.test.ts`
+
+## Implementation Steps
+
+1. Execute STR-38 by refactoring routes first and preserving current album behavior behind `/album`.
+   - Files to create/modify:
+     - `src/routes/index.tsx`
+     - `src/routes/album.tsx`
+     - `src/routes/album/index.tsx`
+     - `src/routes/album/$pageId.tsx`
+     - `src/routes/album/$group/$pageId.tsx`
+     - `src/components/album-viewer/AlbumRouteScreen.tsx`
+     - `src/components/album-viewer/viewer-state.ts`
+     - `src/routeTree.gen.ts` (generated only)
+   - Approach:
+     - Turn `/` into the future home route immediately.
+     - Add a parent `/album` route that owns `activeFilter` so the existing “filter stays active across page changes” behavior survives navigation between special and team route shapes.
+     - Move the current controller code from `src/routes/index.tsx` into a shared `AlbumRouteScreen` that both child routes render.
+   - Key implementation details:
+     - Add shared route helpers in `viewer-state.ts` so the same code can validate params and build canonical URLs for `SwipeNavigator`, quick navigation, and home cards.
+     - Team route validation must confirm both that `pageId` belongs to a team page and that `params.group` exactly matches `page.group` from `albumPages`. Invalid or mismatched routes redirect to `/`.
+     - Special route validation must confirm that `pageId` belongs to a special page. Invalid routes redirect to `/`.
+     - Treat bare `/album` as invalid for this epic and redirect it to `/` via `src/routes/album/index.tsx` to avoid a blank parent route.
+     - Keep `AppStateContext`, `collectionRef`, and `toggleCollected` wiring unchanged inside `AlbumRouteScreen`; only route ownership changes.
+     - Regenerate `src/routeTree.gen.ts` after route files are in place. Never hand-edit the generated file.
+   - Integration with existing code:
+     - `AlbumRouteScreen` should reuse the collection/toggle pattern already proven in `src/routes/index.tsx`.
+     - `AlbumViewer` remains the render target so filter, progress, sticker grid, quick-navigation trigger, and locale modal behavior do not get duplicated.
+   - Test considerations:
+     - Extend `test/components/album-viewer/viewer-state.test.ts` for route helper coverage: team path generation, special path generation, mismatched-group rejection, and redirect-worthy invalid ids.
+     - Retarget `test/components/Home.browser.test.tsx` so `/` no longer expects sticker-grid rendering.
+     - Add `e2e/album-routing.test.ts` for valid special deep link, valid team deep link, mismatched team/group redirect, invalid page redirect, and bare `/album` redirect.
+   - Rollback / mitigation:
+     - If parent-route state becomes noisy, keep the route file structure and move only the filter persistence into a tiny local React context under `src/components/album-viewer/`; do not revert the route split.
+
+2. Execute STR-39 by wiring `SwipeNavigator` and quick navigation to TanStack Router without replacing the current gesture engine.
+   - Files to create/modify:
+     - `src/components/album-viewer/SwipeNavigator.tsx`
+     - `src/components/album-viewer/QuickNavigationPicker.tsx`
+     - `src/components/album-viewer/AlbumRouteScreen.tsx`
+     - `src/components/album-viewer/viewer-state.ts`
+     - `test/components/album-viewer/SwipeNavigator.browser.test.tsx`
+     - `test/components/album-viewer/QuickNavigationPicker.browser.test.tsx`
+     - `e2e/swipe-navigation.test.ts`
+     - `e2e/quick-navigation-picker.test.ts`
+     - `e2e/collection-filter-persistence.test.ts`
+   - Approach:
+     - Keep the existing swipe threshold, axis lock, and View Transition CSS contract.
+     - Replace “page change means local state only” with “page change means local transition plus router navigation to the canonical album URL”.
+   - Key implementation details:
+     - `SwipeNavigator` should resolve next/previous pages through the existing album-order helpers, then call `navigate` with `getAlbumPath(nextPage)` / `getAlbumPath(prevPage)`.
+     - Preserve the current `document.startViewTransition` behavior and `nav-forward` / `nav-back` CSS classes so animation stays identical.
+     - Keep `data-testid="swipe-surface"` because current Playwright coverage depends on it.
+     - Ensure quick-navigation row selection navigates through the same shared path helper rather than building ad-hoc URLs.
+     - Preserve filter persistence by reading `activeFilter` from the parent `/album` route state, not from the individual leaf route.
+   - Integration with existing code:
+     - `QuickNavigationPicker` should continue using `PAGE_SECTION_RUNS` and `t(page.translationKey)`.
+     - `AlbumPageHeader` can keep the current quick-navigation trigger and locale menu behavior; only navigation target ownership changes.
+   - Test considerations:
+     - Update `SwipeNavigator.browser.test.tsx` to assert visible page changes plus URL changes.
+     - Update `quick-navigation-picker` browser/E2E tests to start on `/album/fwc-opening` and confirm URL changes when selecting `coca-cola` or `mex`.
+     - Keep `e2e/collection-filter-persistence.test.ts` green; this is the regression test that proves the `/album` parent-state choice was correct.
+   - Rollback / mitigation:
+     - If controlled/uncontrolled syncing flickers, keep the public API stable and limit the fix to `SwipeNavigator` internal sync logic; do not push swipe math into route files.
+
+3. Execute STR-40 by introducing the new `/` home route container and hero progress ring before card sections.
+   - Files to create/modify:
+     - `src/routes/index.tsx`
+     - `src/components/home/HomeScreen.tsx`
+     - `src/components/home/HomeScreen.module.css`
+     - `src/components/home/HomeHeroProgress.tsx`
+     - `src/components/home/HomeHeroProgress.module.css`
+     - `src/components/home/home-state.ts`
+     - `src/locales/en/translation.json`
+     - `src/locales/es/translation.json`
+     - `src/locales/pt-BR/translation.json`
+     - `test/components/Home.browser.test.tsx`
+     - `test/components/home/HomeScreen.browser.test.tsx`
+     - `test/i18n/translation-resources.test.ts`
+     - `e2e/welcome-message.test.ts`
+   - Approach:
+     - Replace the old album route body at `/` with a dedicated `HomeScreen` that consumes `AppStateContext` and renders the design sections in home-first order: header, hero, group list, special list, safe area.
+     - Build the hero ring with inline SVG circles so the 90° start angle and variable sweep are explicit and testable.
+   - Key implementation details:
+     - Derive `collectedTotal` by summing `Set.size` across `appState.collection`; derive `albumTotal` from `ALBUM_TOTAL` or a dataset-backed reducer, not from the Pencil mock.
+     - Format the percent with locale-aware output from the current i18n locale if practical; otherwise keep a consistent one-decimal formatter and translate the surrounding “complete” copy.
+     - Use SVG `strokeDasharray` / `strokeDashoffset` and a rotated circle or group to start at 90°.
+     - Keep styling token-backed: header background, progress track, accent, surfaces, borders, fonts, and spacing should all come from generated design tokens through CSS Modules.
+   - Integration with existing code:
+     - `HomeScreen` should read only from `AppStateContext`; no collection service changes.
+     - `AppShell` should remain unchanged unless home layout reveals a concrete `main` sizing/overflow issue.
+   - Test considerations:
+     - `Home.browser.test.tsx` becomes route smoke for `/` home render, not album render.
+     - `HomeScreen.browser.test.tsx` should cover zero-progress, partial-progress, and full-progress hero states.
+     - `translation-resources.test.ts` should assert new home header/hero keys exist in all locales.
+     - `welcome-message.test.ts` should verify hero render and translated home UI instead of album sticker cells.
+   - Rollback / mitigation:
+     - If SVG styling proves brittle, keep the same derived math and fall back to the simplest circle-based SVG implementation; do not switch to a heavier chart or animation dependency.
+
+4. Execute STR-41 by adding group cards that derive data from the album dataset and navigate into team album routes.
+   - Files to create/modify:
+     - `src/components/home/HomeGroupCards.tsx`
+     - `src/components/home/HomeGroupCards.module.css`
+     - `src/components/home/home-state.ts`
+     - `src/locales/en/translation.json`
+     - `src/locales/es/translation.json`
+     - `src/locales/pt-BR/translation.json`
+     - `test/components/home/HomeScreen.browser.test.tsx`
+     - `test/i18n/translation-resources.test.ts`
+     - `e2e/album-routing.test.ts` (or dedicated home-navigation assertions)
+   - Approach:
+     - Derive one card per group `A` through `L` from `GROUP_LIST` and the ordered `albumPages` data.
+     - Make the whole card the navigation target to the first team page of that group.
+   - Key implementation details:
+     - Group summaries should calculate collected stickers from the four team pages in each group and total stickers from the real page data (`4 x 20`, derived, not hardcoded in rendering logic).
+     - Each card should render a translated group label, collected/total count, progress bar, and four fixed tiles in dataset order.
+     - Tile content should use `page.albumCode`, `t(page.translationKey)`, and `page.flagCode`; image source should come from a small helper that builds `flagcdn.com` URLs.
+     - Validate `flagcdn` support for `gb-eng` and `gb-sct` before implementation. If unsupported, define an explicit fallback mapping once in the helper rather than scattering exceptions through the component.
+     - Complete groups should get a clear completion modifier. Simplest reconciliation of the task/design notes: keep normal incomplete progress fill with primary accent, add a completion border/highlight modifier for 100% cards, and only change fill color if the final token review confirms Pencil expects it.
+   - Integration with existing code:
+     - Use the same route helper from STR-38 so group-card navigation and swipe navigation cannot drift.
+     - Reuse existing `team.*` and `group.*` translations; add only the extra home-specific copy needed for counts/section labels.
+   - Test considerations:
+     - `HomeScreen.browser.test.tsx` should verify 12 cards in `A`–`L` order, correct first-route target per card, and four tiles per card.
+     - Add assertions for complete-state modifier behavior and translated group labels.
+     - Playwright should prove that clicking a group card lands on the correct `/album/:group/:pageId` route.
+   - Rollback / mitigation:
+     - If flag images create layout shifts, keep fixed 80x80 tile frames and constrain images with `object-fit`; do not change the data model or route helpers.
+
+5. Execute STR-43 by implementing the home header and reusing the existing locale sheet instead of inventing new shell chrome.
+   - Files to create/modify:
+     - `src/components/home/HomeHeader.tsx`
+     - `src/components/home/HomeHeader.module.css`
+     - `src/components/home/HomeScreen.tsx`
+     - `src/components/LocaleSwitcher.tsx` (only if trigger/api changes are needed)
+     - `src/components/LocaleSwitcher.module.css` (only if S5 parity gaps are real)
+     - `src/locales/en/translation.json`
+     - `src/locales/es/translation.json`
+     - `src/locales/pt-BR/translation.json`
+     - `test/components/home/HomeScreen.browser.test.tsx`
+     - `test/components/LocaleSwitcher.browser.test.tsx`
+     - `e2e/locale-persistence.test.ts`
+   - Approach:
+     - Keep the header route-level inside `HomeScreen`, not in `AppShell`.
+     - Use a hamburger button to open the existing `LocaleSwitcher` bottom sheet, and keep the share icon as a no-op stub.
+   - Key implementation details:
+     - Header height stays 56px with centered translated album title.
+     - Left and right icon buttons should be placed to match Pencil’s absolute visual balance while still using accessible native buttons.
+     - Reuse the existing locale-sheet structure because it already contains the close button, divider, rows, and active checkmark state the design calls for.
+     - Add explicit i18n keys for the home title and menu/share button labels rather than overloading unrelated keys.
+   - Integration with existing code:
+     - `LocaleSwitcher` should keep using `AppStateContext`, `SUPPORTED_LOCALES`, and existing persistence behavior.
+     - No `AppShell` slot or root-route change should be introduced unless a real layout blocker appears.
+   - Test considerations:
+     - `LocaleSwitcher.browser.test.tsx` and `locale-persistence.test.ts` should be retargeted so the locale flow begins from the home hamburger trigger.
+     - `HomeScreen.browser.test.tsx` should assert translated title, menu button presence, share stub presence, and visible active-locale checkmark inside the sheet.
+   - Rollback / mitigation:
+     - If the existing locale sheet needs styling changes for Pencil parity, update that single component rather than cloning a new “drawer” implementation.
+
+6. Execute STR-42 by adding special-page cards last, once the final home layout surfaces exist.
+   - Files to create/modify:
+     - `src/components/home/HomeSpecialCards.tsx`
+     - `src/components/home/HomeSpecialCards.module.css`
+     - `src/components/home/home-state.ts`
+     - `src/locales/en/translation.json`
+     - `src/locales/es/translation.json`
+     - `src/locales/pt-BR/translation.json`
+     - `test/components/home/HomeScreen.browser.test.tsx`
+     - `test/i18n/translation-resources.test.ts`
+     - `e2e/album-routing.test.ts` or equivalent home-navigation coverage
+   - Approach:
+     - Render a separate special-pages section under the group cards using the same summary-helper pattern already established for the hero and group cards.
+   - Key implementation details:
+     - Use the canonical order from `albumPages`: `fwc-opening`, `fwc-closing`, `coca-cola`.
+     - Each card should show translated special-page name, collected/total count, and navigation to the correct special album route.
+     - Coca-Cola should use the existing sponsor token from `design-tokens/semantic/color.tokens.json`, not a raw red hex.
+     - Keep the section data-driven so any later special-page additions only need album-data changes plus translation keys.
+   - Integration with existing code:
+     - Reuse the same route helper from STR-38 and the same summary helper from STR-40/41.
+     - Keep special-page naming compatible with current `special.*` translation keys and quick-navigation copy.
+   - Test considerations:
+     - `HomeScreen.browser.test.tsx` should verify three cards in canonical order and correct navigation targets.
+     - Translation-resource tests should assert any new home-specific special labels/section headers in all locales.
+     - Playwright should verify a special card click lands on `/album/fwc-opening`, `/album/fwc-closing`, or `/album/coca-cola` as expected.
+   - Rollback / mitigation:
+     - If spacing or modifier styling needs adjustment after integration, constrain fixes to home CSS modules; do not change summary data shape or route helpers.
+
+7. Finish with route generation, test retargeting, and full regression gates in epic order.
+   - Files to create/modify:
+     - `src/routeTree.gen.ts` (generated)
+     - All touched browser/E2E tests
+   - Approach:
+     - Regenerate the route tree once route files are stable, then retarget existing tests to their new entrypoints instead of creating duplicate suites wherever reuse is cheaper.
+   - Key implementation details:
+     - During implementation, load the requested skills before coding each area: `react-development`, `tanstack-start`, `typescript-development`, and the repo’s CSS Modules skill equivalent (`css-architecture`).
+     - Run targeted checks after each task to catch regressions early, then run the repo QA gate last.
+     - Keep `AppStateProvider`, storage schema, and collection-service persistence unchanged unless a regression proves a real blocker.
+   - Integration with existing code:
+     - Existing tests already encode important behavior. Prefer updating selectors/entrypaths over replacing coverage.
+   - Test considerations:
+     - Suggested milestone gates:
+       - After STR-38: route helper tests + new deep-link/redirect E2E.
+       - After STR-39: swipe, quick-navigation, and filter-persistence browser/E2E.
+       - After STR-40: home hero browser tests + `/` smoke E2E.
+       - After STR-41/43/42: home-section browser tests + locale persistence + home-to-album navigation smoke.
+     - Final QA gate: `pnpm complete-check`.
+   - Rollback / mitigation:
+     - If a late regression appears, isolate fixes to the feature area that introduced it (`routes/album`, `SwipeNavigator`, or `components/home`) and avoid undoing the whole route split.
+
+## Validation
+
+- Success criteria:
+  - `/` renders a Pencil-aligned home screen with translated title, hero progress ring, group cards, special cards, and locale-sheet access from the hamburger trigger.
+  - `/album/:group/:pageId` deep-links valid team pages, `/album/:pageId` deep-links valid special pages, bare `/album` and invalid/mismatched routes redirect to `/`, and `src/routeTree.gen.ts` reflects the new route structure.
+  - Swipe navigation, quick navigation, and URL changes stay aligned with exact `albumPages` order and keep View Transitions working.
+  - Existing collection-filter persistence across page changes still works after routing moves under `/album`.
+  - Home hero totals are computed from real collection state and real dataset totals (`994`), not from static mock copy.
+  - Group cards navigate to the first team page of their group, show four team tiles with `flagcdn` imagery, and surface completion state without hardcoded album metadata.
+  - Special cards navigate to the correct special routes, and the Coca-Cola card uses token-backed sponsor styling.
+  - Locale selection still persists after reload, active locale remains visibly checked in the sheet, and no new state/store layer or raw-color styling is introduced.
+  - Final QA passes via `pnpm complete-check`.
+- Checkpoints:
+  - Pre-implementation assumptions check:
+    - Confirm `ALBUM_TOTAL` remains `994` and keep home progress math data-driven.
+    - Confirm `LocaleSwitcher` already covers the needed S5 structure before designing a second drawer.
+    - Confirm `flagcdn` can serve `gb-eng` and `gb-sct`; if not, define one centralized fallback map before card implementation.
+    - Confirm route-generation workflow is functioning so `src/routeTree.gen.ts` refreshes from new files.
+  - During implementation correctness checks:
+    - After STR-38: valid deep links render correct page type; invalid routes redirect home.
+    - After STR-39: swipes change both visible content and URL, and filter persistence test remains green.
+    - After STR-40: hero collected/total/percentage values match seeded collection fixtures for empty, partial, and full states.
+    - After STR-41: group cards render in `A`–`L` order with correct first-page links and four tiles each.
+    - After STR-43: hamburger opens the locale sheet, translated title renders, and active locale checkmark remains visible.
+    - After STR-42: special cards render in canonical order and navigate to the expected special routes.
+  - Post-implementation verification and regression checks:
+    - Regenerated `src/routeTree.gen.ts` matches the new file-route structure and contains no manual edits.
+    - Existing album-viewer browser/E2E tests still pass after path retargeting.
+    - `pnpm complete-check` passes with no coverage-threshold changes, no storage-schema changes, and no token-rule violations.
+    - Ready-for-merge state means home and album routing can evolve later without another architectural rewrite of provider, shell, or collection persistence.

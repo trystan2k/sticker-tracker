@@ -7,11 +7,18 @@ import {
   type ReactNode,
   type TouchEvent
 } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import { flushSync } from 'react-dom';
 
 import { albumPages, type AlbumPage, type PageId } from '@/data/album';
 
-import { SWIPE_THRESHOLD_PX, getActivePage, getNextPage, getPrevPage } from './viewer-state';
+import {
+  SWIPE_THRESHOLD_PX,
+  getActivePage,
+  getAlbumPath,
+  getNextPage,
+  getPrevPage
+} from './viewer-state';
 import { QuickNavigationPicker } from './QuickNavigationPicker';
 
 type SwipeNavigatorRenderProps = Readonly<{
@@ -24,28 +31,14 @@ type SwipeNavigatorRenderProps = Readonly<{
 }>;
 
 type SwipeNavigatorProps = Readonly<{
-  initialPageId?: PageId;
+  activePageId: PageId;
   children: ((props: SwipeNavigatorRenderProps) => ReactNode) | ReactNode;
 }>;
 
 type SwipeAxis = 'idle' | 'horizontal' | 'vertical';
 
-function getInitialPageId(initialPageId?: PageId): PageId {
-  const fallbackPage = albumPages[0];
-
-  if (!fallbackPage) {
-    throw new Error('Album pages dataset cannot be empty.');
-  }
-
-  if (!initialPageId) {
-    return fallbackPage.pageId;
-  }
-
-  return getActivePage(initialPageId).pageId;
-}
-
-export function SwipeNavigator({ initialPageId, children }: SwipeNavigatorProps) {
-  const [activePageId, setActivePageId] = useState<PageId>(() => getInitialPageId(initialPageId));
+export function SwipeNavigator({ activePageId, children }: SwipeNavigatorProps) {
+  const navigate = useNavigate();
   const [isQuickNavigationOpen, setIsQuickNavigationOpen] = useState(false);
 
   const touchStartXRef = useRef(0);
@@ -57,45 +50,49 @@ export function SwipeNavigator({ initialPageId, children }: SwipeNavigatorProps)
 
   const activePage = useMemo(() => getActivePage(activePageId), [activePageId]);
 
-  const navigateTo = useCallback((newPageId: PageId, direction: 'forward' | 'back') => {
-    if (typeof document !== 'undefined' && document.startViewTransition) {
-      const html = document.documentElement;
-      html.classList.add(direction === 'forward' ? 'nav-forward' : 'nav-back');
+  const navigateTo = useCallback(
+    (targetPage: AlbumPage, direction: 'forward' | 'back') => {
+      if (typeof document !== 'undefined' && document.startViewTransition) {
+        const html = document.documentElement;
+        html.classList.add(direction === 'forward' ? 'nav-forward' : 'nav-back');
 
-      const transition = document.startViewTransition(() => {
-        flushSync(() => {
-          setActivePageId(newPageId);
+        const transition = document.startViewTransition(() => {
+          flushSync(() => {
+            void navigate({ to: getAlbumPath(targetPage) });
+          });
         });
-      });
 
-      void transition.finished.finally(() => {
-        html.classList.remove('nav-forward', 'nav-back');
-      });
-    } else {
-      setActivePageId(newPageId);
-    }
-  }, []);
+        void transition.finished.finally(() => {
+          html.classList.remove('nav-forward', 'nav-back');
+        });
+      } else {
+        void navigate({ to: getAlbumPath(targetPage) });
+      }
+    },
+    [navigate]
+  );
 
   const goToPage = useCallback(
     (pageId: PageId): void => {
       if (pageId === activePageId) return;
+
       const targetPage = getActivePage(pageId);
       const currentIndex = albumPages.findIndex((p) => p.pageId === activePageId);
       const targetIndex = albumPages.findIndex((p) => p.pageId === targetPage.pageId);
       const direction: 'forward' | 'back' = targetIndex > currentIndex ? 'forward' : 'back';
-      navigateTo(targetPage.pageId, direction);
+      navigateTo(targetPage, direction);
     },
     [activePageId, navigateTo]
   );
 
   const goToNextPage = useCallback((): void => {
     const nextPage = getNextPage(activePageId);
-    navigateTo(nextPage.pageId, 'forward');
+    navigateTo(nextPage, 'forward');
   }, [activePageId, navigateTo]);
 
   const goToPrevPage = useCallback((): void => {
     const prevPage = getPrevPage(activePageId);
-    navigateTo(prevPage.pageId, 'back');
+    navigateTo(prevPage, 'back');
   }, [activePageId, navigateTo]);
 
   const openQuickNavigation = useCallback((): void => {
@@ -202,7 +199,6 @@ export function SwipeNavigator({ initialPageId, children }: SwipeNavigatorProps)
       <QuickNavigationPicker
         isOpen={isQuickNavigationOpen}
         activePageId={activePageId}
-        onSelectPage={goToPage}
         onClose={closeQuickNavigation}
       />
     </div>

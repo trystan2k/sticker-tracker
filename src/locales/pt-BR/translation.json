@@ -80,6 +80,7 @@
     "coca-cola": "Coca-Cola"
   },
   "group": {
+    "label": "Grupo {{group}}",
     "a": "Grupo A",
     "b": "Grupo B",
     "c": "Grupo C",
@@ -148,6 +149,26 @@
     "actions": {
       "camera": "Câmera (em breve)",
       "share": "Compartilhar (em breve)"
+    }
+  },
+  "home": {
+    "header": {
+      "ariaLabel": "Cabeçalho da tela inicial",
+      "title": "Copa do Mundo FIFA 2026",
+      "openLocaleMenu": "Abrir menu de idioma",
+      "shareAlbum": "Compartilhar álbum (em breve)"
+    },
+    "hero": {
+      "ariaLabel": "Progresso do álbum",
+      "complete": "completo",
+      "collected": "coletadas"
+    },
+    "groups": {
+      "title": "Grupos"
+    },
+    "specials": {
+      "title": "Páginas Especiais",
+      "openingTitle": "Página de Abertura"
     }
   },
   "scanner": {

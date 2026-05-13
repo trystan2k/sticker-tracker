@@ -9,38 +9,92 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AlbumRouteImport } from './routes/album'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AlbumIndexRouteImport } from './routes/album/index'
+import { Route as AlbumPageIdRouteImport } from './routes/album/$pageId'
+import { Route as AlbumGroupPageIdRouteImport } from './routes/album/$group/$pageId'
 
+const AlbumRoute = AlbumRouteImport.update({
+  id: '/album',
+  path: '/album',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AlbumIndexRoute = AlbumIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AlbumRoute,
+} as any)
+const AlbumPageIdRoute = AlbumPageIdRouteImport.update({
+  id: '/$pageId',
+  path: '/$pageId',
+  getParentRoute: () => AlbumRoute,
+} as any)
+const AlbumGroupPageIdRoute = AlbumGroupPageIdRouteImport.update({
+  id: '/$group/$pageId',
+  path: '/$group/$pageId',
+  getParentRoute: () => AlbumRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/album': typeof AlbumRouteWithChildren
+  '/album/$pageId': typeof AlbumPageIdRoute
+  '/album/': typeof AlbumIndexRoute
+  '/album/$group/$pageId': typeof AlbumGroupPageIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/album/$pageId': typeof AlbumPageIdRoute
+  '/album': typeof AlbumIndexRoute
+  '/album/$group/$pageId': typeof AlbumGroupPageIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/album': typeof AlbumRouteWithChildren
+  '/album/$pageId': typeof AlbumPageIdRoute
+  '/album/': typeof AlbumIndexRoute
+  '/album/$group/$pageId': typeof AlbumGroupPageIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/album'
+    | '/album/$pageId'
+    | '/album/'
+    | '/album/$group/$pageId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/album/$pageId' | '/album' | '/album/$group/$pageId'
+  id:
+    | '__root__'
+    | '/'
+    | '/album'
+    | '/album/$pageId'
+    | '/album/'
+    | '/album/$group/$pageId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AlbumRoute: typeof AlbumRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/album': {
+      id: '/album'
+      path: '/album'
+      fullPath: '/album'
+      preLoaderRoute: typeof AlbumRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +102,47 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/album/': {
+      id: '/album/'
+      path: '/'
+      fullPath: '/album/'
+      preLoaderRoute: typeof AlbumIndexRouteImport
+      parentRoute: typeof AlbumRoute
+    }
+    '/album/$pageId': {
+      id: '/album/$pageId'
+      path: '/$pageId'
+      fullPath: '/album/$pageId'
+      preLoaderRoute: typeof AlbumPageIdRouteImport
+      parentRoute: typeof AlbumRoute
+    }
+    '/album/$group/$pageId': {
+      id: '/album/$group/$pageId'
+      path: '/$group/$pageId'
+      fullPath: '/album/$group/$pageId'
+      preLoaderRoute: typeof AlbumGroupPageIdRouteImport
+      parentRoute: typeof AlbumRoute
+    }
   }
 }
 
+interface AlbumRouteChildren {
+  AlbumPageIdRoute: typeof AlbumPageIdRoute
+  AlbumIndexRoute: typeof AlbumIndexRoute
+  AlbumGroupPageIdRoute: typeof AlbumGroupPageIdRoute
+}
+
+const AlbumRouteChildren: AlbumRouteChildren = {
+  AlbumPageIdRoute: AlbumPageIdRoute,
+  AlbumIndexRoute: AlbumIndexRoute,
+  AlbumGroupPageIdRoute: AlbumGroupPageIdRoute,
+}
+
+const AlbumRouteWithChildren = AlbumRoute._addFileChildren(AlbumRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AlbumRoute: AlbumRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

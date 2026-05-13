@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 test('click sticker cell, verify progress, reload, verify persistence', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/album/fwc-opening');
 
   // Wait for sticker cells to be attached
   await page.waitForSelector('div[class*="grid"] button[aria-pressed]', { timeout: 10000 });
@@ -55,7 +55,7 @@ test('click sticker cell, verify progress, reload, verify persistence', async ({
 });
 
 test('uncollect sticker via click toggle persists after reload', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/album/fwc-opening');
 
   // Wait for sticker cells to be attached
   await page.waitForSelector('div[class*="grid"] button[aria-pressed]', { timeout: 10000 });

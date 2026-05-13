@@ -1,0 +1,156 @@
+.section {
+  padding: 0 16px 24px;
+  background-color: var(--surface-album-secondary);
+}
+
+.title {
+  margin: 0 0 12px;
+  color: var(--color-text-primary);
+  font-family: var(--typography-family-heading);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card {
+  position: relative;
+  border-radius: 12px;
+  border: 1px solid var(--color-border-subtle);
+  background-color: var(--surface-album-tertiary);
+  padding: 12px;
+}
+
+.cardComplete {
+  border-color: var(--color-brand-secondary);
+  box-shadow: 0 0 0 1px var(--color-brand-secondary) inset;
+}
+
+.cardAction {
+  position: absolute;
+  inset: 0;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.cardAction:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
+}
+
+.cardHead {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.groupName {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-family: var(--typography-family-heading);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.counter {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-family: var(--typography-family-body);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.progressTrack {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background-color: var(--surface-progress-track);
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 999px;
+  background-color: var(--color-brand-primary);
+}
+
+.progressComplete {
+  background-color: var(--color-brand-secondary);
+}
+
+.teamsGrid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.teamTile {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  min-height: 80px;
+  border: none;
+  border-radius: 8px;
+  overflow: hidden;
+  padding: 0;
+  background-color: var(--surface-sticker-missing-bg);
+  cursor: pointer;
+}
+
+.teamTile:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
+}
+
+.flagImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.teamOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgb(0 0 0 / 10%), rgb(0 0 0 / 55%));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 2px;
+  padding: 6px;
+}
+
+.teamCode {
+  margin: 0;
+  color: var(--surface-sticker-collected-text);
+  font-family: var(--typography-family-heading);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.teamName {
+  margin: 0;
+  color: var(--surface-sticker-collected-text);
+  font-family: var(--typography-family-body);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+}

@@ -1,43 +1,36 @@
 import { test, expect } from '@playwright/test';
 
-test('should render album viewer screen', async ({ page }) => {
+test('should render home screen content', async ({ page }) => {
   await page.goto('/');
 
-  // Wait for sticker cells to be attached (album viewer rendered after bootstrap)
-  await page.waitForSelector('div[class*="grid"] button[aria-pressed]', { timeout: 10000 });
+  // Home header title button is visible
+  await expect(page.getByRole('button', { name: 'FIFA World Cup 2026' })).toBeVisible();
 
-  // Sticker cells are present (album viewer is rendered)
-  const stickerCells = page.locator('div[class*="grid"] button[aria-pressed]');
-  await expect(stickerCells).toHaveCount(9); // fwc-opening page has 9 stickers (00..8)
+  // Progress ring section exists
+  const progressSection = page.getByLabel('Album progress');
+  await expect(progressSection).toBeVisible();
 
-  // Progress bar exists (may be small, use toBeAttached)
-  const progressbar = page.getByRole('progressbar');
-  await expect(progressbar).toBeAttached();
+  // Language control is in the home header
+  await expect(page.getByLabel('Open language menu')).toBeVisible();
 
-  // Filter pills are rendered (English locale)
-  await expect(page.getByText('All').first()).toBeAttached();
-  await expect(page.getByText('Collected').first()).toBeAttached();
-  await expect(page.getByText('Missing').first()).toBeAttached();
+  // Group cards section is present
+  await expect(page.getByRole('heading', { name: 'Groups' })).toBeVisible();
 
-  // Language control is in the shell header
-  await expect(page.getByLabel('Language')).toBeVisible();
+  // Special pages section is present (now rendered twice: opening + others)
+  await expect(page.getByRole('heading', { name: 'Special Pages' }).first()).toBeVisible();
 });
 
-test('should switch locale and show translated album content', async ({ page }) => {
+test('should switch locale from home screen', async ({ page }) => {
   await page.goto('/');
 
-  // Wait for sticker cells to be attached
-  await page.waitForSelector('div[class*="grid"] button[aria-pressed]', { timeout: 10000 });
+  // Home header title button is visible
+  await expect(page.getByRole('button', { name: 'FIFA World Cup 2026' })).toBeVisible();
 
   // Open locale modal and switch to Portuguese
-  await page.getByRole('button', { name: 'Language' }).click();
+  await page.getByLabel('Open language menu').click();
   await page.getByRole('button', { name: 'Portuguese (Brazil)' }).click();
   await expect(page.getByRole('dialog')).not.toBeVisible();
 
-  // Album filter pills should switch to Portuguese
-  await expect(page.getByText('Todas').first()).toBeAttached();
-  await expect(page.getByText('Colecionadas').first()).toBeAttached();
-
-  // Locale label in the header should be in Portuguese
-  await expect(page.getByLabel('Idioma')).toBeVisible();
+  // Home header title should still be visible (translated or not)
+  await expect(page.getByLabel('Abrir menu de idioma')).toBeVisible();
 });

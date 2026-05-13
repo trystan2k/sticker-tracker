@@ -9,10 +9,19 @@
 }
 
 .logo {
+  border: none;
+  padding: 0;
+  background: none;
   font-family: var(--typography-family-heading);
   font-size: 20px;
   font-weight: 800;
   color: var(--color-brand-primary);
+  cursor: pointer;
+}
+
+.logo:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
 }
 
 .center {
