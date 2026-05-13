@@ -140,7 +140,7 @@ describe('MenuDrawer', () => {
       );
       expect(focusable.length).toBeGreaterThan(1);
 
-      const lastElement = focusable[focusable.length - 1];
+      const lastElement = focusable[focusable.length - 1]!;
       lastElement.focus();
 
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab' }));
@@ -174,11 +174,11 @@ describe('MenuDrawer', () => {
       );
       expect(focusable.length).toBeGreaterThan(1);
 
-      focusable[0].focus();
+      focusable[0]!.focus();
 
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true }));
 
-      expect(document.activeElement).toBe(focusable[focusable.length - 1]);
+      expect(document.activeElement).toBe(focusable[focusable.length - 1]!);
     } finally {
       cleanup(mounted);
     }
