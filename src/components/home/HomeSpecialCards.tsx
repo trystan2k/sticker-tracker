@@ -25,7 +25,6 @@ type SpecialCardProps = Readonly<{
 }>;
 
 function SpecialCard({ card, accentColor, onNavigate, t }: SpecialCardProps) {
-  const cardPath = `/album/${card.pageId}`;
   const cardStyle = useMemo<CardStyle>(
     () => ({ '--special-card-accent': accentColor }),
     [accentColor]
@@ -33,8 +32,8 @@ function SpecialCard({ card, accentColor, onNavigate, t }: SpecialCardProps) {
   const progressStyle = useMemo(() => ({ width: `${card.percentage}%` }), [card.percentage]);
 
   const handleCardClick = useCallback(() => {
-    onNavigate(cardPath);
-  }, [onNavigate, cardPath]);
+    onNavigate(card.path);
+  }, [onNavigate, card.path]);
 
   return (
     <article

@@ -181,12 +181,27 @@ describe('HomeSpecialCards', () => {
       });
 
       const articles = mounted.container.querySelectorAll('article');
-      // Find coca-cola card by its accent element
+      // Find coca-cola card by its text content
       const cocaArticle = Array.from(articles).find((article) => {
-        const accent = article.querySelector('[class*="accent"]');
-        return accent !== null;
+        const text = article.textContent;
+        return text?.includes('Coca-Cola') || text?.includes('coca-cola');
       });
       expect(cocaArticle).not.toBeNull();
+
+      // Verify the coca-cola card has the correct accent color
+      const cocaStyle = (cocaArticle as HTMLElement).style;
+      expect(cocaStyle.getPropertyValue('--special-card-accent')).toBe(
+        'var(--color-brand-sponsor-coca-cola, #CC0000)'
+      );
+
+      // Verify other cards have a different accent (default primary)
+      const otherArticles = Array.from(articles).filter((a) => a !== cocaArticle);
+      for (const other of otherArticles) {
+        const otherStyle = other.style;
+        expect(otherStyle.getPropertyValue('--special-card-accent')).toBe(
+          'var(--color-brand-primary)'
+        );
+      }
     } finally {
       cleanup(mounted);
     }

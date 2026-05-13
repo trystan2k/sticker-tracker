@@ -44,6 +44,7 @@ export interface SpecialCardData {
   total: number;
   percentage: number;
   isComplete: boolean;
+  path: string;
 }
 
 function clampPercentage(value: number): number {
@@ -142,7 +143,8 @@ export function computeSpecialPagesData(collection: CollectionState): SpecialCar
       collected,
       total,
       percentage,
-      isComplete: collected >= total
+      isComplete: collected >= total,
+      path: getAlbumPath(page)
     };
   });
 }
