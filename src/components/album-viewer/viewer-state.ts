@@ -93,7 +93,11 @@ export function getNavigationDirection(
     return 'forward';
   }
 
-  return targetIndex > currentIndex ? 'forward' : 'back';
+  if (targetIndex < currentIndex) {
+    return 'back';
+  }
+
+  return 'forward';
 }
 
 export function derivePageSectionRuns(): readonly ViewerPageSectionRun[] {

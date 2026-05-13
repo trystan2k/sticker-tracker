@@ -7,7 +7,7 @@ import { SUPPORTED_LOCALES, type SupportedLocale } from '@/services/locale-servi
 
 import styles from './LocaleSwitcher.module.css';
 
-const LOCALE_FLAGS: Record<string, string> = {
+const LOCALE_FLAGS: Record<SupportedLocale, string> = {
   en: 'us',
   es: 'es',
   'pt-BR': 'br'
@@ -117,7 +117,7 @@ export function LocaleSwitcher({ isOpen, onClose }: LocaleSwitcherProps) {
                 data-locale={locale}
               >
                 <span
-                  className={`fi fi-${LOCALE_FLAGS[locale] ?? 'us'} ${styles.flagIcon}`}
+                  className={`fi fi-${LOCALE_FLAGS[locale]} ${styles.flagIcon}`}
                   aria-hidden="true"
                 />
                 <span className={styles.localeName}>{t(`locale.${locale}`)}</span>
