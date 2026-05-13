@@ -3,8 +3,8 @@ import { expect, test } from '@playwright/test';
 test('persists locale after reload', async ({ page }) => {
   await page.goto('/');
 
-  // Wait for home screen header to be visible
-  await expect(page.getByRole('heading', { name: /FIFA World Cup|Copa Mundial/ })).toBeVisible({
+  // Wait for home screen header title button to be visible
+  await expect(page.getByRole('button', { name: /FIFA World Cup|Copa Mundial/ }).first()).toBeVisible({
     timeout: 10000
   });
 
@@ -16,18 +16,18 @@ test('persists locale after reload', async ({ page }) => {
 
   await expect(page.getByRole('dialog')).not.toBeVisible();
 
-  // Home header should still be visible (now in Spanish)
-  await expect(page.getByRole('heading', { name: 'Copa Mundial FIFA 2026' })).toBeVisible();
+  // Home header title button should still be visible (now in Spanish)
+  await expect(page.getByRole('button', { name: 'Copa Mundial FIFA 2026' })).toBeVisible();
 
   await page.reload();
 
-  // Wait for home screen to be ready again after reload
-  await expect(page.getByRole('heading', { name: 'Copa Mundial FIFA 2026' })).toBeVisible({
+  // Wait for home screen title button to be ready again after reload
+  await expect(page.getByRole('button', { name: 'Copa Mundial FIFA 2026' })).toBeVisible({
     timeout: 10000
   });
 
   await expect(page.locator('html')).toHaveAttribute('lang', 'es');
 
-  // Home screen should still be visible after reload
-  await expect(page.getByRole('heading', { name: 'Copa Mundial FIFA 2026' })).toBeVisible();
+  // Home screen title button should still be visible after reload
+  await expect(page.getByRole('button', { name: 'Copa Mundial FIFA 2026' })).toBeVisible();
 });

@@ -3,8 +3,8 @@ import { test, expect } from '@playwright/test';
 test('should render home screen content', async ({ page }) => {
   await page.goto('/');
 
-  // Home header title is visible
-  await expect(page.getByRole('heading', { name: 'FIFA World Cup 2026' })).toBeVisible();
+  // Home header title button is visible
+  await expect(page.getByRole('button', { name: 'FIFA World Cup 2026' })).toBeVisible();
 
   // Progress ring section exists
   const progressSection = page.getByLabel('Album progress');
@@ -23,8 +23,8 @@ test('should render home screen content', async ({ page }) => {
 test('should switch locale from home screen', async ({ page }) => {
   await page.goto('/');
 
-  // Home header is visible
-  await expect(page.getByRole('heading', { name: 'FIFA World Cup 2026' })).toBeVisible();
+  // Home header title button is visible
+  await expect(page.getByRole('button', { name: 'FIFA World Cup 2026' })).toBeVisible();
 
   // Open locale modal and switch to Portuguese
   await page.getByLabel('Open language menu').click();

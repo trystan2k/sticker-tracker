@@ -34,7 +34,7 @@ export function HomeHeader({ onOpenLocaleSwitcher }: HomeHeaderProps) {
         onClick={handleNavigateHome}
         aria-label={t('home.header.title')}
       >
-        <h1 className={styles.title}>{t('home.header.title')}</h1>
+        <span className={styles.title}>{t('home.header.title')}</span>
       </button>
 
       <button

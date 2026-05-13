@@ -88,8 +88,8 @@ describe('Home page (index route)', () => {
       const header = mounted.container.querySelector('header');
       expect(header).not.toBeNull();
 
-      // Title is rendered
-      const title = mounted.container.querySelector('h1');
+      // Title is rendered (span inside button, not h1 — valid HTML)
+      const title = mounted.container.querySelector('[class*="title"]');
       expect(title).not.toBeNull();
 
       // Action buttons in header (menu + share)
@@ -112,7 +112,7 @@ describe('Home page (index route)', () => {
       const header = mounted.container.querySelector('header');
       expect(header).toBeNull();
 
-      const title = mounted.container.querySelector('h1');
+      const title = mounted.container.querySelector('[class*="title"]');
       expect(title).toBeNull();
     } finally {
       cleanup(mounted);

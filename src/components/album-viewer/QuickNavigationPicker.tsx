@@ -1,6 +1,7 @@
 import { useNavigate } from '@tanstack/react-router';
 import { Search, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
+import { flushSync } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 
 import type { AlbumPage, PageId } from '@/data/album';
@@ -110,7 +111,24 @@ export function QuickNavigationPicker({
         return;
       }
 
-      void navigate({ to: getAlbumPath(page) });
+      const path = getAlbumPath(page);
+
+      // Apply view transition for smooth navigation
+      if (typeof document !== 'undefined' && document.startViewTransition) {
+        const html = document.documentElement;
+        html.classList.add('nav-forward');
+        const transition = document.startViewTransition(() => {
+          flushSync(() => {
+            void navigate({ to: path });
+          });
+        });
+        void transition.finished.finally(() => {
+          html.classList.remove('nav-forward', 'nav-back');
+        });
+      } else {
+        void navigate({ to: path });
+      }
+
       onClose();
     },
     [navigate, onClose]
