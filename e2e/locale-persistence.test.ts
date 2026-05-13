@@ -4,7 +4,9 @@ test('persists locale after reload', async ({ page }) => {
   await page.goto('/');
 
   // Wait for home screen header title button to be visible
-  await expect(page.getByRole('button', { name: /FIFA World Cup|Copa Mundial/ }).first()).toBeVisible({
+  await expect(
+    page.getByRole('button', { name: /FIFA World Cup|Copa Mundial/ }).first()
+  ).toBeVisible({
     timeout: 10000
   });
 
