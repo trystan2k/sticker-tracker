@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0](https://github.com/trystan2k/sticker-tracker/compare/v1.6.0...v1.7.0) (2026-05-13)
+
+
+### Features
+
+* EP11 UI Polish & Bug Fixes ([#16](https://github.com/trystan2k/sticker-tracker/issues/16)) ([a19547d](https://github.com/trystan2k/sticker-tracker/commit/a19547df0d12147eb9878fb5cad52d763fc2b74a))
+
 ## [1.6.0](https://github.com/trystan2k/sticker-tracker/compare/v1.5.0...v1.6.0) (2026-05-13)
 
 
