@@ -1,9 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
 
-// SKIP: App bug - album route context unavailable (STR-37 routing change)
-// The /album/$pageId route throws "Album route context unavailable" because
-// the AlbumLayout context provider doesn't initialize properly after the
-// home screen routing change. Tests below are preserved for when the app bug is fixed.
 async function swipeLeft(page: Page) {
   const swipeThreshold = await page
     .locator('[data-testid="swipe-surface"]')

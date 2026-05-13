@@ -5,7 +5,7 @@
   align-items: flex-end;
   justify-content: center;
   background-color: var(--color-overlay-backdrop);
-  z-index: var(--z-index-toast);
+  z-index: var(--z-index-modal);
 }
 
 .backdrop {

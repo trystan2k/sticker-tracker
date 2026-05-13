@@ -152,7 +152,7 @@ describe('Home page (index route)', () => {
       expect(header).not.toBeNull();
 
       // Hero progress section renders SVG ring
-      const heroSection = mounted.container.querySelector('[aria-label="Home progress"]');
+      const heroSection = mounted.container.querySelector('[aria-label="Album progress"]');
       expect(heroSection).not.toBeNull();
 
       // Stats are rendered

@@ -7,7 +7,7 @@ test('should render home screen content', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'FIFA World Cup 2026' })).toBeVisible();
 
   // Progress ring section exists
-  const progressSection = page.getByLabel('Home progress');
+  const progressSection = page.getByLabel('Album progress');
   await expect(progressSection).toBeVisible();
 
   // Language control is in the home header

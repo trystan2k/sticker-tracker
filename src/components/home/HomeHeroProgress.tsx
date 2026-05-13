@@ -8,6 +8,7 @@ type HomeHeroProgressProps = Readonly<{
   collectedFormatted: string;
   totalFormatted: string;
   percentFormatted: string;
+  ringAriaLabel?: string;
 }>;
 
 const RING_RADIUS = 75;
@@ -18,13 +19,14 @@ export function HomeHeroProgress({
   completeLabel,
   collectedFormatted,
   totalFormatted,
-  percentFormatted
+  percentFormatted,
+  ringAriaLabel
 }: HomeHeroProgressProps) {
   const normalizedProgress = Math.max(0, Math.min(100, summary.percentage));
   const strokeDashoffset = RING_CIRCUMFERENCE * (1 - normalizedProgress / 100);
 
   return (
-    <section className={styles.hero} aria-label="Home progress">
+    <section className={styles.hero} aria-label={ringAriaLabel ?? 'Home progress'}>
       <div className={styles.ringWrap}>
         <svg
           className={styles.ringSvg}

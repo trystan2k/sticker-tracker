@@ -7,6 +7,7 @@ import styles from './HomeSpecialCards.module.css';
 
 type HomeSpecialCardsProps = Readonly<{
   cards: readonly SpecialCardData[];
+  sectionTitle?: string;
 }>;
 
 const COCA_COLA_ACCENT = 'var(--color-brand-sponsor-coca-cola, #CC0000)';
@@ -68,7 +69,7 @@ function SpecialCard({ card, accentColor, onNavigate, t }: SpecialCardProps) {
   );
 }
 
-export function HomeSpecialCards({ cards }: HomeSpecialCardsProps) {
+export function HomeSpecialCards({ cards, sectionTitle }: HomeSpecialCardsProps) {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -81,7 +82,7 @@ export function HomeSpecialCards({ cards }: HomeSpecialCardsProps) {
 
   return (
     <section className={styles.section}>
-      <h2 className={styles.title}>{t('home.specials.title')}</h2>
+      {sectionTitle && <h2 className={styles.title}>{sectionTitle}</h2>}
 
       <div className={styles.list}>
         {cards.map((card) => {

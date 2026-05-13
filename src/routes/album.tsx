@@ -27,7 +27,7 @@ export type AlbumRouteContext = Readonly<{
 }>;
 
 export function useAlbumRouteContext(): AlbumRouteContext {
-  const activeFilter = useSyncExternalStore(subscribe, getSnapshot);
+  const activeFilter = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 
   return {
     activeFilter,

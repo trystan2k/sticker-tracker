@@ -79,10 +79,16 @@ export function HomeScreen() {
           collectedFormatted={summary.collectedFormatted}
           totalFormatted={summary.totalFormatted}
           percentFormatted={summary.percentFormatted}
+          ringAriaLabel={t('home.hero.ariaLabel')}
         />
-        {openingSpecialCards.length > 0 ? <HomeSpecialCards cards={openingSpecialCards} /> : null}
+        {openingSpecialCards.length > 0 ? (
+          <HomeSpecialCards
+            cards={openingSpecialCards}
+            sectionTitle={t('home.specials.openingTitle')}
+          />
+        ) : null}
         <HomeGroupCards groups={groups} />
-        <HomeSpecialCards cards={otherSpecialCards} />
+        <HomeSpecialCards cards={otherSpecialCards} sectionTitle={t('home.specials.title')} />
 
         <section className={styles.safeArea} aria-hidden="true">
           <div className={styles.homeIndicator} />
