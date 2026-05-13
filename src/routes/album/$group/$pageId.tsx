@@ -18,11 +18,8 @@ function AlbumTeamPageRoute() {
   const { group, pageId } = Route.useParams();
   const { activeFilter, onChangeFilter } = useAlbumRouteContext();
 
-  const activePage = getAlbumPageByRoute(group, pageId);
-
-  if (!activePage) {
-    throw redirect({ to: '/' });
-  }
+  // beforeLoad guarantees valid group+pageId — lookup cannot fail here
+  const activePage = getAlbumPageByRoute(group, pageId)!;
 
   return (
     <AlbumRouteScreen

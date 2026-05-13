@@ -18,11 +18,8 @@ function AlbumSpecialPageRoute() {
   const { pageId } = Route.useParams();
   const { activeFilter, onChangeFilter } = useAlbumRouteContext();
 
-  const activePage = getAlbumPageByRoute(undefined, pageId);
-
-  if (!activePage) {
-    throw redirect({ to: '/' });
-  }
+  // beforeLoad guarantees valid pageId — lookup cannot fail here
+  const activePage = getAlbumPageByRoute(undefined, pageId)!;
 
   return (
     <AlbumRouteScreen
