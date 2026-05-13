@@ -116,4 +116,95 @@ describe('MenuDrawer', () => {
       cleanup(mounted);
     }
   });
+
+  it('cycles focus forward on Tab from last element', async () => {
+    const onClose = vi.fn<() => void>();
+    const mounted = mount(
+      React.createElement(MenuDrawer, {
+        isOpen: true,
+        onClose,
+        onOpenLocaleSwitcher: () => {},
+        currentLocale: 'en'
+      })
+    );
+
+    try {
+      await waitFor(() => document.body.textContent?.includes('Share') ?? false);
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+
+      const panel = document.querySelector('[role="dialog"]');
+      expect(panel).not.toBeNull();
+
+      const focusable = panel!.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      expect(focusable.length).toBeGreaterThan(1);
+
+      const lastElement = focusable[focusable.length - 1];
+      lastElement.focus();
+
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab' }));
+
+      expect(document.activeElement).toBe(focusable[0]);
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('cycles focus backward on Shift+Tab from first element', async () => {
+    const onClose = vi.fn<() => void>();
+    const mounted = mount(
+      React.createElement(MenuDrawer, {
+        isOpen: true,
+        onClose,
+        onOpenLocaleSwitcher: () => {},
+        currentLocale: 'en'
+      })
+    );
+
+    try {
+      await waitFor(() => document.body.textContent?.includes('Share') ?? false);
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+
+      const panel = document.querySelector('[role="dialog"]');
+      expect(panel).not.toBeNull();
+
+      const focusable = panel!.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      expect(focusable.length).toBeGreaterThan(1);
+
+      focusable[0].focus();
+
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true }));
+
+      expect(document.activeElement).toBe(focusable[focusable.length - 1]);
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('renders share button as disabled', async () => {
+    const mounted = mount(
+      React.createElement(MenuDrawer, {
+        isOpen: true,
+        onClose: () => {},
+        onOpenLocaleSwitcher: () => {},
+        currentLocale: 'en'
+      })
+    );
+
+    try {
+      await waitFor(() => document.body.textContent?.includes('Share') ?? false);
+
+      const shareButton = Array.from(document.body.querySelectorAll('button')).find(
+        (button) => button.textContent?.trim() === 'Share'
+      );
+
+      expect(shareButton).toBeDefined();
+      expect(shareButton?.hasAttribute('disabled')).toBe(true);
+    } finally {
+      cleanup(mounted);
+    }
+  });
 });
