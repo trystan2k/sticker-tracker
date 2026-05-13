@@ -30,9 +30,7 @@ export function AlbumPageHeader({ page, onOpenQuickNavigation }: AlbumPageHeader
 
   const handleOpenLocaleModalFromDrawer = useCallback((): void => {
     setIsMenuDrawerOpen(false);
-    window.setTimeout(() => {
-      setIsLocaleModalOpen(true);
-    }, 100);
+    setIsLocaleModalOpen(true);
   }, []);
 
   const handleCloseLocaleModal = useCallback((): void => {
