@@ -76,19 +76,26 @@ function mockNavigatorShare(
   canShareImpl: (data?: ShareData) => boolean,
   shareImpl?: (data?: ShareData) => Promise<void>
 ) {
-  const canShare = vi.fn<(data?: ShareData) => boolean>(canShareImpl);
-  const share = vi
-    .fn<(data?: ShareData) => Promise<void>>()
-    .mockImplementation(shareImpl ?? (async () => Promise.resolve()));
+  if (!('canShare' in navigator)) {
+    Object.defineProperty(navigator, 'canShare', {
+      configurable: true,
+      value: () => false
+    });
+  }
 
-  Object.defineProperty(window.navigator, 'canShare', {
-    configurable: true,
-    value: canShare
-  });
-  Object.defineProperty(window.navigator, 'share', {
-    configurable: true,
-    value: share
-  });
+  if (!('share' in navigator)) {
+    Object.defineProperty(navigator, 'share', {
+      configurable: true,
+      value: async () => Promise.resolve()
+    });
+  }
+
+  const canShare = vi
+    .spyOn(navigator, 'canShare')
+    .mockImplementation((data?: ShareData) => canShareImpl(data));
+  const share = vi
+    .spyOn(navigator, 'share')
+    .mockImplementation(shareImpl ?? (async () => Promise.resolve()));
 
   return { canShare, share };
 }

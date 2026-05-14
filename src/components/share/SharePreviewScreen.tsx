@@ -1,5 +1,5 @@
 import { ArrowLeft, Download, Share2 } from 'lucide-react';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { SharePreviewCard } from '@/components/share/SharePreviewCard';
@@ -18,23 +18,20 @@ export function SharePreviewScreen({ payload, onBack }: SharePreviewScreenProps)
   const [isBusy, setIsBusy] = useState(false);
   const [status, setStatus] = useState('');
   const renderPromiseRef = useRef<Promise<Awaited<ReturnType<typeof renderSharePng>>> | null>(null);
-  const prevPayloadRef = useRef(payload);
 
-  if (prevPayloadRef.current !== payload) {
-    prevPayloadRef.current = payload;
-    renderPromiseRef.current = null;
-  }
+  useEffect(() => {
+    const renderPromise = renderSharePng(payload, t).catch((err) => {
+      renderPromiseRef.current = null;
+      throw err;
+    });
+
+    renderPromiseRef.current = renderPromise;
+    void renderPromise.catch(() => undefined);
+  }, [payload, t]);
 
   const getAsset = useCallback(() => {
-    if (!renderPromiseRef.current) {
-      renderPromiseRef.current = renderSharePng(payload, t).catch((err) => {
-        renderPromiseRef.current = null;
-        throw err;
-      });
-    }
-
-    return renderPromiseRef.current;
-  }, [payload, t]);
+    return renderPromiseRef.current ?? Promise.reject(new Error('No render in progress'));
+  }, []);
 
   const downloadAsset = useCallback(
     async (withStatus: boolean) => {

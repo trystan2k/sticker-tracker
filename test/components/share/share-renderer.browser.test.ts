@@ -37,7 +37,7 @@ function createPayload(): SharePreviewPayload {
 
 function t(key: string): string {
   const map: Record<string, string> = {
-    'album.pages.team.mex': 'Brazil',
+    'team.mex': 'México',
     'share.preview.subtitle': 'Missing Stickers',
     'share.preview.missingPrefix': 'Missing',
     'share.preview.emptyTitle': 'No missing stickers',

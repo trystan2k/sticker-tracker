@@ -185,17 +185,18 @@
     "fileName": "copa26-missing-stickers.png",
     "selection": {
       "title": "Share Missing",
-      "back": "Back to album",
+      "back": "Back",
       "selectAll": "Select all",
       "clear": "Clear",
       "generate": "Generate Image",
       "selected": "{{count}} selected",
+      "selected_plural": "{{count}} selected",
       "empty": "No missing stickers to share",
       "pageCount": "{{count}} sel."
     },
     "preview": {
       "title": "Preview",
-      "back": "Back to selection",
+      "back": "Back",
       "ariaLabel": "Share preview card",
       "subtitle": "Missing Stickers",
       "missingPrefix": "Missing",

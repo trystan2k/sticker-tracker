@@ -185,17 +185,18 @@
     "fileName": "copa26-missing-stickers.png",
     "selection": {
       "title": "Compartir Faltantes",
-      "back": "Volver al álbum",
+      "back": "Volver",
       "selectAll": "Seleccionar todas",
       "clear": "Limpiar",
       "generate": "Generar imagen",
-      "selected": "{{count}} seleccionadas",
+      "selected": "{{count}} seleccionada",
+      "selected_plural": "{{count}} seleccionadas",
       "empty": "Sin stickers faltantes",
       "pageCount": "{{count}} sel."
     },
     "preview": {
       "title": "Vista previa",
-      "back": "Volver a selección",
+      "back": "Volver",
       "ariaLabel": "Tarjeta de vista previa para compartir",
       "subtitle": "Figuritas faltantes",
       "missingPrefix": "Faltan",
