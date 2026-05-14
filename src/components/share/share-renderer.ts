@@ -123,16 +123,7 @@ async function loadFlagImage(flagCode: string): Promise<HTMLImageElement> {
   } else if (flagCode === 'cocacola') {
     image.src = COCACOLA_ICON_PATH;
   } else {
-    const response = await fetch(`/node_modules/flag-icons/flags/4x3/${flagCode}.svg`);
-
-    if (!response.ok) {
-      throw new Error(`Unable to load flag: ${flagCode}`);
-    }
-
-    const svgText = await response.text();
-    const blob = new Blob([svgText], { type: 'image/svg+xml' });
-    const objectUrl = URL.createObjectURL(blob);
-    image.src = objectUrl;
+    image.src = `/images/flags/${flagCode}.svg`;
   }
 
   if (typeof image.decode === 'function') {
