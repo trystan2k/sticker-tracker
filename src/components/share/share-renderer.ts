@@ -27,7 +27,14 @@ const DEFAULT_MAX_PIXEL_WIDTH = 4096;
 const DEFAULT_MAX_PIXEL_HEIGHT = 16384;
 const DEFAULT_PREFERRED_SCALE = 2;
 
-const FONT_STACK = "'Barlow', 'Barlow Condensed', sans-serif";
+const FONT_STACK = "'Barlow Condensed', 'Barlow', sans-serif";
+
+const COLOR_CARD_BG = '#1A221A';
+const COLOR_CARD_CHROME_BG = '#141A14';
+const COLOR_DIVIDER = 'rgba(255, 255, 255, 0.1)';
+const COLOR_TITLE_TEXT = '#FFF9E6';
+const COLOR_TEXT_SECONDARY = '#E8F0E8';
+const COLOR_TEXT_PRIMARY = '#FBF8EE';
 
 type RenderBlock = {
   title: string;
@@ -232,23 +239,23 @@ export async function renderSharePng(
 
   context.scale(scale, scale);
 
-  context.fillStyle = '#113028';
+  context.fillStyle = COLOR_CARD_BG;
   context.fillRect(0, 0, logicalWidth, logicalHeight);
 
-  context.fillStyle = '#0b201b';
+  context.fillStyle = COLOR_CARD_CHROME_BG;
   context.fillRect(0, 0, logicalWidth, HEADER_HEIGHT);
 
-  context.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+  context.strokeStyle = COLOR_DIVIDER;
   context.beginPath();
   context.moveTo(0, HEADER_HEIGHT + 0.5);
   context.lineTo(logicalWidth, HEADER_HEIGHT + 0.5);
   context.stroke();
 
-  context.fillStyle = '#f7f9ef';
+  context.fillStyle = COLOR_TITLE_TEXT;
   context.font = `600 32px ${FONT_STACK}`;
   context.fillText(t('share.brandName'), CARD_PADDING_X, 34, logicalWidth - CARD_PADDING_X * 2);
 
-  context.fillStyle = '#d7dfc6';
+  context.fillStyle = COLOR_TEXT_SECONDARY;
   context.font = `400 12px ${FONT_STACK}`;
   context.fillText(
     t('share.preview.subtitle'),
@@ -261,7 +268,7 @@ export async function renderSharePng(
 
   blocks.forEach((block, index) => {
     if (index > 0) {
-      context.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+      context.strokeStyle = COLOR_DIVIDER;
       context.beginPath();
       context.moveTo(CARD_PADDING_X, y + 0.5);
       context.lineTo(logicalWidth - CARD_PADDING_X, y + 0.5);
@@ -281,27 +288,27 @@ export async function renderSharePng(
       titleX = CARD_PADDING_X + 30;
     }
 
-    context.fillStyle = '#f7f9ef';
+    context.fillStyle = COLOR_TEXT_PRIMARY;
     context.font = `600 14px ${FONT_STACK}`;
     context.fillText(block.title, titleX, y + 13, logicalWidth - CARD_PADDING_X - titleX);
 
-    context.fillStyle = '#d7dfc6';
+    context.fillStyle = COLOR_TEXT_SECONDARY;
     context.font = `400 12px ${FONT_STACK}`;
     context.fillText(block.missingText, CARD_PADDING_X, y + 32, logicalWidth - CARD_PADDING_X * 2);
 
     y += BLOCK_HEIGHT;
   });
 
-  context.fillStyle = '#0b201b';
+  context.fillStyle = COLOR_CARD_CHROME_BG;
   context.fillRect(0, logicalHeight - FOOTER_HEIGHT, logicalWidth, FOOTER_HEIGHT);
 
-  context.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+  context.strokeStyle = COLOR_DIVIDER;
   context.beginPath();
   context.moveTo(0, logicalHeight - FOOTER_HEIGHT + 0.5);
   context.lineTo(logicalWidth, logicalHeight - FOOTER_HEIGHT + 0.5);
   context.stroke();
 
-  context.fillStyle = '#b2be9f';
+  context.fillStyle = COLOR_TEXT_SECONDARY;
   context.font = `400 12px ${FONT_STACK}`;
   context.fillText(
     t('share.brandDomain'),

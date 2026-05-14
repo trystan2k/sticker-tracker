@@ -190,7 +190,7 @@
       "clear": "Limpiar",
       "generate": "Generar imagen",
       "selected": "{{count}} seleccionada",
-      "selected_plural": "{{count}} seleccionadas",
+      "selected_other": "{{count}} seleccionadas",
       "empty": "Sin stickers faltantes",
       "pageCount": "{{count}} sel."
     },

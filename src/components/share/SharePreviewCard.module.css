@@ -16,7 +16,7 @@
 
 .title {
   margin: 0;
-  font-family: 'Barlow Condensed', Barlow, sans-serif;
+  font-family: var(--typography-family-heading);
   font-size: 28px;
   line-height: 1;
   letter-spacing: 0.02em;
