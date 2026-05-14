@@ -27,7 +27,10 @@ export function SharePreviewScreen({ payload, onBack }: SharePreviewScreenProps)
 
   const getAsset = useCallback(() => {
     if (!renderPromiseRef.current) {
-      renderPromiseRef.current = renderSharePng(payload, t);
+      renderPromiseRef.current = renderSharePng(payload, t).catch((err) => {
+        renderPromiseRef.current = null;
+        throw err;
+      });
     }
 
     return renderPromiseRef.current;

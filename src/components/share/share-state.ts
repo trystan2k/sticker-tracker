@@ -211,6 +211,12 @@ export function compressMissingStickerIds(stickerIds: readonly StickerIdentifier
           break;
         }
 
+        if (startEntry.raw.startsWith('0') || endEntry.raw.startsWith('0')) {
+          if (nextEntry.raw.length !== endEntry.raw.length) {
+            break;
+          }
+        }
+
         endEntry = nextEntry;
         index += 1;
       }
@@ -282,7 +288,7 @@ export function buildSharePreviewPayload(
 
   return {
     selectedPageIds: orderedSelectedPageIds,
-    selectedPageCount: orderedSelectedPageIds.length,
+    selectedPageCount: sections.reduce((sum, section) => sum + section.pages.length, 0),
     totalMissingStickerCount,
     sections
   };

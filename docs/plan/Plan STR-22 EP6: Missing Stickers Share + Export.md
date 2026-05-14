@@ -165,7 +165,7 @@
    - Logical card width matches Pencil preview card (320).
    - Draw card header, page sections, footer in order.
    - Use compact per-page sticker text from `compressMissingStickerIds()`.
-   - Explicit safeguards: clamp scale so final bitmap never exceeds max safe ceiling (MAX_EXPORT_WIDTH_PX=2048, MAX_EXPORT_HEIGHT_PX=8192). If scale drops below 1, throw controlled error.
+   - Explicit safeguards: clamp scale so final bitmap never exceeds max safe ceiling (MAX_EXPORT_WIDTH_PX=4096, MAX_EXPORT_HEIGHT_PX=16384). If scale drops below 1, throw controlled error.
    - Renderer browser tests: returns PNG blob, clamps scale, throws on empty payload.
 
 6. Execute STR-25 by wiring share/download UX around cached generated asset.
