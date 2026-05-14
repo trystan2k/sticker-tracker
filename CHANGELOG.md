@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.9.0](https://github.com/trystan2k/sticker-tracker/compare/v1.8.0...v1.9.0) (2026-05-14)
+
+
+### Features
+
+* add app version display to menu drawer ([176fadc](https://github.com/trystan2k/sticker-tracker/commit/176fadc583b2a87e2e53e83822e55e3ecc6556d2))
+* add fifa 26 logo support for share previews ([4d24cb1](https://github.com/trystan2k/sticker-tracker/commit/4d24cb15eb434a73d9e9205e2643375bf84efe25))
+* **vitest:** add vitest skill and documentation ([791d8f7](https://github.com/trystan2k/sticker-tracker/commit/791d8f743efd5304894fe536a9482603fdc9ce6c))
+
 ## [1.8.0](https://github.com/trystan2k/sticker-tracker/compare/v1.7.0...v1.8.0) (2026-05-14)
 
 
