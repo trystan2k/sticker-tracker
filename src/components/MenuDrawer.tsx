@@ -3,6 +3,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 
+import { APP_VERSION } from '@/version';
+
 import styles from './MenuDrawer.module.css';
 
 interface MenuDrawerProps {
@@ -202,6 +204,10 @@ export function MenuDrawer({
           </button>
 
           <div className={styles.divider} aria-hidden="true" />
+        </div>
+
+        <div className={styles.footer}>
+          <span className={styles.version}>v{APP_VERSION}</span>
         </div>
       </aside>
     </div>,

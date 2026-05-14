@@ -161,3 +161,16 @@
   outline: 2px solid var(--color-brand-primary);
   outline-offset: 2px;
 }
+
+.footer {
+  margin-top: auto;
+  padding: 16px;
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.version {
+  font-family: var(--typography-family-body);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+}
