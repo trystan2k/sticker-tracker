@@ -99,6 +99,11 @@ function waitForImageLoad(image: HTMLImageElement): Promise<void> {
   });
 }
 
+const flagSvgs = import.meta.glob<string>('/node_modules/flag-icons/flags/4x3/*.svg', {
+  eager: true,
+  query: '?url',
+  import: 'default'
+});
 const FIFA_ICON_PATH = '/images/fifa.png';
 const COCACOLA_ICON_PATH = '/images/cocacola.png';
 
@@ -116,15 +121,22 @@ async function loadFlagImage(flagCode: string): Promise<HTMLImageElement> {
   } else if (flagCode === 'cocacola') {
     image.src = COCACOLA_ICON_PATH;
   } else {
-    image.crossOrigin = 'anonymous';
-    image.src = `https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/flags/4x3/${flagCode}.svg`;
+    const flagUrl = flagSvgs[`/node_modules/flag-icons/flags/4x3/${flagCode}.svg`];
+
+    if (!flagUrl) {
+      throw new Error(`Unknown flag: ${flagCode}`);
+    }
+
+    image.src = flagUrl;
   }
 
   if (typeof image.decode === 'function') {
     try {
       await image.decode();
     } catch {
-      await waitForImageLoad(image);
+      if (!image.complete) {
+        await waitForImageLoad(image);
+      }
     }
   } else {
     await waitForImageLoad(image);

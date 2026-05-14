@@ -118,7 +118,7 @@
   cursor: pointer;
 }
 
-.row + .row {
+.rows li + li .row {
   border-top: 1px solid var(--color-border-subtle);
 }
 

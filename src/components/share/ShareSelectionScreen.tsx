@@ -14,7 +14,7 @@ type ShareSelectionScreenProps = Readonly<{
   onTogglePage: (pageId: PageId) => void;
   onSelectAll: () => void;
   onClear: () => void;
-  onGenerate: () => void;
+  onGenerate: (selectedPageIds: readonly PageId[]) => void;
 }>;
 
 export function ShareSelectionScreen({
@@ -32,7 +32,15 @@ export function ShareSelectionScreen({
     () => sections.flatMap((section) => section.rows).filter((row) => row.missingCount > 0),
     [sections]
   );
-  const selectedCount = selectedPageIds.length;
+  const selectableIds = useMemo(
+    () => new Set(selectableRows.map((row) => row.pageId)),
+    [selectableRows]
+  );
+  const validSelectedIds = useMemo(
+    () => selectedPageIds.filter((pageId) => selectableIds.has(pageId)),
+    [selectedPageIds, selectableIds]
+  );
+  const selectedCount = validSelectedIds.length;
   const isEmpty = selectableRows.length === 0;
 
   const handleTogglePage = useCallback(
@@ -41,6 +49,10 @@ export function ShareSelectionScreen({
     },
     [onTogglePage]
   );
+
+  const handleGenerate = useCallback(() => {
+    onGenerate(validSelectedIds);
+  }, [onGenerate, validSelectedIds]);
 
   return (
     <main className={styles.screen}>
@@ -117,10 +129,21 @@ export function ShareSelectionScreen({
                               className={`fi fi-${row.flagCode} ${styles.flag}`}
                               aria-hidden="true"
                             />
-                          ) : row.specialKey === 'fwc-opening' || row.specialKey === 'fwc-closing' ? (
-                            <img src="/images/fifa.png" alt="" className={styles.flag} aria-hidden="true" />
+                          ) : row.specialKey === 'fwc-opening' ||
+                            row.specialKey === 'fwc-closing' ? (
+                            <img
+                              src="/images/fifa.png"
+                              alt=""
+                              className={styles.flag}
+                              aria-hidden="true"
+                            />
                           ) : row.specialKey === 'coca-cola' ? (
-                            <img src="/images/cocacola.png" alt="" className={styles.flag} aria-hidden="true" />
+                            <img
+                              src="/images/cocacola.png"
+                              alt=""
+                              className={styles.flag}
+                              aria-hidden="true"
+                            />
                           ) : (
                             <span className={styles.specialMark} aria-hidden="true" />
                           )}
@@ -153,7 +176,7 @@ export function ShareSelectionScreen({
           type="button"
           className={styles.generateButton}
           disabled={selectedCount === 0 || isEmpty}
-          onClick={onGenerate}
+          onClick={handleGenerate}
         >
           {t('share.selection.generate')}
         </button>

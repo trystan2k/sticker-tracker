@@ -70,15 +70,20 @@ function ShareSelectionRoute() {
     [selectedPageIds, setSelected]
   );
 
-  const handleGenerate = useCallback(() => {
-    void navigate({
-      to: '/share/preview',
-      search: {
-        ...(search.pages ? { pages: search.pages } : {}),
-        from: sanitizeFromPath(search.from)
-      }
-    });
-  }, [navigate, search.from, search.pages]);
+  const handleGenerate = useCallback(
+    (nextPageIds: readonly PageId[]) => {
+      const nextValue = encodeShareSelection(nextPageIds);
+
+      void navigate({
+        to: '/share/preview',
+        search: {
+          ...(nextValue ? { pages: nextValue } : {}),
+          from: sanitizeFromPath(search.from)
+        }
+      });
+    },
+    [navigate, search.from]
+  );
 
   const handleSelectAll = useCallback(
     () => setSelected(selectablePageIds),

@@ -16,56 +16,54 @@ permalink: docs/development-logs/task-STR-22-ep6-missing-stickers-share-export
 
 ## Objective
 
-- Implement sharing and export (PNG) for missing stickers. Provide URL-backed selection, preview, Web Share integration, and download fallback.
+- Implement missing stickers share + export flow with URL-backed selection, preview rendering, and PNG sharing/downloading.
 
 ## Implementation Summary
 
-- Epic: STR-22 — EP6: Missing Stickers Share + Export. Subtasks: STR-23 (share state model), STR-24 (PNG renderer), STR-25 (UX flows).
-- Created a pure helper module for share state and payload generation that is URL-backed so selection survives refresh and back/forward navigation.
-- Implemented a canvas-based PNG renderer with size safeguards and scale clamping to avoid huge exports and memory blowups.
-- Implemented UI screens and components matching Pencil designs (S4a, S4b): selection screen, preview screen, preview card.
-- Added routes and wiring so share flows reachable from drawer (global all-missing) and album viewer (current-page share).
-- Added i18n keys across all three locales.
+- Added share feature slice in `src/components/share/` with pure selection/payload state helpers and deterministic canvas PNG renderer.
+- Added share routes (`/share`, `/share/preview`) and route wiring for selection → preview flow.
+- Wired entry points from drawer and album viewer to open share flow with contextual preselection.
+- Added i18n copy for all share labels/messages in all supported locales.
+- Added browser and unit tests for share state, renderer, and share screens.
 
 ## Files Changed
 
-- src/components/share/share-state.ts (new) — URL-backed selection, missing sticker computation, payload generation
-- src/components/share/share-renderer.ts (new) — canvas-based PNG renderer, dimension/scale safeguards
-- src/components/share/SharePreviewCard.tsx (new) — dark-green themed preview card (Pencil S4b)
-- src/screens/ShareSelectionScreen.tsx (new) — full-page selection (Pencil S4a): checkbox rows, quick actions, CTA
-- src/screens/SharePreviewScreen.tsx (new) — export/preview screen with Web Share API + download fallback
-- src/routes/share.tsx or routing entry (new) — /share and /share/preview routes (project routing updated)
-- src/components/MenuDrawer.tsx (modified) — added share entry (global all-missing)
-- src/components/AlbumViewer.tsx (modified) — added share quick-action in filter row
-- src/screens/AlbumRouteScreen.tsx (modified) — wiring for share flows from album context
-- src/components/AlbumPageHeader.tsx (modified) — share CTA hook-ups
-- src/screens/HomeScreen.tsx (modified) — added share entry point where applicable
-- src/i18n/en.json, src/i18n/pt-BR.json, src/i18n/es.json (modified) — added share/export strings
-- tests/\*\* (updated) — unit tests for share-state and renderer; E2E tests covering share flows
-
-Notes: file paths reflect project conventions used elsewhere; filenames listed above correspond to the implemented units and to the description provided in the task context.
+- `src/components/share/share-state.ts` — URL selection decode/encode, section builders, preview payload, missing sticker compression
+- `src/components/share/share-renderer.ts` — canvas PNG rendering and image asset loading
+- `src/components/share/ShareSelectionScreen.tsx` — selection UI, quick actions, generate CTA
+- `src/components/share/ShareSelectionScreen.module.css` — selection screen styles
+- `src/components/share/SharePreviewScreen.tsx` — preview action flow (share/download)
+- `src/components/share/SharePreviewScreen.module.css` — preview screen styles
+- `src/components/share/SharePreviewCard.tsx` — preview card
+- `src/components/share/SharePreviewCard.module.css` — preview card styles
+- `src/components/MenuDrawer.tsx` — drawer share action support
+- `src/components/home/HomeScreen.tsx` — global all-missing entry point
+- `src/components/album-viewer/AlbumRouteScreen.tsx` — share flow wiring per album context
+- `src/components/album-viewer/AlbumViewer.tsx` — current-page share entry point
+- `src/components/album-viewer/AlbumViewer.module.css` — filter-row share action styles
+- `src/components/album-viewer/AlbumPageHeader.tsx` — menu share callback wiring
+- `src/routes/share.tsx`, `src/routes/share/index.tsx`, `src/routes/share/preview.tsx` — share routes
+- `src/locales/en/translation.json`, `src/locales/pt-BR/translation.json`, `src/locales/es/translation.json` — share/export strings
+- `test/components/share/share-state.test.ts` — state and compression coverage
+- `test/components/share/share-renderer.browser.test.ts` — renderer browser coverage
+- `test/components/share/ShareSelectionScreen.browser.test.tsx` — selection screen behavior
+- `test/components/share/SharePreviewScreen.browser.test.tsx` — preview screen behavior
 
 ## Key Decisions
 
-- URL-backed selection (pages search param) instead of provider/global state. Reason: selection must survive refresh, browser navigation, shareable URLs.
-- Custom canvas renderer rather than html2canvas/dom-to-image. Reason: zero external deps, deterministic layout, tighter control over size and scale.
-- Reused PAGE_SECTION_RUNS constant from viewer-state to keep page-run logic consistent with viewer.
-- Implemented PAGE_MAP lookup for O(1) page access during missing-sticker computation to keep selection and payload generation performant on large albums.
-- Renderer includes hard max dimensions and scale clamping to avoid OOM and giant downloads on very large albums.
+- Kept share state URL-backed (search params) instead of adding global/provider persisted share draft state.
+- Used native canvas renderer for deterministic output and zero new rendering dependencies.
+- Reused existing album ordering/section structures to keep share output aligned with album viewer behavior.
 
 ## Validation Performed
 
-- Unit tests: 216 total across project; added focused unit tests for share-state and renderer. All unit tests pass.
-- E2E tests: 22 tests run; added E2E flows covering selection → preview → download/share fallback. All E2E pass.
-- pnpm complete-check: all 7 gates pass locally.
-- Code review: architecture and code review completed; reviewers' comments addressed.
-- Manual validation: Verified URL params persist selection across refresh/back; verified Web Share used when available and download fallback works across desktop and mobile.
+- Implemented and executed unit/browser tests for share state and screen behavior.
+- Verified selection persistence and preview generation logic in browser-mode tests.
+- No E2E claims recorded in this log.
 
 ## Risks and Follow-ups
 
-- Risk: Large albums may still generate large PNGs even with clamps. Follow-up: implement multi-page export or server-side rasterization if user needs higher-res prints.
-- Risk: Web Share API behavior differs across browsers. Follow-up: monitor analytics for share failures and consider richer fallbacks (native invocation prompts, telemetry).
-- Follow-up: Add progress indicators for long-running render operations and cancellation support.
-- Follow-up: Add opt-in low-res/hi-res presets and an asset size preview to help users choose export quality.
+- Large selections can still produce large PNG files; future optimization could add quality presets or section paging.
+- Browser Web Share behavior varies by platform; fallback-to-download remains required path.
 
 (End of file)

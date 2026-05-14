@@ -275,6 +275,35 @@ describe('share-state', () => {
     expect(mixed).toBe('BRA-1, CC2, 03');
   });
 
+  it('compressed sticker text keeps numeric ranges across digit boundaries', () => {
+    const numeric = compressMissingStickerIds([
+      '9',
+      '10',
+      '11',
+      '19'
+    ] as unknown as readonly StickerIdentifier[]);
+
+    expect(numeric).toBe('9-11, 19');
+  });
+
+  it('buildSharePreviewPayload filters selected pages with zero missing stickers', () => {
+    const mexPage = albumPages.find((page) => page.pageId === 'mex')!;
+    const collection = makeCollection({
+      mex: [...mexPage.stickerIds] as unknown as string[]
+    });
+
+    const payload = buildSharePreviewPayload(collection, [
+      'mex' as PageId,
+      'fwc-opening' as PageId
+    ]);
+
+    expect(payload.selectedPageIds).toEqual(['fwc-opening', 'mex']);
+    const allPageIds = payload.sections.flatMap((section) =>
+      section.pages.map((page) => page.pageId)
+    );
+    expect(allPageIds).toEqual(['fwc-opening']);
+  });
+
   it('full-album selection preserves album order', () => {
     const reversed = albumPages
       .map((page) => page.pageId)

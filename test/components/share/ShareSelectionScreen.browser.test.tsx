@@ -90,7 +90,7 @@ describe('ShareSelectionScreen', () => {
     const onTogglePage = vi.fn<(pageId: PageId) => void>();
     const onSelectAll = vi.fn<() => void>();
     const onClear = vi.fn<() => void>();
-    const onGenerate = vi.fn<() => void>();
+    const onGenerate = vi.fn<(selectedPageIds: readonly PageId[]) => void>();
 
     const mounted = mount(
       React.createElement(ShareSelectionScreen, {
@@ -124,7 +124,7 @@ describe('ShareSelectionScreen', () => {
     const onTogglePage = vi.fn<(pageId: PageId) => void>();
     const onSelectAll = vi.fn<() => void>();
     const onClear = vi.fn<() => void>();
-    const onGenerate = vi.fn<() => void>();
+    const onGenerate = vi.fn<(selectedPageIds: readonly PageId[]) => void>();
 
     const mounted = mount(
       React.createElement(ShareSelectionScreen, {
@@ -156,7 +156,7 @@ describe('ShareSelectionScreen', () => {
     const onTogglePage = vi.fn<(pageId: PageId) => void>();
     const onSelectAll = vi.fn<() => void>();
     const onClear = vi.fn<() => void>();
-    const onGenerate = vi.fn<() => void>();
+    const onGenerate = vi.fn<(selectedPageIds: readonly PageId[]) => void>();
 
     const mounted = mount(
       React.createElement(ShareSelectionScreen, {
@@ -188,7 +188,7 @@ describe('ShareSelectionScreen', () => {
     const onTogglePage = vi.fn<(pageId: PageId) => void>();
     const onSelectAll = vi.fn<() => void>();
     const onClear = vi.fn<() => void>();
-    const onGenerate = vi.fn<() => void>();
+    const onGenerate = vi.fn<(selectedPageIds: readonly PageId[]) => void>();
 
     const mounted = mount(
       React.createElement(ShareSelectionScreen, {
@@ -225,7 +225,7 @@ describe('ShareSelectionScreen', () => {
     const onTogglePage = vi.fn<(pageId: PageId) => void>();
     const onSelectAll = vi.fn<() => void>();
     const onClear = vi.fn<() => void>();
-    const onGenerate = vi.fn<() => void>();
+    const onGenerate = vi.fn<(selectedPageIds: readonly PageId[]) => void>();
 
     const mounted = mount(
       React.createElement(ShareSelectionScreen, {
@@ -260,7 +260,7 @@ describe('ShareSelectionScreen', () => {
     const onTogglePage = vi.fn<(pageId: PageId) => void>();
     const onSelectAll = vi.fn<() => void>();
     const onClear = vi.fn<() => void>();
-    const onGenerate = vi.fn<() => void>();
+    const onGenerate = vi.fn<(selectedPageIds: readonly PageId[]) => void>();
 
     const mounted = mount(
       React.createElement(ShareSelectionScreen, {
@@ -279,6 +279,41 @@ describe('ShareSelectionScreen', () => {
 
       const text = mounted.container.textContent;
       expect(text).toContain('1 selected');
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('ignores stale selected ids and generates only valid ids', async () => {
+    await initializeI18n('en');
+
+    const sections = makeSections();
+    const onGenerate = vi.fn<(selectedPageIds: readonly PageId[]) => void>();
+
+    const mounted = mount(
+      React.createElement(ShareSelectionScreen, {
+        sections,
+        selectedPageIds: ['arg' as PageId, 'bra' as PageId],
+        onBack: vi.fn<() => void>(),
+        onTogglePage: vi.fn<(pageId: PageId) => void>(),
+        onSelectAll: vi.fn<() => void>(),
+        onClear: vi.fn<() => void>(),
+        onGenerate
+      })
+    );
+
+    try {
+      await new Promise((r) => setTimeout(r, 50));
+
+      expect(mounted.container.textContent).toContain('1 selected');
+
+      const generateButton = [...mounted.container.querySelectorAll('button')].find((button) =>
+        button.textContent?.includes('Generate')
+      );
+      expect(generateButton).toBeDefined();
+
+      generateButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      expect(onGenerate).toHaveBeenCalledWith(['arg']);
     } finally {
       cleanup(mounted);
     }

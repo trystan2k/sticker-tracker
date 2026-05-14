@@ -32,7 +32,12 @@ export function SharePreviewCard({ payload, t }: SharePreviewCardProps) {
                 ) : page.specialKey === 'fwc-opening' || page.specialKey === 'fwc-closing' ? (
                   <img src="/images/fifa.png" alt="" className={styles.flag} aria-hidden="true" />
                 ) : page.specialKey === 'coca-cola' ? (
-                  <img src="/images/cocacola.png" alt="" className={styles.flag} aria-hidden="true" />
+                  <img
+                    src="/images/cocacola.png"
+                    alt=""
+                    className={styles.flag}
+                    aria-hidden="true"
+                  />
                 ) : null}
                 <p className={styles.pageTitle}>{t(page.title)}</p>
               </div>
