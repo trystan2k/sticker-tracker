@@ -181,6 +181,12 @@
       "skillPath": "vite/SKILL.md",
       "computedHash": "104f04379fa8d791174121430faccb377e3f1eb7823d910a2dadd70b9bc67d62"
     },
+    "vitest": {
+      "source": "antfu/skills",
+      "sourceType": "github",
+      "skillPath": "skills/vitest/SKILL.md",
+      "computedHash": "669c7275f7e1379b06b2bcfa593603aead4c983b951c7e8edbc09640aa38d0a1"
+    },
     "web-accessibility": {
       "source": "trystan2k/skills",
       "sourceType": "github",

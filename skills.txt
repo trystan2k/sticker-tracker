@@ -29,3 +29,4 @@ https://github.com/JuliusBrussee/caveman:caveman-help
 https://github.com/JuliusBrussee/caveman:caveman-review
 https://github.com/anthropics/skills:skill-creator
 https://github.com/mattpocock/skills:grill-with-docs
+https://github.com/antfu/skills:vitest
