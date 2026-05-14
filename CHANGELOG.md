@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.0](https://github.com/trystan2k/sticker-tracker/compare/v1.9.0...v1.10.0) (2026-05-14)
+
+
+### Features
+
+* STR-49 EP12: Token Debt Cleanup ([ca173cb](https://github.com/trystan2k/sticker-tracker/commit/ca173cbad65b125de451a81619bf4f6fd59be607))
+
 ## [1.9.0](https://github.com/trystan2k/sticker-tracker/compare/v1.8.0...v1.9.0) (2026-05-14)
 
 
