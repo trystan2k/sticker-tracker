@@ -66,9 +66,6 @@ export function ShareSelectionScreen({
           <ArrowLeft size={22} aria-hidden="true" />
         </button>
         <h1 className={styles.title}>{t('share.selection.title')}</h1>
-        <span className={styles.badge}>
-          {t('share.selection.pageCount', { count: selectedCount })}
-        </span>
       </header>
 
       <section className={styles.actionsRow} aria-label={t('share.selection.title')}>

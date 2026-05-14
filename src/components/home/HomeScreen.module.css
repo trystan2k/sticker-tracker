@@ -4,14 +4,8 @@
 }
 
 .scrollArea {
-  min-height: calc(
-    100dvh - 56px
-  ); /* 56px = header height; use --layout-header-height when available */
-
-  max-height: calc(
-    100dvh - 56px
-  ); /* 56px = header height; use --layout-header-height when available */
-
+  min-height: calc(100dvh - var(--layout-header-height));
+  max-height: calc(100dvh - var(--layout-header-height));
   overflow-y: auto;
 }
 
@@ -24,11 +18,11 @@
 }
 
 .homeIndicator {
-  width: 134px;
-  height: 5px;
-  border-radius: 3px;
+  width: calc(var(--space-2) * 16.75);
+  height: calc(var(--space-2) * 0.5);
+  border-radius: var(--radius-xs);
   background-color: var(--color-text-secondary);
-  opacity: 0.3;
+  opacity: var(--opacity-subtle);
 }
 
 .loading {
@@ -36,6 +30,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  padding: var(--space-4);
   color: var(--color-text-secondary);
 }

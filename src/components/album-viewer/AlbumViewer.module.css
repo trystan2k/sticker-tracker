@@ -24,13 +24,13 @@
 }
 
 .filterRow {
-  height: 44px;
+  height: var(--layout-filter-row-height);
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 0 16px;
+  gap: var(--space-2);
+  padding: var(--space-0) var(--space-4);
   background-color: var(--surface-album-secondary);
-  border-bottom: 1px solid var(--color-border-subtle);
+  border-bottom: var(--border-width-default) solid var(--color-border-subtle);
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
@@ -43,9 +43,9 @@
 .shareButton {
   margin-left: auto;
   flex-shrink: 0;
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
+  width: calc(var(--space-2) * 4.25);
+  height: calc(var(--space-2) * 4.25);
+  border-radius: var(--radius-pill);
   border: none;
   background-color: var(--surface-filter-inactive);
   color: var(--color-text-secondary);
@@ -56,82 +56,82 @@
 }
 
 .filterPill {
-  height: 34px;
-  padding: 0 16px;
-  border-radius: 999px;
+  height: calc(var(--space-2) * 4.25);
+  padding: var(--space-0) var(--space-4);
+  border-radius: var(--radius-pill);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border: none;
   font-family: var(--typography-family-body);
-  font-size: 13px;
+  font-size: var(--typography-size-md);
   cursor: pointer;
 }
 
 .filterPill:focus-visible,
 .shareButton:focus-visible {
-  outline: 2px solid var(--color-brand-primary);
-  outline-offset: 2px;
+  outline: var(--border-width-strong) solid var(--color-brand-primary);
+  outline-offset: var(--border-width-strong);
 }
 
 .filterActive {
   background-color: var(--surface-filter-active);
   color: var(--surface-sticker-collected-text);
-  font-weight: 600;
+  font-weight: var(--typography-weight-semibold);
 }
 
 .filterPill:not(.filterActive) {
   background-color: var(--surface-filter-inactive);
   color: var(--color-text-secondary);
-  font-weight: 500;
+  font-weight: var(--typography-weight-medium);
 }
 
 .loadingState {
-  padding: 12px 16px;
+  padding: var(--space-3) var(--space-4);
 }
 
 .loadingGrid {
   margin-top: var(--space-3);
   display: grid;
-  grid-template-columns: repeat(4, 83px);
-  gap: 8px;
+  grid-template-columns: repeat(4, calc(var(--space-2) * 10.5));
+  gap: var(--space-2);
   justify-content: center;
 }
 
 .loadingCell {
-  width: 83px;
-  height: 83px;
-  border-radius: 10px;
+  width: calc(var(--space-2) * 10.5);
+  height: calc(var(--space-2) * 10.5);
+  border-radius: var(--component-sticker-radius);
   background-color: var(--surface-sticker-missing-bg);
-  border: 1.5px solid var(--surface-sticker-missing-border);
+  border: var(--border-width-medium) solid var(--surface-sticker-missing-border);
 }
 
 .emptyState {
-  min-height: 280px;
+  min-height: calc(var(--space-2) * 35);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 12px 16px;
+  padding: var(--space-3) var(--space-4);
   text-align: center;
   color: var(--color-text-secondary);
   font-family: var(--typography-family-body);
-  font-size: 14px;
-  line-height: 1.4;
+  font-size: var(--typography-size-md);
+  line-height: var(--typography-line-height-loose);
 }
 
 .swipeHint {
-  height: 34px;
+  height: calc(var(--space-2) * 4.25);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: var(--space-2);
   background-color: var(--surface-album-tertiary);
   color: var(--color-text-secondary);
-  font-size: 12px;
+  font-size: var(--typography-size-sm);
 }
 
 .safeArea {
-  height: 34px;
+  height: var(--layout-safe-area-bottom);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -139,9 +139,9 @@
 }
 
 .homeIndicator {
-  width: 134px;
-  height: 5px;
-  border-radius: 3px;
+  width: calc(var(--space-2) * 16.75);
+  height: calc(var(--space-2) * 0.5);
+  border-radius: var(--radius-xs);
   background-color: var(--color-text-secondary);
-  opacity: 0.3;
+  opacity: var(--opacity-subtle);
 }

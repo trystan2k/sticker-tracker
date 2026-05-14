@@ -192,8 +192,7 @@
       "selected": "{{count}} seleccionada",
       "selected_one": "{{count}} seleccionada",
       "selected_other": "{{count}} seleccionadas",
-      "empty": "Sin stickers faltantes",
-      "pageCount": "{{count}} sel."
+      "empty": "Sin stickers faltantes"
     },
     "preview": {
       "title": "Vista previa",

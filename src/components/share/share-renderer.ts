@@ -280,7 +280,7 @@ export async function renderSharePng(
   context.fillText(t('share.brandName'), CARD_PADDING_X, 34, logicalWidth - CARD_PADDING_X * 2);
 
   context.fillStyle = COLOR_TEXT_SECONDARY;
-  context.font = `400 12px ${FONT_STACK}`;
+  context.font = `400 14px ${FONT_STACK}`;
   context.fillText(
     t('share.preview.subtitle'),
     CARD_PADDING_X,
@@ -328,11 +328,11 @@ export async function renderSharePng(
     }
 
     context.fillStyle = COLOR_TEXT_PRIMARY;
-    context.font = `600 14px ${FONT_STACK}`;
+    context.font = `600 16px ${FONT_STACK}`;
     context.fillText(block.title, titleX, y + 13, logicalWidth - CARD_PADDING_X - titleX);
 
     context.fillStyle = COLOR_TEXT_SECONDARY;
-    context.font = `400 12px ${FONT_STACK}`;
+    context.font = `400 14px ${FONT_STACK}`;
     context.fillText(block.missingText, CARD_PADDING_X, y + 32, logicalWidth - CARD_PADDING_X * 2);
 
     y += BLOCK_HEIGHT;
@@ -348,7 +348,7 @@ export async function renderSharePng(
   context.stroke();
 
   context.fillStyle = COLOR_TEXT_SECONDARY;
-  context.font = `400 12px ${FONT_STACK}`;
+  context.font = `400 14px ${FONT_STACK}`;
   context.fillText(
     t('share.brandDomain'),
     CARD_PADDING_X,

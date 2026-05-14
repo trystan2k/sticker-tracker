@@ -192,8 +192,7 @@
       "selected": "{{count}} selecionada",
       "selected_one": "{{count}} selecionada",
       "selected_other": "{{count}} selecionadas",
-      "empty": "Nenhuma figurinha faltando",
-      "pageCount": "{{count}} sel."
+      "empty": "Nenhuma figurinha faltando"
     },
     "preview": {
       "title": "Pré-visualização",
