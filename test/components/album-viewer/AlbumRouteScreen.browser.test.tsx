@@ -67,13 +67,13 @@ function createTestRouter(initialPath: string, testComponent: React.ReactNode) {
 function mountWithRouter(
   child: React.ReactNode,
   initialPath = '/'
-): { container: HTMLDivElement; root: Root } {
+): { container: HTMLDivElement; root: Root; router: ReturnType<typeof createTestRouter> } {
   const container = document.createElement('div');
   document.body.appendChild(container);
   const router = createTestRouter(initialPath, child);
   const root = createRoot(container);
   root.render(React.createElement(RouterProvider, { router }));
-  return { container, root };
+  return { container, root, router };
 }
 
 function cleanup({ container, root }: { container: HTMLDivElement; root: Root }) {
@@ -250,6 +250,83 @@ describe('AlbumRouteScreen', () => {
       // Click "missing" filter
       pills[2]?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
       expect(capturedFilter).toBe('missing');
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('navigates to /share with current-page payload from filter-row share button', async () => {
+    await resetStorage();
+
+    const appState = makeMockAppState();
+
+    const mounted = mountWithRouter(
+      React.createElement(
+        AppStateContext.Provider,
+        { value: appState },
+        React.createElement(AlbumRouteScreen, {
+          activePage: mexPage,
+          activeFilter: 'all',
+          onChangeFilter: () => {}
+        })
+      )
+    );
+
+    try {
+      await waitFor(() => mounted.container.querySelector('button[class*="shareButton"]') !== null);
+
+      const shareButton = mounted.container.querySelector<HTMLButtonElement>(
+        'button[class*="shareButton"]'
+      );
+      shareButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+      await waitFor(() => mounted.router.state.location.pathname === '/share');
+
+      const searchParams = new URLSearchParams(mounted.router.state.location.search);
+      expect(searchParams.get('pages')).toBe('mex');
+      expect(searchParams.get('from')).toBe('/');
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('navigates to /share with global payload from drawer share action', async () => {
+    await resetStorage();
+
+    const appState = makeMockAppState();
+
+    const mounted = mountWithRouter(
+      React.createElement(
+        AppStateContext.Provider,
+        { value: appState },
+        React.createElement(AlbumRouteScreen, {
+          activePage: mexPage,
+          activeFilter: 'all',
+          onChangeFilter: () => {}
+        })
+      )
+    );
+
+    try {
+      await waitFor(() => mounted.container.querySelector('button[class*="menuButton"]') !== null);
+
+      const menuButton = mounted.container.querySelector<HTMLButtonElement>(
+        'button[class*="menuButton"]'
+      );
+      menuButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+      await waitFor(() => document.body.textContent?.includes('Share') ?? false);
+
+      const shareDrawerButton = Array.from(document.body.querySelectorAll('button')).find(
+        (button) => button.textContent?.trim() === 'Share'
+      );
+      shareDrawerButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+      await waitFor(() => mounted.router.state.location.pathname === '/share');
+
+      const searchParams = new URLSearchParams(mounted.router.state.location.search);
+      expect(searchParams.get('from')).toBe('/');
+      expect(searchParams.get('pages')).toBeTruthy();
     } finally {
       cleanup(mounted);
     }

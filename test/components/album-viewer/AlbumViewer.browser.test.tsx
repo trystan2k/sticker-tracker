@@ -331,6 +331,47 @@ describe('AlbumViewer', () => {
       }
     });
 
+    it('renders share icon button and triggers callback', async () => {
+      await resetStorage();
+
+      const page = albumPages.find((candidate) => candidate.pageId === 'mex')!;
+      const onOpenCurrentPageShare = vi.fn<() => void>();
+
+      const mounted = mount(
+        React.createElement(
+          AppStateProvider,
+          null,
+          React.createElement(AlbumViewer, {
+            page,
+            renderState: 'ready',
+            collectedStickerIds: new Set<StickerIdentifier>(),
+            activeFilter: 'all',
+            onChangeFilter: () => {},
+            onOpenQuickNavigation: () => {},
+            onOpenCurrentPageShare,
+            onToggleSticker: () => {}
+          })
+        )
+      );
+
+      try {
+        await waitFor(
+          () => mounted.container.querySelector('button[class*="shareButton"]') !== null
+        );
+
+        const shareButton = mounted.container.querySelector<HTMLButtonElement>(
+          'button[class*="shareButton"]'
+        );
+
+        expect(shareButton).not.toBeNull();
+
+        shareButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        expect(onOpenCurrentPageShare).toHaveBeenCalledTimes(1);
+      } finally {
+        cleanup(mounted);
+      }
+    });
+
     it('renders collected filter subset when active filter is collected', async () => {
       await resetStorage();
 

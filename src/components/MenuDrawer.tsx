@@ -9,6 +9,7 @@ interface MenuDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenLocaleSwitcher: () => void;
+  onOpenShare?: (() => void) | undefined;
   currentLocale: string;
 }
 
@@ -22,6 +23,7 @@ export function MenuDrawer({
   isOpen,
   onClose,
   onOpenLocaleSwitcher,
+  onOpenShare,
   currentLocale
 }: MenuDrawerProps) {
   const { t } = useTranslation();
@@ -125,6 +127,16 @@ export function MenuDrawer({
     onOpenLocaleSwitcher();
   }, [onClose, onOpenLocaleSwitcher]);
 
+  const handleOpenShare = useCallback(() => {
+    if (!onOpenShare) {
+      return;
+    }
+
+    triggerRef.current = null;
+    onClose();
+    onOpenShare();
+  }, [onClose, onOpenShare]);
+
   if ((!isMounted && !isOpen) || typeof document === 'undefined') {
     return null;
   }
@@ -162,7 +174,12 @@ export function MenuDrawer({
         </div>
 
         <div className={styles.menuList}>
-          <button type="button" className={styles.row} disabled>
+          <button
+            type="button"
+            className={styles.row}
+            disabled={!onOpenShare}
+            onClick={handleOpenShare}
+          >
             <Share2 size={22} aria-hidden="true" />
             <span className={styles.rowLabel}>{t('drawer.share')}</span>
           </button>

@@ -179,6 +179,38 @@
     "description": "A página que você está procurando não existe ou foi movida.",
     "ctaLabel": "Voltar para o início"
   },
+  "share": {
+    "brandName": "COPA 26",
+    "brandDomain": "copa26.app",
+    "fileName": "copa26-missing-stickers.png",
+    "selection": {
+      "title": "Compartilhar Faltas",
+      "back": "Voltar",
+      "selectAll": "Selecionar todas",
+      "clear": "Limpar",
+      "generate": "Gerar imagem",
+      "selected": "{{count}} selecionada",
+      "selected_one": "{{count}} selecionada",
+      "selected_other": "{{count}} selecionadas",
+      "empty": "Nenhuma figurinha faltando",
+      "pageCount": "{{count}} sel."
+    },
+    "preview": {
+      "title": "Pré-visualização",
+      "back": "Voltar",
+      "ariaLabel": "Cartão de prévia para compartilhar",
+      "subtitle": "Figurinhas faltantes",
+      "missingPrefix": "Faltam",
+      "emptyTitle": "Sem figurinhas faltantes",
+      "emptyDescription": "Tudo completo.",
+      "share": "Compartilhar",
+      "download": "Baixar PNG",
+      "sharing": "Compartilhando...",
+      "downloading": "Baixando...",
+      "error": "Algo deu errado",
+      "shareUnsupported": "Compartilhamento indisponível, arquivo baixado"
+    }
+  },
   "drawer": {
     "share": "Compartilhar",
     "language": "Idioma",

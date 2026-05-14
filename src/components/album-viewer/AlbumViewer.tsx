@@ -1,4 +1,4 @@
-import { ChevronsLeftRight } from 'lucide-react';
+import { ChevronsLeftRight, Share2 } from 'lucide-react';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -17,6 +17,8 @@ type AlbumViewerProps = Readonly<{
   activeFilter: ViewerFilter;
   onChangeFilter: (filter: ViewerFilter) => void;
   onOpenQuickNavigation: () => void;
+  onOpenShare?: () => void;
+  onOpenCurrentPageShare?: () => void;
   onToggleSticker: (stickerId: StickerIdentifier) => void;
 }>;
 
@@ -27,6 +29,8 @@ export function AlbumViewer({
   activeFilter,
   onChangeFilter,
   onOpenQuickNavigation,
+  onOpenShare,
+  onOpenCurrentPageShare,
   onToggleSticker
 }: AlbumViewerProps) {
   const { t } = useTranslation();
@@ -42,7 +46,11 @@ export function AlbumViewer({
     <div className={styles.viewer}>
       <div className={styles.stickyTop}>
         <div className={styles.headerSection}>
-          <AlbumPageHeader page={page} onOpenQuickNavigation={onOpenQuickNavigation} />
+          <AlbumPageHeader
+            page={page}
+            onOpenQuickNavigation={onOpenQuickNavigation}
+            onOpenShare={onOpenShare}
+          />
         </div>
 
         <PageProgress
@@ -75,6 +83,17 @@ export function AlbumViewer({
           >
             {t('album.filters.missing')}
           </button>
+
+          {onOpenCurrentPageShare ? (
+            <button
+              type="button"
+              className={styles.shareButton}
+              onClick={onOpenCurrentPageShare}
+              aria-label={t('share.selection.title')}
+            >
+              <Share2 size={16} aria-hidden="true" />
+            </button>
+          ) : null}
         </section>
       </div>
 

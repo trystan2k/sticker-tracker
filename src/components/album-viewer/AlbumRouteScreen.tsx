@@ -1,5 +1,7 @@
 import { useCallback, useContext, useRef } from 'react';
+import { useLocation, useNavigate } from '@tanstack/react-router';
 
+import { buildInitialShareSelection, encodeShareSelection } from '@/components/share/share-state';
 import { type AlbumPage, type StickerIdentifier } from '@/data/album';
 import { AppStateContext } from '@/providers/AppStateProvider';
 
@@ -19,11 +21,50 @@ export function AlbumRouteScreen({
   onChangeFilter
 }: AlbumRouteScreenProps) {
   const appState = useContext(AppStateContext);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const collectionRef = useRef(appState?.collection);
   if (appState) {
     collectionRef.current = appState.collection;
   }
+
+  const openGlobalShare = useCallback(() => {
+    if (appState === null) {
+      return;
+    }
+
+    const pageIds = buildInitialShareSelection(appState.collection, { type: 'all-missing' });
+    const pages = encodeShareSelection(pageIds);
+
+    void navigate({
+      to: '/share',
+      search: {
+        ...(pages ? { pages } : {}),
+        from: location.pathname
+      }
+    });
+  }, [appState, location.pathname, navigate]);
+
+  const openCurrentPageShare = useCallback(() => {
+    if (appState === null) {
+      return;
+    }
+
+    const pageIds = buildInitialShareSelection(appState.collection, {
+      type: 'current-page',
+      pageId: activePage.pageId
+    });
+    const pages = encodeShareSelection(pageIds);
+
+    void navigate({
+      to: '/share',
+      search: {
+        ...(pages ? { pages } : {}),
+        from: location.pathname
+      }
+    });
+  }, [activePage.pageId, appState, location.pathname, navigate]);
 
   if (appState === null) {
     return null;
@@ -39,6 +80,8 @@ export function AlbumRouteScreen({
           onChangeFilter={onChangeFilter}
           appState={appState}
           collectionRef={collectionRef}
+          onOpenGlobalShare={openGlobalShare}
+          onOpenCurrentPageShare={openCurrentPageShare}
         />
       )}
     </SwipeNavigator>
@@ -51,7 +94,9 @@ function AlbumViewerContent({
   activeFilter,
   onChangeFilter,
   appState,
-  collectionRef
+  collectionRef,
+  onOpenGlobalShare,
+  onOpenCurrentPageShare
 }: {
   activePage: AlbumPage;
   openQuickNavigation: () => void;
@@ -61,6 +106,8 @@ function AlbumViewerContent({
   collectionRef: React.RefObject<
     Readonly<Record<string, ReadonlySet<StickerIdentifier>>> | undefined
   >;
+  onOpenGlobalShare: () => void;
+  onOpenCurrentPageShare: () => void;
 }) {
   const pageCollection =
     appState.collection[activePage.pageId] ??
@@ -82,7 +129,9 @@ function AlbumViewerContent({
       activeFilter={activeFilter}
       onChangeFilter={onChangeFilter}
       onOpenQuickNavigation={openQuickNavigation}
+      onOpenCurrentPageShare={onOpenCurrentPageShare}
       onToggleSticker={handleToggleSticker}
+      onOpenShare={onOpenGlobalShare}
     />
   );
 }

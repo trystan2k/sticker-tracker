@@ -31,6 +31,28 @@
   padding: 0 16px;
   background-color: var(--surface-album-secondary);
   border-bottom: 1px solid var(--color-border-subtle);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.filterRow::-webkit-scrollbar {
+  display: none;
+}
+
+.shareButton {
+  margin-left: auto;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: none;
+  background-color: var(--surface-filter-inactive);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
 
 .filterPill {
@@ -46,7 +68,8 @@
   cursor: pointer;
 }
 
-.filterPill:focus-visible {
+.filterPill:focus-visible,
+.shareButton:focus-visible {
   outline: 2px solid var(--color-brand-primary);
   outline-offset: 2px;
 }

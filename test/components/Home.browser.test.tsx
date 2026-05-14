@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import React from 'react';
 import { createRoot, type Root } from 'react-dom/client';
@@ -15,6 +15,16 @@ import {
 } from '@/lib/storage/app-storage';
 
 import { Route, Home } from '@/routes/index';
+
+vi.mock('@tanstack/react-router', async () => {
+  const actual =
+    await vi.importActual<typeof import('@tanstack/react-router')>('@tanstack/react-router');
+
+  return {
+    ...actual,
+    useNavigate: () => vi.fn<() => void>()
+  };
+});
 
 function waitFor(predicate: () => boolean, timeoutMs = 8000): Promise<void> {
   return new Promise<void>((resolve, reject) => {
