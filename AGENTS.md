@@ -50,7 +50,7 @@ This project uses Linear for issue tracking and project management. GitHub is us
 - **Commit**: `[type]: [description]` (feat/fix/docs/style/refactor/test/chore)
 - **Indent**: 2 spaces
 - **Files**: snake_case/kebab-case | **Code**: camelCase
-- **Units**: rpx (prefer), px (only for fixed sizing)
+- **Units**: px
 - **Linear Team**: `Sticker Tracker` (<https://linear.app/trystanworkspace>)
 - **Linear Project**: `Sticker Tracker` (<https://linear.app/trystanworkspace/project/sticker-tracker-65087a3bf80e>)
 - **Task Tracking**: Create Linear Issues first, then work on them.
