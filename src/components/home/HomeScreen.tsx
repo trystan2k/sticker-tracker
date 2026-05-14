@@ -70,11 +70,7 @@ export function HomeScreen() {
   }, []);
 
   const handleOpenShare = useCallback(() => {
-    if (!appState) {
-      return;
-    }
-
-    const pageIds = buildInitialShareSelection(appState.collection, { type: 'all-missing' });
+    const pageIds = buildInitialShareSelection(appState!.collection, { type: 'all-missing' });
     const pages = encodeShareSelection(pageIds);
 
     void navigate({

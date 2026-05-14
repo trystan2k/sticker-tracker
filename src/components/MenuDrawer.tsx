@@ -139,7 +139,7 @@ export function MenuDrawer({
     onOpenShare();
   }, [onClose, onOpenShare]);
 
-  if ((!isMounted && !isOpen) || typeof document === 'undefined') {
+  if (!isMounted && !isOpen) {
     return null;
   }
 

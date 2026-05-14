@@ -30,11 +30,8 @@ export function AlbumRouteScreen({
   }
 
   const openGlobalShare = useCallback(() => {
-    if (appState === null) {
-      return;
-    }
-
-    const pageIds = buildInitialShareSelection(appState.collection, { type: 'all-missing' });
+    const collection = appState?.collection ?? {};
+    const pageIds = buildInitialShareSelection(collection, { type: 'all-missing' });
     const pages = encodeShareSelection(pageIds);
 
     void navigate({
@@ -47,11 +44,8 @@ export function AlbumRouteScreen({
   }, [appState, location.pathname, navigate]);
 
   const openCurrentPageShare = useCallback(() => {
-    if (appState === null) {
-      return;
-    }
-
-    const pageIds = buildInitialShareSelection(appState.collection, {
+    const collection = appState?.collection ?? {};
+    const pageIds = buildInitialShareSelection(collection, {
       type: 'current-page',
       pageId: activePage.pageId
     });

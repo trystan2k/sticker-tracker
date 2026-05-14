@@ -72,11 +72,6 @@ export function LocaleSwitcher({ isOpen, onClose }: LocaleSwitcherProps) {
     return null;
   }
 
-  // Guard for SSR/prerender — document is undefined on the server
-  if (typeof document === 'undefined') {
-    return null;
-  }
-
   return createPortal(
     <div className={styles.overlay} role="dialog" aria-modal="true" aria-label={t('locale.label')}>
       <button
