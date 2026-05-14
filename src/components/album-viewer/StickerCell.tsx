@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { Check } from 'lucide-react';
+
 import { useTranslation } from 'react-i18next';
 
 import type { AlbumPage, StickerIdentifier } from '@/data/album';
@@ -66,7 +66,6 @@ export function StickerCell({
     >
       <span className={styles.code}>{code}</span>
       <span className={styles.number}>{number}</span>
-      {isCollected ? <Check size={14} className={styles.checkIcon} aria-hidden="true" /> : null}
     </button>
   );
 }

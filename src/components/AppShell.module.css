@@ -18,7 +18,7 @@
 .overlay {
   position: fixed;
   inset: 0;
-  z-index: var(--z-index-modal);
+  z-index: var(--z-index-xxl);
   pointer-events: none;
 }
 
@@ -27,6 +27,6 @@
   bottom: var(--space-6);
   left: 50%;
   transform: translateX(-50%);
-  z-index: var(--z-index-toast);
+  z-index: var(--z-index-xxxl);
   pointer-events: none;
 }

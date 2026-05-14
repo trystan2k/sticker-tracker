@@ -1,11 +1,11 @@
 .header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  height: 56px;
-  padding: 0 16px;
+  gap: var(--space-2);
+  height: var(--layout-header-height);
+  padding: var(--space-0) var(--space-4);
   background-color: var(--surface-album-secondary);
-  border-bottom: 1px solid var(--color-border-subtle);
+  border-bottom: var(--border-width-default) solid var(--color-border-subtle);
 }
 
 .logo {
@@ -13,19 +13,19 @@
   padding: 0;
   background: none;
   font-family: var(--typography-family-heading);
-  font-size: 20px;
-  font-weight: 800;
+  font-size: var(--typography-size-1xl);
+  font-weight: var(--typography-weight-extrabold);
   color: var(--color-brand-primary);
   cursor: pointer;
 }
 
 .logo:focus-visible {
-  outline: 2px solid var(--color-brand-primary);
-  outline-offset: 2px;
+  outline: var(--border-width-strong) solid var(--color-brand-primary);
+  outline-offset: var(--border-width-strong);
 }
 
 .menuButton {
-  height: 24px;
+  height: var(--space-6);
   border: none;
   padding: 0;
   background: none;
@@ -33,14 +33,14 @@
 }
 
 .menuButton:focus-visible {
-  outline: 2px solid var(--color-brand-primary);
-  outline-offset: 2px;
+  outline: var(--border-width-strong) solid var(--color-brand-primary);
+  outline-offset: var(--border-width-strong);
 }
 
 .center {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
   flex: 1;
   justify-content: flex-end;
   min-width: 0;
@@ -56,21 +56,21 @@
 }
 
 .centerTrigger:focus-visible {
-  outline: 2px solid var(--color-brand-primary);
-  outline-offset: 2px;
+  outline: var(--border-width-strong) solid var(--color-brand-primary);
+  outline-offset: var(--border-width-strong);
 }
 
 .flag {
-  width: 24px;
-  height: 16px;
-  border-radius: 2px;
+  width: var(--size-icon-lg);
+  height: var(--size-icon-sm);
+  border-radius: var(--radius-xs);
 }
 
 .teamName,
 .specialName {
   font-family: var(--typography-family-heading);
-  font-size: 15px;
-  font-weight: 700;
+  font-size: var(--typography-size-md);
+  font-weight: var(--typography-weight-bold);
   color: var(--color-text-primary);
   white-space: nowrap;
 }
@@ -79,15 +79,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 22px;
-  height: 22px;
-  padding: 0 8px;
+  min-width: calc(var(--space-2) * 2.75);
+  height: calc(var(--space-2) * 2.75);
+  padding: 0 var(--space-2);
   background-color: var(--color-brand-secondary);
-  color: var(--color-text-primary);
+  color: var(--color-text-tertiary);
   border-radius: var(--radius-pill);
   font-family: var(--typography-family-heading);
-  font-size: 11px;
-  font-weight: 700;
+  font-size: var(--typography-size-sm);
+  font-weight: var(--typography-weight-bold);
   white-space: nowrap;
 }
 

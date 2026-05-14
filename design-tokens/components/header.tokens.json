@@ -25,7 +25,7 @@
           }
         }
       },
-      "zIndex": { "$type": "number", "$value": "{zIndex.header}" }
+      "zIndex": { "$type": "number", "$value": "{zIndex.m}" }
     }
   }
 }

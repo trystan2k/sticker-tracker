@@ -3,6 +3,7 @@
     "width": {
       "hairline": { "$type": "dimension", "$value": "1px" },
       "default": { "$type": "dimension", "$value": "1px" },
+      "medium": { "$type": "dimension", "$value": "1.5px" },
       "strong": { "$type": "dimension", "$value": "2px" }
     }
   }

@@ -1,11 +1,11 @@
 .header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  height: 56px;
-  padding: 0 16px;
+  gap: var(--space-2);
+  height: var(--layout-header-height);
+  padding: 0 var(--component-header-padding-inline);
   background-color: var(--surface-album-secondary);
-  border-bottom: 1px solid var(--color-border-subtle);
+  border-bottom: var(--border-width-default) solid var(--color-border-subtle);
 }
 
 .titleButton {
@@ -14,15 +14,15 @@
   padding: 0;
   background: none;
   font-family: var(--typography-family-heading);
-  font-size: 20px;
-  font-weight: 800;
+  font-size: var(--typography-size-xl);
+  font-weight: var(--typography-weight-extrabold);
   color: var(--color-brand-primary);
   cursor: pointer;
 }
 
 .titleButton:focus-visible {
-  outline: 2px solid var(--color-brand-primary);
-  outline-offset: 2px;
+  outline: var(--border-width-strong) solid var(--color-brand-primary);
+  outline-offset: var(--border-width-strong);
 }
 
 .title {
@@ -32,13 +32,13 @@
   white-space: nowrap;
   text-align: center;
   font-family: var(--typography-family-heading);
-  font-size: 20px;
-  font-weight: 700;
+  font-size: var(--typography-size-1xl);
+  font-weight: var(--typography-weight-bold);
   color: var(--color-brand-primary);
 }
 
 .actionButton {
-  height: 24px;
+  height: var(--space-6);
   border: none;
   padding: 0;
   background: none;
@@ -46,6 +46,6 @@
 }
 
 .actionButton:focus-visible {
-  outline: 2px solid var(--color-brand-primary);
-  outline-offset: 2px;
+  outline: var(--border-width-strong) solid var(--color-brand-primary);
+  outline-offset: var(--border-width-strong);
 }
