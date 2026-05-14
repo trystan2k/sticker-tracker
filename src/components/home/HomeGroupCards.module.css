@@ -104,7 +104,7 @@
   height: calc(var(--space-2) * 12.5);
   width: calc(var(--space-2) * 20);
   border: none;
-  border-radius: calc(var(--space-2) * 1);
+  border-radius: var(--radius-md);
   overflow: hidden;
   padding: 0;
   background-color: var(--surface-sticker-missing-bg);

@@ -35,7 +35,7 @@
 .heading {
   margin: 0;
   font-family: var(--typography-family-heading);
-  font-size: var(--typography-size-3xl);
+  font-size: var(--typography-size-4xl);
   font-weight: var(--typography-weight-bold);
   line-height: var(--typography-line-height-snug);
   color: var(--color-text-primary);

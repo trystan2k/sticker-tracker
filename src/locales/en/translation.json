@@ -192,8 +192,7 @@
       "selected": "{{count}} selected",
       "selected_one": "{{count}} selected",
       "selected_other": "{{count}} selected",
-      "empty": "No missing stickers to share",
-      "pageCount": "{{count}} sel."
+      "empty": "No missing stickers to share"
     },
     "preview": {
       "title": "Preview",

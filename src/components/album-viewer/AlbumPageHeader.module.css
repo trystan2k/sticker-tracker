@@ -13,7 +13,7 @@
   padding: 0;
   background: none;
   font-family: var(--typography-family-heading);
-  font-size: var(--typography-size-1xl);
+  font-size: var(--typography-size-2xl);
   font-weight: var(--typography-weight-extrabold);
   color: var(--color-brand-primary);
   cursor: pointer;

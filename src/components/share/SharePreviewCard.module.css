@@ -27,7 +27,7 @@
 .logo {
   width: var(--space-12);
   height: var(--space-12);
-  border-radius: calc(var(--space-2) * 1);
+  border-radius: var(--radius-md);
   object-fit: cover;
   flex-shrink: 0;
 }
@@ -35,7 +35,7 @@
 .title {
   margin: 0;
   font-family: var(--typography-family-heading);
-  font-size: var(--typography-size-2xl);
+  font-size: var(--typography-size-3xl);
   line-height: var(--typography-line-height-none);
   letter-spacing: 0.02em;
 }

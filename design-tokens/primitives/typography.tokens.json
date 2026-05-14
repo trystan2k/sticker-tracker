@@ -26,9 +26,9 @@
       "md-lg": { "$type": "dimension", "$value": "16px" },
       "lg": { "$type": "dimension", "$value": "18px" },
       "xl": { "$type": "dimension", "$value": "20px" },
-      "1xl": { "$type": "dimension", "$value": "24px" },
-      "2xl": { "$type": "dimension", "$value": "28px" },
-      "3xl": { "$type": "dimension", "$value": "32px" }
+      "2xl": { "$type": "dimension", "$value": "24px" },
+      "3xl": { "$type": "dimension", "$value": "28px" },
+      "4xl": { "$type": "dimension", "$value": "32px" }
     },
     "lineHeight": {
       "none": { "$type": "number", "$value": 1 },

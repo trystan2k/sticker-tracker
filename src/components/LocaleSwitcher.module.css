@@ -22,7 +22,7 @@
   max-width: calc(var(--space-2) * 48.75);
   height: calc(var(--space-2) * 45.5);
   background-color: var(--surface-album-secondary);
-  border-radius: var(--radius-lg) var(--radius-lg) var(--space-0) var(--space-0);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   overflow: hidden;
 }
 

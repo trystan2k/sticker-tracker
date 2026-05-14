@@ -40,7 +40,7 @@
 
 .number {
   font-family: var(--typography-family-heading);
-  font-size: var(--typography-size-1xl);
+  font-size: var(--typography-size-2xl);
   text-align: center;
   line-height: var(--typography-line-height-none);
 }
