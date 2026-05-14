@@ -179,6 +179,36 @@
     "description": "The page you're looking for doesn't exist or was moved.",
     "ctaLabel": "Go to home"
   },
+  "share": {
+    "brandName": "COPA 26",
+    "brandDomain": "copa26.app",
+    "fileName": "copa26-missing-stickers.png",
+    "selection": {
+      "title": "Share Missing",
+      "back": "Back to album",
+      "selectAll": "Select all",
+      "clear": "Clear",
+      "generate": "Generate Image",
+      "selected": "{{count}} selected",
+      "empty": "No missing stickers to share",
+      "pageCount": "{{count}} sel."
+    },
+    "preview": {
+      "title": "Preview",
+      "back": "Back to selection",
+      "ariaLabel": "Share preview card",
+      "subtitle": "Missing Stickers",
+      "missingPrefix": "Missing",
+      "emptyTitle": "No missing stickers",
+      "emptyDescription": "Everything complete.",
+      "share": "Share",
+      "download": "Download PNG",
+      "sharing": "Sharing...",
+      "downloading": "Downloading...",
+      "error": "Something went wrong",
+      "shareUnsupported": "Share not available, file downloaded instead"
+    }
+  },
   "drawer": {
     "share": "Share",
     "language": "Language",

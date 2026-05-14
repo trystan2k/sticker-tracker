@@ -12,9 +12,14 @@ import styles from './AlbumPageHeader.module.css';
 type AlbumPageHeaderProps = Readonly<{
   page: AlbumPage;
   onOpenQuickNavigation: () => void;
+  onOpenShare?: (() => void) | undefined;
 }>;
 
-export function AlbumPageHeader({ page, onOpenQuickNavigation }: AlbumPageHeaderProps) {
+export function AlbumPageHeader({
+  page,
+  onOpenQuickNavigation,
+  onOpenShare
+}: AlbumPageHeaderProps) {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [isMenuDrawerOpen, setIsMenuDrawerOpen] = useState(false);
@@ -74,7 +79,7 @@ export function AlbumPageHeader({ page, onOpenQuickNavigation }: AlbumPageHeader
         </button>
 
         <button type="button" className={styles.logo} onClick={handleNavigateHome}>
-          COPA 26
+          {t('share.brandName')}
         </button>
 
         <button
@@ -91,6 +96,7 @@ export function AlbumPageHeader({ page, onOpenQuickNavigation }: AlbumPageHeader
         isOpen={isMenuDrawerOpen}
         onClose={handleCloseMenuDrawer}
         onOpenLocaleSwitcher={handleOpenLocaleModalFromDrawer}
+        onOpenShare={onOpenShare}
         currentLocale={i18n.resolvedLanguage ?? i18n.language ?? 'en'}
       />
       <LocaleSwitcher isOpen={isLocaleModalOpen} onClose={handleCloseLocaleModal} />

@@ -1,8 +1,10 @@
 import { useCallback, useContext, useMemo, useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 
 import { LocaleSwitcher } from '@/components/LocaleSwitcher';
 import { MenuDrawer } from '@/components/MenuDrawer';
+import { buildInitialShareSelection, encodeShareSelection } from '@/components/share/share-state';
 import { AppStateContext } from '@/providers/AppStateProvider';
 
 import type { CollectionState } from '@/services/collection-service';
@@ -18,6 +20,7 @@ const EMPTY_COLLECTION: CollectionState = {};
 
 export function HomeScreen() {
   const appState = useContext(AppStateContext);
+  const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const [isMenuDrawerOpen, setIsMenuDrawerOpen] = useState(false);
   const [isLocaleSwitcherOpen, setIsLocaleSwitcherOpen] = useState(false);
@@ -66,6 +69,23 @@ export function HomeScreen() {
     setIsLocaleSwitcherOpen(true);
   }, []);
 
+  const handleOpenShare = useCallback(() => {
+    if (!appState) {
+      return;
+    }
+
+    const pageIds = buildInitialShareSelection(appState.collection, { type: 'all-missing' });
+    const pages = encodeShareSelection(pageIds);
+
+    void navigate({
+      to: '/share',
+      search: {
+        ...(pages ? { pages } : {}),
+        from: '/'
+      }
+    });
+  }, [appState, navigate]);
+
   const handleCloseLocaleSwitcher = useCallback(() => {
     setIsLocaleSwitcherOpen(false);
   }, []);
@@ -109,6 +129,7 @@ export function HomeScreen() {
         isOpen={isMenuDrawerOpen}
         onClose={handleCloseMenuDrawer}
         onOpenLocaleSwitcher={handleOpenLocaleSwitcher}
+        onOpenShare={handleOpenShare}
         currentLocale={appState.locale}
       />
       <LocaleSwitcher isOpen={isLocaleSwitcherOpen} onClose={handleCloseLocaleSwitcher} />

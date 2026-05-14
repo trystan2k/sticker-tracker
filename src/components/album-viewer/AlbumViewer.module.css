@@ -33,6 +33,19 @@
   border-bottom: 1px solid var(--color-border-subtle);
 }
 
+.shareButton {
+  margin-left: auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: none;
+  background-color: var(--surface-filter-inactive);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .filterPill {
   height: 34px;
   padding: 0 16px;
@@ -46,7 +59,8 @@
   cursor: pointer;
 }
 
-.filterPill:focus-visible {
+.filterPill:focus-visible,
+.shareButton:focus-visible {
   outline: 2px solid var(--color-brand-primary);
   outline-offset: 2px;
 }

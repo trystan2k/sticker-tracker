@@ -9,12 +9,20 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ShareRouteImport } from './routes/share'
 import { Route as AlbumRouteImport } from './routes/album'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ShareIndexRouteImport } from './routes/share/index'
 import { Route as AlbumIndexRouteImport } from './routes/album/index'
+import { Route as SharePreviewRouteImport } from './routes/share/preview'
 import { Route as AlbumPageIdRouteImport } from './routes/album/$pageId'
 import { Route as AlbumGroupPageIdRouteImport } from './routes/album/$group/$pageId'
 
+const ShareRoute = ShareRouteImport.update({
+  id: '/share',
+  path: '/share',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AlbumRoute = AlbumRouteImport.update({
   id: '/album',
   path: '/album',
@@ -25,10 +33,20 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ShareIndexRoute = ShareIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ShareRoute,
+} as any)
 const AlbumIndexRoute = AlbumIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AlbumRoute,
+} as any)
+const SharePreviewRoute = SharePreviewRouteImport.update({
+  id: '/preview',
+  path: '/preview',
+  getParentRoute: () => ShareRoute,
 } as any)
 const AlbumPageIdRoute = AlbumPageIdRouteImport.update({
   id: '/$pageId',
@@ -44,22 +62,30 @@ const AlbumGroupPageIdRoute = AlbumGroupPageIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/album': typeof AlbumRouteWithChildren
+  '/share': typeof ShareRouteWithChildren
   '/album/$pageId': typeof AlbumPageIdRoute
+  '/share/preview': typeof SharePreviewRoute
   '/album/': typeof AlbumIndexRoute
+  '/share/': typeof ShareIndexRoute
   '/album/$group/$pageId': typeof AlbumGroupPageIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/album/$pageId': typeof AlbumPageIdRoute
+  '/share/preview': typeof SharePreviewRoute
   '/album': typeof AlbumIndexRoute
+  '/share': typeof ShareIndexRoute
   '/album/$group/$pageId': typeof AlbumGroupPageIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/album': typeof AlbumRouteWithChildren
+  '/share': typeof ShareRouteWithChildren
   '/album/$pageId': typeof AlbumPageIdRoute
+  '/share/preview': typeof SharePreviewRoute
   '/album/': typeof AlbumIndexRoute
+  '/share/': typeof ShareIndexRoute
   '/album/$group/$pageId': typeof AlbumGroupPageIdRoute
 }
 export interface FileRouteTypes {
@@ -67,27 +93,47 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/album'
+    | '/share'
     | '/album/$pageId'
+    | '/share/preview'
     | '/album/'
+    | '/share/'
     | '/album/$group/$pageId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/album/$pageId' | '/album' | '/album/$group/$pageId'
+  to:
+    | '/'
+    | '/album/$pageId'
+    | '/share/preview'
+    | '/album'
+    | '/share'
+    | '/album/$group/$pageId'
   id:
     | '__root__'
     | '/'
     | '/album'
+    | '/share'
     | '/album/$pageId'
+    | '/share/preview'
     | '/album/'
+    | '/share/'
     | '/album/$group/$pageId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AlbumRoute: typeof AlbumRouteWithChildren
+  ShareRoute: typeof ShareRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/share': {
+      id: '/share'
+      path: '/share'
+      fullPath: '/share'
+      preLoaderRoute: typeof ShareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/album': {
       id: '/album'
       path: '/album'
@@ -102,12 +148,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/share/': {
+      id: '/share/'
+      path: '/'
+      fullPath: '/share/'
+      preLoaderRoute: typeof ShareIndexRouteImport
+      parentRoute: typeof ShareRoute
+    }
     '/album/': {
       id: '/album/'
       path: '/'
       fullPath: '/album/'
       preLoaderRoute: typeof AlbumIndexRouteImport
       parentRoute: typeof AlbumRoute
+    }
+    '/share/preview': {
+      id: '/share/preview'
+      path: '/preview'
+      fullPath: '/share/preview'
+      preLoaderRoute: typeof SharePreviewRouteImport
+      parentRoute: typeof ShareRoute
     }
     '/album/$pageId': {
       id: '/album/$pageId'
@@ -140,9 +200,22 @@ const AlbumRouteChildren: AlbumRouteChildren = {
 
 const AlbumRouteWithChildren = AlbumRoute._addFileChildren(AlbumRouteChildren)
 
+interface ShareRouteChildren {
+  SharePreviewRoute: typeof SharePreviewRoute
+  ShareIndexRoute: typeof ShareIndexRoute
+}
+
+const ShareRouteChildren: ShareRouteChildren = {
+  SharePreviewRoute: SharePreviewRoute,
+  ShareIndexRoute: ShareIndexRoute,
+}
+
+const ShareRouteWithChildren = ShareRoute._addFileChildren(ShareRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AlbumRoute: AlbumRouteWithChildren,
+  ShareRoute: ShareRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

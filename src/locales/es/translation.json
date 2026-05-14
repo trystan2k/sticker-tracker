@@ -179,6 +179,36 @@
     "description": "La página que estás buscando no existe o fue movida.",
     "ctaLabel": "Ir al inicio"
   },
+  "share": {
+    "brandName": "COPA 26",
+    "brandDomain": "copa26.app",
+    "fileName": "copa26-missing-stickers.png",
+    "selection": {
+      "title": "Compartir Faltantes",
+      "back": "Volver al álbum",
+      "selectAll": "Seleccionar todas",
+      "clear": "Limpiar",
+      "generate": "Generar imagen",
+      "selected": "{{count}} seleccionadas",
+      "empty": "Sin stickers faltantes",
+      "pageCount": "{{count}} sel."
+    },
+    "preview": {
+      "title": "Vista previa",
+      "back": "Volver a selección",
+      "ariaLabel": "Tarjeta de vista previa para compartir",
+      "subtitle": "Figuritas faltantes",
+      "missingPrefix": "Faltan",
+      "emptyTitle": "No faltan figuritas",
+      "emptyDescription": "Todo completo.",
+      "share": "Compartir",
+      "download": "Descargar PNG",
+      "sharing": "Compartiendo...",
+      "downloading": "Descargando...",
+      "error": "Algo salió mal",
+      "shareUnsupported": "Compartir no disponible, archivo descargado"
+    }
+  },
   "drawer": {
     "share": "Compartir",
     "language": "Idioma",
