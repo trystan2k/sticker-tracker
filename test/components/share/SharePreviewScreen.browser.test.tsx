@@ -234,4 +234,236 @@ describe('SharePreviewScreen', () => {
       cleanup(mounted);
     }
   });
+
+  it('handles download button click with status updates', async () => {
+    await initializeI18n('en');
+
+    renderSharePngMock.mockResolvedValue({
+      blob: new Blob(['test'], { type: 'image/png' }),
+      fileName: 'test.png',
+      width: 320,
+      height: 400,
+      scale: 2
+    });
+
+    const createObjectURLSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock-url');
+    const revokeObjectURLSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
+
+    const mounted = mount(
+      React.createElement(SharePreviewScreen, {
+        payload: makePayload(),
+        onBack: vi.fn<() => void>()
+      })
+    );
+
+    try {
+      await new Promise((r) => setTimeout(r, 30));
+      clickButtonByText(mounted.container, 'Download');
+      await new Promise((r) => setTimeout(r, 180));
+
+      expect(createObjectURLSpy).toHaveBeenCalledTimes(1);
+      expect(revokeObjectURLSpy).toHaveBeenCalledTimes(1);
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('shows error status when download fails', async () => {
+    await initializeI18n('en');
+
+    renderSharePngMock.mockRejectedValue(new Error('render failed'));
+
+    const mounted = mount(
+      React.createElement(SharePreviewScreen, {
+        payload: makePayload(),
+        onBack: vi.fn<() => void>()
+      })
+    );
+
+    try {
+      await new Promise((r) => setTimeout(r, 30));
+      clickButtonByText(mounted.container, 'Download');
+      await new Promise((r) => setTimeout(r, 60));
+
+      expect(mounted.container.textContent).toContain('Something went wrong');
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('clears status on successful share', async () => {
+    await initializeI18n('en');
+
+    renderSharePngMock.mockResolvedValue({
+      blob: new Blob(['test'], { type: 'image/png' }),
+      fileName: 'test.png',
+      width: 320,
+      height: 400,
+      scale: 2
+    });
+
+    mockNavigatorShare(() => true);
+
+    const mounted = mount(
+      React.createElement(SharePreviewScreen, {
+        payload: makePayload(),
+        onBack: vi.fn<() => void>()
+      })
+    );
+
+    try {
+      await new Promise((r) => setTimeout(r, 30));
+      clickButtonByText(mounted.container, 'Share');
+      await new Promise((r) => setTimeout(r, 60));
+
+      // After successful share, status is cleared to '' so no status element should render
+      const statusEl = mounted.container.querySelector('[role="status"]');
+      expect(statusEl).toBeNull();
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('handles AbortError during share by clearing status', async () => {
+    await initializeI18n('en');
+
+    renderSharePngMock.mockResolvedValue({
+      blob: new Blob(['test'], { type: 'image/png' }),
+      fileName: 'test.png',
+      width: 320,
+      height: 400,
+      scale: 2
+    });
+
+    const abortError = new Error('User cancelled');
+    abortError.name = 'AbortError';
+
+    mockNavigatorShare(
+      () => true,
+      async () => {
+        throw abortError;
+      }
+    );
+
+    const mounted = mount(
+      React.createElement(SharePreviewScreen, {
+        payload: makePayload(),
+        onBack: vi.fn<() => void>()
+      })
+    );
+
+    try {
+      await new Promise((r) => setTimeout(r, 30));
+      clickButtonByText(mounted.container, 'Share');
+      await new Promise((r) => setTimeout(r, 60));
+
+      // After AbortError, status is cleared to '' so no status element should render
+      const statusEl = mounted.container.querySelector('[role="status"]');
+      expect(statusEl).toBeNull();
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('falls back to download when share throws non-AbortError', async () => {
+    await initializeI18n('en');
+
+    renderSharePngMock.mockResolvedValue({
+      blob: new Blob(['test'], { type: 'image/png' }),
+      fileName: 'test.png',
+      width: 320,
+      height: 400,
+      scale: 2
+    });
+
+    const createObjectURLSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock-url');
+    const revokeObjectURLSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
+
+    mockNavigatorShare(
+      () => true,
+      async () => {
+        throw new Error('Network error');
+      }
+    );
+
+    const mounted = mount(
+      React.createElement(SharePreviewScreen, {
+        payload: makePayload(),
+        onBack: vi.fn<() => void>()
+      })
+    );
+
+    try {
+      await new Promise((r) => setTimeout(r, 30));
+      clickButtonByText(mounted.container, 'Share');
+      await new Promise((r) => setTimeout(r, 180));
+
+      expect(createObjectURLSpy).toHaveBeenCalledTimes(1);
+      expect(revokeObjectURLSpy).toHaveBeenCalledTimes(1);
+      expect(mounted.container.textContent).toContain(
+        'Share not available, file downloaded instead'
+      );
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('shows error when share fallback download fails', async () => {
+    await initializeI18n('en');
+
+    renderSharePngMock.mockRejectedValue(new Error('render failed'));
+
+    mockNavigatorShare(
+      () => true,
+      async () => {
+        throw new Error('Network error');
+      }
+    );
+
+    const mounted = mount(
+      React.createElement(SharePreviewScreen, {
+        payload: makePayload(),
+        onBack: vi.fn<() => void>()
+      })
+    );
+
+    try {
+      await new Promise((r) => setTimeout(r, 30));
+      clickButtonByText(mounted.container, 'Share');
+      await new Promise((r) => setTimeout(r, 60));
+
+      expect(mounted.container.textContent).toContain('Something went wrong');
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('calls onBack when back button is clicked', async () => {
+    await initializeI18n('en');
+
+    renderSharePngMock.mockResolvedValue({
+      blob: new Blob(['test'], { type: 'image/png' }),
+      fileName: 'test.png',
+      width: 320,
+      height: 400,
+      scale: 2
+    });
+
+    const onBack = vi.fn<() => void>();
+    const mounted = mount(
+      React.createElement(SharePreviewScreen, {
+        payload: makePayload(),
+        onBack
+      })
+    );
+
+    try {
+      await new Promise((r) => setTimeout(r, 30));
+      const backBtn = mounted.container.querySelector('button[class*="iconButton"]');
+      backBtn?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      expect(onBack).toHaveBeenCalledTimes(1);
+    } finally {
+      cleanup(mounted);
+    }
+  });
 });

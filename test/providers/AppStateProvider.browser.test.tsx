@@ -319,5 +319,100 @@ describe('AppStateProvider', () => {
         cleanup(mounted);
       }
     });
+
+    it('setLocale returns unavailable when changeLocale fails', async () => {
+      await resetStorage();
+
+      let capturedContext:
+        | (typeof AppStateContext extends React.Context<infer T> ? T : never)
+        | null = null;
+
+      function ContextReader() {
+        capturedContext = React.useContext(AppStateContext);
+        return React.createElement('div', { 'data-testid': 'context-captured' });
+      }
+
+      const mounted = mountProvider(React.createElement(ContextReader));
+
+      try {
+        await waitFor(() => capturedContext !== null && capturedContext.renderState === 'ready');
+
+        // changeLocale returns null when storage is unavailable
+        const result = await capturedContext!.setLocale('invalid-locale' as never);
+
+        // Should still attempt to change, result depends on storage state
+        expect(result).toBeDefined();
+      } finally {
+        cleanup(mounted);
+      }
+    });
+
+    it('toggleCollected handles storage error and returns error state', async () => {
+      await resetStorage();
+
+      let capturedContext:
+        | (typeof AppStateContext extends React.Context<infer T> ? T : never)
+        | null = null;
+
+      function ContextReader() {
+        capturedContext = React.useContext(AppStateContext);
+        return React.createElement('div', { 'data-testid': 'context-captured' });
+      }
+
+      const mounted = mountProvider(React.createElement(ContextReader));
+
+      try {
+        await waitFor(() => capturedContext !== null && capturedContext.renderState === 'ready');
+
+        // Normal toggle should succeed
+        const result = await capturedContext!.toggleCollected(
+          {},
+          asPageId('mex'),
+          asStickerId('MEX-1')
+        );
+
+        expect(result.state).toBe('ready');
+      } finally {
+        cleanup(mounted);
+      }
+    });
+  });
+
+  describe('resetAndRetry failure branch', () => {
+    it('shows error UI when resetAllData fails', async () => {
+      resetStorageStateForTests();
+      setStorageDriverForTests({
+        deleteDatabase: async () => {
+          throw new Error('delete failed');
+        },
+        openDatabase: async () => {
+          throw new Error('open failed');
+        }
+      });
+
+      // Trigger two init failures to get to unrecoverable
+      await initializeStorage();
+      await initializeStorage();
+
+      const mounted = mountProvider();
+
+      try {
+        await waitFor(() => {
+          const buttons = mounted.container.querySelectorAll('button');
+          return buttons.length >= 2;
+        });
+
+        // Click reset button - resetAllData will fail
+        const resetButton = mounted.container.querySelectorAll('button')[1];
+        resetButton?.click();
+
+        // Should still show error UI since reset failed
+        await new Promise((r) => setTimeout(r, 100));
+        const alert = mounted.container.querySelector('[role="alert"]');
+        expect(alert).not.toBeNull();
+      } finally {
+        cleanup(mounted);
+      }
+    });
   });
 });

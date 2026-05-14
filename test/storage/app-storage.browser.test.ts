@@ -111,4 +111,38 @@ describe('app-storage browser adapter', () => {
       expect(secondReadResult).toEqual({ state: 'unrecoverable' });
     });
   });
+
+  describe('resetAllData edge cases', () => {
+    it('handles blocked callback during database deletion', async () => {
+      resetStorageStateForTests();
+      setDatabaseNameForTests('test-blocked-reset');
+
+      // First, open a database to simulate a blocked deletion
+      await initializeStorage();
+
+      // Now try to reset - the blocked callback should close the database
+      const result = await resetAllData();
+      expect(result).toEqual({ state: 'ready' });
+    });
+
+    it('returns unrecoverable when deleteDatabase throws', async () => {
+      resetStorageStateForTests();
+      setStorageDriverForTests({
+        deleteDatabase: async () => {
+          throw new Error('delete blocked');
+        },
+        openDatabase: async () =>
+          ({
+            close: vi.fn<() => void>(),
+            get: async () => null,
+            put: async () => {}
+          }) as never
+      });
+
+      await initializeStorage();
+
+      const result = await resetAllData();
+      expect(result).toEqual({ state: 'unrecoverable' });
+    });
+  });
 });

@@ -240,4 +240,83 @@ describe('LocaleSwitcher', () => {
       cleanup(mounted);
     }
   });
+
+  it('shows checkmark on selected locale', async () => {
+    await resetStorage();
+
+    let capturedContext:
+      | (typeof AppStateContext extends React.Context<infer T> ? T : never)
+      | null = null;
+
+    function ContextReader() {
+      capturedContext = React.useContext(AppStateContext);
+      return React.createElement('div', { 'data-testid': 'context-captured' });
+    }
+
+    const mounted = mount(
+      React.createElement(
+        AppStateProvider,
+        null,
+        React.createElement(
+          React.Fragment,
+          null,
+          React.createElement(LocaleSwitcher, { isOpen: true, onClose: () => {} }),
+          React.createElement(ContextReader)
+        )
+      )
+    );
+
+    try {
+      await waitFor(() => capturedContext !== null && capturedContext.renderState === 'ready');
+
+      const currentLocale = capturedContext!.locale;
+      const localeButtons = document.body.querySelectorAll('button[data-locale]');
+
+      // Find the button for the current locale
+      const selectedButton = Array.from(localeButtons).find(
+        (btn) => btn.getAttribute('data-locale') === currentLocale
+      );
+
+      expect(selectedButton).toBeDefined();
+      // The checkmark span should contain '✓' for the selected locale
+      const checkIcon = selectedButton?.querySelector('[aria-hidden="true"]:last-child');
+      expect(checkIcon?.textContent).toBe('✓');
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('calls onClose when close button is clicked', async () => {
+    await resetStorage();
+
+    let closeCalls = 0;
+
+    const mounted = mount(
+      React.createElement(
+        AppStateProvider,
+        null,
+        React.createElement(LocaleSwitcher, {
+          isOpen: true,
+          onClose: () => {
+            closeCalls += 1;
+          }
+        })
+      )
+    );
+
+    try {
+      await waitFor(() => document.body.querySelector('[role="dialog"]') !== null);
+
+      const closeBtn = document.body.querySelector(
+        'button[aria-label="Close"]'
+      ) as HTMLButtonElement;
+      expect(closeBtn).not.toBeNull();
+
+      closeBtn?.click();
+
+      expect(closeCalls).toBe(1);
+    } finally {
+      cleanup(mounted);
+    }
+  });
 });

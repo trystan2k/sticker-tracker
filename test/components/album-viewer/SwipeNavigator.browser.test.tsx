@@ -318,4 +318,192 @@ describe('SwipeNavigator', () => {
       cleanup(mounted);
     }
   });
+
+  it('goToPage is a no-op when target pageId equals active pageId', async () => {
+    let capturedProps: SwipeRenderProps | null = null;
+
+    const mounted = mountWithRouter(
+      React.createElement(SwipeNavigator, {
+        activePageId: 'mex' as PageId,
+        children: (props: SwipeRenderProps) => {
+          capturedProps = props;
+          return React.createElement(
+            'p',
+            { 'data-testid': 'active-page' },
+            props.activePage.pageId
+          );
+        }
+      })
+    );
+
+    try {
+      await waitFor(
+        () => mounted.container.querySelector('[data-testid="swipe-surface"]') !== null
+      );
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+
+      const initialPath = mounted.router.state.location.pathname;
+
+      // Call goToPage with the same pageId — should be a no-op
+      if (capturedProps !== null) {
+        (capturedProps as SwipeRenderProps).goToPage('mex' as PageId);
+      }
+
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      expect(mounted.router.state.location.pathname).toBe(initialPath);
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('navigates without viewTransition when document.startViewTransition is absent', async () => {
+    // Remove startViewTransition to test the fallback branch
+    const original = (document as unknown as Record<string, unknown>).startViewTransition;
+    delete (document as unknown as Record<string, unknown>).startViewTransition;
+
+    const mounted = mountWithRouter(
+      React.createElement(SwipeNavigator, {
+        activePageId: 'mex' as PageId,
+        children: (props: SwipeRenderProps) =>
+          React.createElement('p', { 'data-testid': 'active-page' }, props.activePage.pageId)
+      })
+    );
+
+    try {
+      await waitFor(
+        () => mounted.container.querySelector('[data-testid="swipe-surface"]') !== null
+      );
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+
+      const surface = mounted.container.querySelector(
+        '[data-testid="swipe-surface"]'
+      ) as HTMLElement;
+
+      // Swipe forward
+      swipe(surface, 160, 120, 160 - SWIPE_THRESHOLD_PX - 20, 120);
+
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      // Should have navigated (pathname changed)
+      expect(mounted.router.state.location.pathname).not.toBe('/');
+    } finally {
+      if (original !== undefined) {
+        (document as unknown as Record<string, unknown>).startViewTransition = original;
+      }
+      cleanup(mounted);
+    }
+  });
+
+  it('handles touchstart with empty touches list gracefully', async () => {
+    const mounted = mountWithRouter(
+      React.createElement(SwipeNavigator, {
+        activePageId: 'mex' as PageId,
+        children: (_props: SwipeRenderProps) =>
+          React.createElement('p', { 'data-testid': 'active-page' }, 'mex')
+      })
+    );
+
+    try {
+      await waitFor(
+        () => mounted.container.querySelector('[data-testid="swipe-surface"]') !== null
+      );
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+
+      const surface = mounted.container.querySelector(
+        '[data-testid="swipe-surface"]'
+      ) as HTMLElement;
+
+      // Dispatch touchstart with empty touches — should not throw
+      const emptyTouchStart = new Event('touchstart', { bubbles: true, cancelable: true });
+      Object.defineProperty(emptyTouchStart, 'touches', { value: [] });
+      surface.dispatchEvent(emptyTouchStart);
+
+      // Should not navigate or throw
+      expect(mounted.container.querySelector('[data-testid="swipe-surface"]')).not.toBeNull();
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('openQuickNavigation shows QuickNavigationPicker', async () => {
+    let capturedProps: SwipeRenderProps | null = null;
+
+    const mounted = mountWithRouter(
+      React.createElement(SwipeNavigator, {
+        activePageId: 'mex' as PageId,
+        children: (props: SwipeRenderProps) => {
+          capturedProps = props;
+          return React.createElement(
+            'p',
+            { 'data-testid': 'active-page' },
+            props.activePage.pageId
+          );
+        }
+      })
+    );
+
+    try {
+      await waitFor(
+        () => mounted.container.querySelector('[data-testid="swipe-surface"]') !== null
+      );
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+
+      // QuickNavigationPicker should not be open yet
+      expect(mounted.container.querySelector('[role="dialog"]')).toBeNull();
+
+      // Open quick navigation
+      if (capturedProps !== null) {
+        (capturedProps as SwipeRenderProps).openQuickNavigation();
+      }
+
+      await waitFor(() => mounted.container.querySelector('[role="dialog"]') !== null);
+      expect(mounted.container.querySelector('[role="dialog"]')).not.toBeNull();
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('closeQuickNavigation hides QuickNavigationPicker', async () => {
+    let capturedProps: SwipeRenderProps | null = null;
+
+    const mounted = mountWithRouter(
+      React.createElement(SwipeNavigator, {
+        activePageId: 'mex' as PageId,
+        children: (props: SwipeRenderProps) => {
+          capturedProps = props;
+          return React.createElement(
+            'p',
+            { 'data-testid': 'active-page' },
+            props.activePage.pageId
+          );
+        }
+      })
+    );
+
+    try {
+      await waitFor(
+        () => mounted.container.querySelector('[data-testid="swipe-surface"]') !== null
+      );
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+
+      // Open then close
+      if (capturedProps !== null) {
+        (capturedProps as SwipeRenderProps).openQuickNavigation();
+      }
+
+      await waitFor(() => mounted.container.querySelector('[role="dialog"]') !== null);
+
+      // Now close — QuickNavigationPicker passes onClose which calls closeQuickNavigation
+      const closeBtn = mounted.container.querySelector('[class*="closeBtn"]');
+      closeBtn?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+      await waitFor(() => mounted.container.querySelector('[role="dialog"]') === null);
+      expect(mounted.container.querySelector('[role="dialog"]')).toBeNull();
+    } finally {
+      cleanup(mounted);
+    }
+  });
 });

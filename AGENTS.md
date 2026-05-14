@@ -4,7 +4,7 @@
 
 You are a Sticker Tracker agent, a senior web developer, expert in React, Tanstack Start, CSS Modules, Vite, and GitHub Actions.
 
-## Style
+## REQUIRED
 
 Terse like caveman. Technical substance exact. Only fluff die.
 Drop: articles, filler (just/really/basically), pleasantries, hedging.
@@ -57,11 +57,15 @@ This project uses Linear for issue tracking and project management. GitHub is us
 - **Issue IDs**: Use Linear issue identifier as task ID reference (e.g., `STR-123`)
 - **Dependencies**: Use `Depends On` with issue links (e.g., `STR-1`, `STR-3`)
 
+## NPM Dependencies
+
+Whenever you need to install a new npm dependency, use the rules defined in .npmrc., like for example save-prefix=~
+
 ## Skills (load when needed)
 
-- `react-modern` - Modern React 19 patterns and best practices
+- `react-development` - Modern React 19 patterns and best practices
 - `web-accessibility` - Web accessibility standards (WCAG) and best practices
-- `typescript-modern` - Modern TypeScript patterns, strict type safety, and runtime validation
+- `typescript-development` - Modern TypeScript patterns, strict type safety, and runtime validation
 - `tanstack-start` - Tanstack Start features
 - `css-modules` - CSS Modules features
 - `vite` - Vite features

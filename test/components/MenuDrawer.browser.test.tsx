@@ -259,4 +259,128 @@ describe('MenuDrawer', () => {
       cleanup(mounted);
     }
   });
+
+  it('does not render when initially closed', () => {
+    const mounted = mount(
+      React.createElement(MenuDrawer, {
+        isOpen: false,
+        onClose: () => {},
+        onOpenLocaleSwitcher: () => {},
+        currentLocale: 'en'
+      })
+    );
+
+    try {
+      const dialog = document.body.querySelector('[role="dialog"]');
+      expect(dialog).toBeNull();
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('renders with closing animation when isOpen changes from true to false', async () => {
+    const onClose = vi.fn<() => void>();
+
+    const mounted = mount(
+      React.createElement(MenuDrawer, {
+        isOpen: true,
+        onClose,
+        onOpenLocaleSwitcher: () => {},
+        currentLocale: 'en'
+      })
+    );
+
+    try {
+      await waitFor(() => document.body.textContent?.includes('Share') ?? false);
+
+      // Trigger close
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+      expect(onClose).toHaveBeenCalledTimes(1);
+
+      // Dialog should still be in DOM during closing animation
+      const dialog = document.body.querySelector('[role="dialog"]');
+      expect(dialog).not.toBeNull();
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('renders version footer', async () => {
+    const mounted = mount(
+      React.createElement(MenuDrawer, {
+        isOpen: true,
+        onClose: () => {},
+        onOpenLocaleSwitcher: () => {},
+        currentLocale: 'en'
+      })
+    );
+
+    try {
+      await waitFor(() => document.body.textContent?.includes('v1.') ?? false);
+
+      expect(document.body.textContent).toMatch(/v\d+\.\d+\.\d+/);
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('renders flag icon for pt-BR locale', async () => {
+    const mounted = mount(
+      React.createElement(MenuDrawer, {
+        isOpen: true,
+        onClose: () => {},
+        onOpenLocaleSwitcher: () => {},
+        currentLocale: 'pt-BR'
+      })
+    );
+
+    try {
+      await waitFor(() => document.body.textContent?.includes('Language') ?? false);
+
+      const flag = document.body.querySelector('.fi-br');
+      expect(flag).not.toBeNull();
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('renders flag icon for es locale', async () => {
+    const mounted = mount(
+      React.createElement(MenuDrawer, {
+        isOpen: true,
+        onClose: () => {},
+        onOpenLocaleSwitcher: () => {},
+        currentLocale: 'es'
+      })
+    );
+
+    try {
+      await waitFor(() => document.body.textContent?.includes('Language') ?? false);
+
+      const flag = document.body.querySelector('.fi-es');
+      expect(flag).not.toBeNull();
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('renders flag icon for en locale (default)', async () => {
+    const mounted = mount(
+      React.createElement(MenuDrawer, {
+        isOpen: true,
+        onClose: () => {},
+        onOpenLocaleSwitcher: () => {},
+        currentLocale: 'en'
+      })
+    );
+
+    try {
+      await waitFor(() => document.body.textContent?.includes('Language') ?? false);
+
+      const flag = document.body.querySelector('.fi-us');
+      expect(flag).not.toBeNull();
+    } finally {
+      cleanup(mounted);
+    }
+  });
 });

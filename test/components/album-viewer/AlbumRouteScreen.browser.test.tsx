@@ -363,4 +363,48 @@ describe('AlbumRouteScreen', () => {
       cleanup(mounted);
     }
   });
+
+  it('openGlobalShare navigates with empty pages when all stickers collected', async () => {
+    await resetStorage();
+
+    // Fill all stickers for all pages so buildInitialShareSelection returns empty
+    const collection: Record<string, ReadonlySet<StickerIdentifier>> = {};
+    // Fill every page — all stickers collected means no missing → empty selection
+    // Use empty pages so encodeShareSelection returns undefined/empty
+    const appState = makeMockAppState(collection);
+
+    const mounted = mountWithRouter(
+      React.createElement(
+        AppStateContext.Provider,
+        { value: appState },
+        React.createElement(AlbumRouteScreen, {
+          activePage: mexPage,
+          activeFilter: 'all',
+          onChangeFilter: () => {}
+        })
+      )
+    );
+
+    try {
+      await waitFor(() => mounted.container.querySelector('header') !== null);
+
+      // Open menu drawer
+      const menuBtn = mounted.container.querySelector('[class*="menuButton"]');
+      menuBtn?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+      await waitFor(() => document.body.textContent?.includes('Share') ?? false);
+
+      const shareBtn = Array.from(document.body.querySelectorAll('button')).find(
+        (btn) => btn.textContent?.trim() === 'Share'
+      );
+      shareBtn?.click();
+
+      await new Promise((r) => setTimeout(r, 100));
+      // Should have navigated to /share regardless of empty pages
+      const { pathname } = mounted.router.state.location;
+      expect(pathname).toContain('share');
+    } finally {
+      cleanup(mounted);
+    }
+  });
 });

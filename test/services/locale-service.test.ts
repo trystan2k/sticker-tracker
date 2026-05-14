@@ -37,6 +37,32 @@ describe('locale-service', () => {
     expect(writeMock).toHaveBeenCalledWith('locale', 'es');
   });
 
+  it('returns non-ready state from loadSavedLocale when storage unavailable', async () => {
+    readMock.mockResolvedValueOnce({ state: 'unavailable' });
+
+    const result = await loadSavedLocale();
+    expect(result).toEqual({ state: 'unavailable' });
+  });
+
+  it('resolves via navigatorLanguage when navigatorLanguages is omitted', () => {
+    expect(
+      resolveSupportedLocale({
+        savedLocale: null,
+        navigatorLanguage: 'es-AR'
+      })
+    ).toBe('es');
+  });
+
+  it('returns null from findSupportedLocale when candidate has empty language tag', () => {
+    // locale '-' splits to ['', ''] — candidateLanguage is '', falsy → null branch (line 37)
+    expect(
+      resolveSupportedLocale({
+        savedLocale: '-',
+        navigatorLanguages: []
+      })
+    ).toBe('en'); // falls through to default
+  });
+
   it('resolves locale with precedence saved -> navigator.languages -> navigator.language -> en', () => {
     expect(
       resolveSupportedLocale({

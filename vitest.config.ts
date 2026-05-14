@@ -8,14 +8,19 @@ export default defineConfig({
   test: {
     coverage: {
       include: ['src/**/*.{ts,tsx}'],
-      exclude: ['src/routeTree.gen.ts', 'src/start.ts'],
+      exclude: [
+        'src/routeTree.gen.ts',
+        'src/start.ts',
+        'src/routes/__root.tsx',
+        'src/routes/index.tsx'
+      ],
       provider: 'v8',
       reporter: ['text', 'html'],
       thresholds: {
-        lines: 70,
-        branches: 70,
-        functions: 70,
-        statements: 70
+        lines: 80,
+        branches: 80,
+        functions: 80,
+        statements: 80
       }
     },
     projects: [

@@ -305,6 +305,42 @@ describe('HomeGroupCards', () => {
     }
   });
 
+  it('marks fallbackApplied and skips src change when src already equals fallback url', async () => {
+    const groups = computeGroupsData({});
+
+    const mounted = mountWithRouter(React.createElement(HomeGroupCards, { groups }));
+
+    try {
+      await waitFor(() => {
+        const flags = mounted.container.querySelectorAll('img[data-flag-code]');
+        return flags.length > 0;
+      });
+
+      // Use a normal (non-mapped) flag — flagCode === fallbackCode, so src already ends with /${flagCode}.png
+      const flags = Array.from(mounted.container.querySelectorAll('img[data-flag-code]'));
+      const normalFlag = flags.find(
+        (f) => !['gb-eng', 'gb-sct'].includes((f as HTMLImageElement).dataset.flagCode ?? '')
+      ) as HTMLImageElement | undefined;
+      expect(normalFlag).toBeDefined();
+
+      if (!normalFlag) return;
+
+      // Verify src ends with flagCode.png (line 34 condition will be true)
+      const code = normalFlag.dataset.flagCode ?? '';
+      expect(normalFlag.src).toContain(`/${code}.png`);
+
+      // Fire error — should hit line 35 (src already ends with fallback), set fallbackApplied, return
+      normalFlag.dispatchEvent(new Event('error', { bubbles: true }));
+      await new Promise((r) => setTimeout(r, 100));
+
+      expect(normalFlag.dataset.fallbackApplied).toBe('true');
+      // src should NOT have changed (already correct)
+      expect(normalFlag.src).toContain(`/${code}.png`);
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
   it('does not apply fallback twice on second error', async () => {
     const groups = computeGroupsData({});
 

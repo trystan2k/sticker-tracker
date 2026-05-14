@@ -86,6 +86,13 @@ describe('collection-service', () => {
     expect(writeMock).toHaveBeenNthCalledWith(2, 'collection', {});
   });
 
+  it('returns non-ready state from loadCollectionState when storage unavailable', async () => {
+    readMock.mockResolvedValueOnce({ state: 'unavailable' });
+
+    const result = await loadCollectionState();
+    expect(result).toEqual({ state: 'unavailable' });
+  });
+
   it('returns storage failure and does not commit next state', async () => {
     writeMock.mockResolvedValueOnce({ state: 'unavailable' });
 

@@ -331,4 +331,14 @@ describe('share-state', () => {
 
     expect(decoded).toEqual(['fwc-opening', 'mex', 'coca-cola']);
   });
+
+  it('compressed sticker text handles numeric stickers with same numeric value (localeCompare branch)', () => {
+    // '05' and '5' both parse to numeric 5 — triggers localeCompare in sort
+    const result = compressMissingStickerIds([
+      '05',
+      '5'
+    ] as unknown as readonly StickerIdentifier[]);
+
+    expect(result).toBeTruthy();
+  });
 });

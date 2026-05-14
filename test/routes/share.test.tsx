@@ -1,8 +1,15 @@
 import { describe, expect, it } from 'vitest';
 
 import type { ShareRouteSearch } from '@/components/share/share-state';
+import { Route as ShareRoute } from '@/routes/share';
 import { Route as ShareIndexRoute } from '@/routes/share/index';
 import { Route as SharePreviewRoute } from '@/routes/share/preview';
+
+describe('share route (parent)', () => {
+  it('route is defined with component', () => {
+    expect(ShareRoute.options.component).toBeTypeOf('function');
+  });
+});
 
 describe('share/index route', () => {
   it('route is defined with validateSearch', () => {
