@@ -190,6 +190,7 @@
       "clear": "Clear",
       "generate": "Generate Image",
       "selected": "{{count}} selected",
+      "selected_one": "{{count}} selected",
       "selected_other": "{{count}} selected",
       "empty": "No missing stickers to share",
       "pageCount": "{{count}} sel."

@@ -190,6 +190,7 @@
       "clear": "Limpar",
       "generate": "Gerar imagem",
       "selected": "{{count}} selecionada",
+      "selected_one": "{{count}} selecionada",
       "selected_other": "{{count}} selecionadas",
       "empty": "Nenhuma figurinha faltando",
       "pageCount": "{{count}} sel."

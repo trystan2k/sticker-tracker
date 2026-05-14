@@ -106,11 +106,6 @@ function waitForImageLoad(image: HTMLImageElement): Promise<void> {
   });
 }
 
-const flagSvgs = import.meta.glob<string>('/node_modules/flag-icons/flags/4x3/*.svg', {
-  eager: true,
-  query: '?url',
-  import: 'default'
-});
 const FIFA_ICON_PATH = '/images/fifa.png';
 const COCACOLA_ICON_PATH = '/images/cocacola.png';
 
@@ -128,13 +123,16 @@ async function loadFlagImage(flagCode: string): Promise<HTMLImageElement> {
   } else if (flagCode === 'cocacola') {
     image.src = COCACOLA_ICON_PATH;
   } else {
-    const flagUrl = flagSvgs[`/node_modules/flag-icons/flags/4x3/${flagCode}.svg`];
+    const response = await fetch(`/node_modules/flag-icons/flags/4x3/${flagCode}.svg`);
 
-    if (!flagUrl) {
-      throw new Error(`Unknown flag: ${flagCode}`);
+    if (!response.ok) {
+      throw new Error(`Unable to load flag: ${flagCode}`);
     }
 
-    image.src = flagUrl;
+    const svgText = await response.text();
+    const blob = new Blob([svgText], { type: 'image/svg+xml' });
+    const objectUrl = URL.createObjectURL(blob);
+    image.src = objectUrl;
   }
 
   if (typeof image.decode === 'function') {

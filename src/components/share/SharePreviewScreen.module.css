@@ -50,6 +50,12 @@
   -webkit-overflow-scrolling: touch;
 }
 
+@media (width <= 352px) {
+  .previewArea {
+    padding: 16px 8px;
+  }
+}
+
 .previewArea > * {
   display: inline-block;
   text-align: left;
