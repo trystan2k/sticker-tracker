@@ -14,7 +14,8 @@ import {
   setStorageDriverForTests
 } from '@/lib/storage/app-storage';
 
-import { Route, Home } from '@/routes/index';
+import { Route } from '@/routes/index';
+import { HomeScreen as Home } from '@/components/home/HomeScreen';
 
 vi.mock('@tanstack/react-router', async () => {
   const actual =

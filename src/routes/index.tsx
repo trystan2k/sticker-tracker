@@ -4,6 +4,6 @@ import { HomeScreen } from '@/components/home/HomeScreen';
 
 export const Route = createFileRoute('/')({ component: Home });
 
-export function Home() {
+function Home() {
   return <HomeScreen />;
 }

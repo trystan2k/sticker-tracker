@@ -49,7 +49,7 @@ interface RootDocumentProps {
 
 function RootDocument({ children }: RootDocumentProps) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
