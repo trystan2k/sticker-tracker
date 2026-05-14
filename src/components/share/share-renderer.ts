@@ -142,6 +142,10 @@ async function loadFlagImage(flagCode: string): Promise<HTMLImageElement> {
     await waitForImageLoad(image);
   }
 
+  if (image.naturalWidth === 0) {
+    throw new Error(`Unable to load flag image: ${flagCode}`);
+  }
+
   flagCache.set(flagCode, image);
 
   return image;

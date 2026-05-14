@@ -1,5 +1,5 @@
 import { ArrowLeft, Download, Share2 } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { SharePreviewCard } from '@/components/share/SharePreviewCard';
@@ -17,21 +17,24 @@ export function SharePreviewScreen({ payload, onBack }: SharePreviewScreenProps)
   const { t } = useTranslation();
   const [isBusy, setIsBusy] = useState(false);
   const [status, setStatus] = useState('');
+  const prevPayloadRef = useRef(payload);
   const renderPromiseRef = useRef<Promise<Awaited<ReturnType<typeof renderSharePng>>> | null>(null);
 
-  useEffect(() => {
-    const renderPromise = renderSharePng(payload, t).catch((err) => {
-      renderPromiseRef.current = null;
-      throw err;
-    });
-
-    renderPromiseRef.current = renderPromise;
-    void renderPromise.catch(() => undefined);
-  }, [payload, t]);
+  if (prevPayloadRef.current !== payload) {
+    prevPayloadRef.current = payload;
+    renderPromiseRef.current = null;
+  }
 
   const getAsset = useCallback(() => {
-    return renderPromiseRef.current ?? Promise.reject(new Error('No render in progress'));
-  }, []);
+    if (!renderPromiseRef.current) {
+      renderPromiseRef.current = renderSharePng(payload, t).catch((err) => {
+        renderPromiseRef.current = null;
+        throw err;
+      });
+    }
+
+    return renderPromiseRef.current;
+  }, [payload, t]);
 
   const downloadAsset = useCallback(
     async (withStatus: boolean) => {
@@ -84,7 +87,12 @@ export function SharePreviewScreen({ payload, onBack }: SharePreviewScreenProps)
       if (err instanceof Error && err.name === 'AbortError') {
         setStatus('');
       } else {
-        setStatus(t('share.preview.error'));
+        try {
+          await downloadAsset(false);
+          setStatus(t('share.preview.shareUnsupported'));
+        } catch {
+          setStatus(t('share.preview.error'));
+        }
       }
     } finally {
       setIsBusy(false);

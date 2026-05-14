@@ -207,4 +207,56 @@ describe('MenuDrawer', () => {
       cleanup(mounted);
     }
   });
+
+  it('renders share button as enabled when onOpenShare exists', async () => {
+    const mounted = mount(
+      React.createElement(MenuDrawer, {
+        isOpen: true,
+        onClose: () => {},
+        onOpenLocaleSwitcher: () => {},
+        onOpenShare: () => {},
+        currentLocale: 'en'
+      })
+    );
+
+    try {
+      await waitFor(() => document.body.textContent?.includes('Share') ?? false);
+
+      const shareButton = Array.from(document.body.querySelectorAll('button')).find(
+        (button) => button.textContent?.trim() === 'Share'
+      );
+
+      expect(shareButton).toBeDefined();
+      expect(shareButton?.hasAttribute('disabled')).toBe(false);
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('calls onOpenShare when share button is clicked', async () => {
+    const onOpenShare = vi.fn<() => void>();
+
+    const mounted = mount(
+      React.createElement(MenuDrawer, {
+        isOpen: true,
+        onClose: () => {},
+        onOpenLocaleSwitcher: () => {},
+        onOpenShare,
+        currentLocale: 'en'
+      })
+    );
+
+    try {
+      await waitFor(() => document.body.textContent?.includes('Share') ?? false);
+
+      const shareButton = Array.from(document.body.querySelectorAll('button')).find(
+        (button) => button.textContent?.trim() === 'Share'
+      );
+
+      shareButton?.click();
+      expect(onOpenShare).toHaveBeenCalledTimes(1);
+    } finally {
+      cleanup(mounted);
+    }
+  });
 });
