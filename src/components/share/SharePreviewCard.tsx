@@ -13,8 +13,11 @@ export function SharePreviewCard({ payload, t }: SharePreviewCardProps) {
   return (
     <article className={styles.card} aria-label={t('share.preview.ariaLabel')}>
       <header className={styles.header}>
-        <h2 className={styles.title}>{t('share.brandName')}</h2>
-        <p className={styles.subtitle}>{t('share.preview.subtitle')}</p>
+        <div className={styles.headerText}>
+          <h2 className={styles.title}>{t('share.brandName')}</h2>
+          <p className={styles.subtitle}>{t('share.preview.subtitle')}</p>
+        </div>
+        <img src="/images/fifa-26-logo.jpg" alt="" className={styles.logo} aria-hidden="true" />
       </header>
 
       <div className={styles.content}>

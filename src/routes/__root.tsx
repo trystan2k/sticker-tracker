@@ -12,6 +12,12 @@ import '@/styles.css';
 
 export const Route = createRootRoute({
   head: () => ({
+    links: [
+      {
+        rel: 'icon',
+        href: '/favicon.ico'
+      }
+    ],
     meta: [
       {
         charSet: 'utf-8'

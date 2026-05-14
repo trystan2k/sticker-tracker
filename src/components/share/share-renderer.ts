@@ -108,6 +108,40 @@ function waitForImageLoad(image: HTMLImageElement): Promise<void> {
 
 const FIFA_ICON_PATH = '/images/fifa.png';
 const COCACOLA_ICON_PATH = '/images/cocacola.png';
+const FIFA_26_LOGO_PATH = '/images/fifa-26-logo.jpg';
+
+const logoCache = new Map<string, HTMLImageElement>();
+
+async function loadLogoImage(): Promise<HTMLImageElement> {
+  const cached = logoCache.get('fifa-26-logo');
+
+  if (cached) {
+    return cached;
+  }
+
+  const image = new Image();
+  image.src = FIFA_26_LOGO_PATH;
+
+  if (typeof image.decode === 'function') {
+    try {
+      await image.decode();
+    } catch {
+      if (!image.complete) {
+        await waitForImageLoad(image);
+      }
+    }
+  } else {
+    await waitForImageLoad(image);
+  }
+
+  if (image.naturalWidth === 0) {
+    throw new Error('Unable to load FIFA 26 logo image');
+  }
+
+  logoCache.set('fifa-26-logo', image);
+
+  return image;
+}
 
 async function loadFlagImage(flagCode: string): Promise<HTMLImageElement> {
   const cached = flagCache.get(flagCode);
@@ -213,6 +247,7 @@ export async function renderSharePng(
 
   await Promise.all([
     preloadFlagImages(blocks),
+    loadLogoImage(),
     typeof document.fonts?.ready !== 'undefined' ? document.fonts.ready : Promise.resolve()
   ]);
 
@@ -252,6 +287,21 @@ export async function renderSharePng(
     52,
     logicalWidth - CARD_PADDING_X * 2
   );
+
+  const logoImage = logoCache.get('fifa-26-logo');
+
+  if (logoImage) {
+    const logoSize = 48;
+    const logoX = logicalWidth - CARD_PADDING_X - logoSize;
+    const logoY = (HEADER_HEIGHT - logoSize) / 2;
+
+    context.save();
+    context.beginPath();
+    context.roundRect(logoX, logoY, logoSize, logoSize, 8);
+    context.clip();
+    context.drawImage(logoImage, logoX, logoY, logoSize, logoSize);
+    context.restore();
+  }
 
   let y = HEADER_HEIGHT + CARD_PADDING_TOP;
 
