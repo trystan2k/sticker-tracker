@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.0](https://github.com/trystan2k/sticker-tracker/compare/v1.7.0...v1.8.0) (2026-05-14)
+
+
+### Features
+
+* missing stickers share/export flow with PNG generation ([#18](https://github.com/trystan2k/sticker-tracker/issues/18)) ([59b21ac](https://github.com/trystan2k/sticker-tracker/commit/59b21ac99055bc93f60b3449c9436c631184961c))
+
 ## [1.7.0](https://github.com/trystan2k/sticker-tracker/compare/v1.6.0...v1.7.0) (2026-05-13)
 
 
