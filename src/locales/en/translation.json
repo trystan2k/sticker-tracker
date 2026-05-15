@@ -210,6 +210,31 @@
       "shareUnsupported": "Share not available, file downloaded instead"
     }
   },
+  "pwa": {
+    "install": {
+      "menuLabel": "Install app",
+      "menuMetaChromium": "Available",
+      "menuMetaIos": "iPhone/iPad",
+      "bannerTitle": "Install Sticker Tracker",
+      "bannerBody": "Add app to your home screen for quicker access.",
+      "action": "Install",
+      "dismiss": "Dismiss install banner",
+      "bannerAriaLabel": "Install app banner",
+      "iosTitle": "Add to Home Screen",
+      "iosBody": "Install on iPhone or iPad in 3 quick steps:",
+      "iosStepOpenShare": "Tap the Share button in Safari",
+      "iosStepChooseHomeScreen": "Choose “Add to Home Screen”",
+      "iosStepConfirm": "Tap “Add” to confirm",
+      "close": "Close install instructions"
+    },
+    "update": {
+      "title": "New version available",
+      "body": "Update to get the latest improvements",
+      "action": "Update now",
+      "dismiss": "Dismiss",
+      "ariaLabel": "App update available"
+    }
+  },
   "drawer": {
     "share": "Share",
     "language": "Language",

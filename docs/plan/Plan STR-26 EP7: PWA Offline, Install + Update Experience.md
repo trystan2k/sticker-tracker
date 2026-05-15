@@ -1,0 +1,380 @@
+## Task Analysis
+
+- Main objective:
+  - Deliver Epic STR-26 in strict dependency order `STR-27 -> STR-28 -> STR-29` so Sticker Tracker becomes installable, works offline after first successful load, and surfaces service worker updates without forced reloads.
+  - Keep implementation client-only and aligned with current TanStack Start SPA architecture, CSS Modules, design tokens, and i18n conventions.
+- Identified dependencies:
+  - `STR-11` is already done and unblocks PWA work.
+  - Existing repository patterns to reuse:
+    - Global provider/context pattern: `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/providers/AppStateProvider.tsx`
+    - Global shell surfaces already reserved for overlays/toasts: `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/components/AppShell.tsx`, `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/components/AppShell.module.css`
+    - Persistent drawer entry pattern: `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/components/MenuDrawer.tsx`, `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/components/MenuDrawer.module.css`
+    - Bottom-sheet interaction pattern to mirror for iOS install guidance: `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/components/LocaleSwitcher.tsx`, `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/components/ThemeSheet.tsx`
+    - Head metadata contract: `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/routes/__root.tsx`, `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/test/routes/__root.test.tsx`
+    - Existing manifest baseline: `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/public/manifest.json`
+    - Existing E2E baseline: `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/playwright.config.ts`, `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/e2e/*.test.ts`
+  - Design/system constraints already fixed by user:
+    - `vite-plugin-pwa` in GenerateSW mode.
+    - Workbox runtime caching: `StaleWhileRevalidate` for static assets, `NetworkFirst` for data/navigation.
+    - Chromium install UX = banner + MenuDrawer entry.
+    - iOS install UX = MenuDrawer guidance only.
+    - Update UX = bottom toast/banner, dismissible, no forced reload.
+  - Plan file: `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/docs/plan/Plan STR-26 EP7: PWA Offline, Install + Update Experience.md`
+- System impact:
+  - Build/runtime: Vite config gains PWA plugin and Workbox rules; production artifact gains service worker + manifest-linked install metadata.
+  - Root shell: `__root.tsx` must link manifest/apple assets and wrap app with a new PWA runtime provider.
+  - State: install/update state is ephemeral browser state and should live in a dedicated `PwaProvider`, not IndexedDB.
+  - UI: AppShell becomes host for global install/update surfaces; MenuDrawer gains install entry logic without affecting unsupported browsers.
+  - Testing: PWA verification must run against production-like preview output for real offline behavior, while install/update state machines need deterministic browser mocks/harnesses.
+
+## Chosen Approach
+
+- Proposed solution:
+  - Use `vite-plugin-pwa` in GenerateSW mode for `STR-27`, keep `/public/manifest.json` as the single manifest source of truth, and wire registration through a thin wrapper service so service worker callbacks are easy to mock in tests.
+  - Introduce `/src/providers/PwaProvider.tsx` as the single runtime owner for:
+    - service worker registration,
+    - `beforeinstallprompt` capture,
+    - install capability detection,
+    - update availability state,
+    - user-triggered update action,
+    - transient dismiss/open UI state.
+  - Reuse current shell patterns instead of route-specific duplication:
+    - `AppShell` renders the Chromium install banner, iOS guidance sheet, and update toast from `PwaContext`.
+    - `MenuDrawer` reads the same context and shows a persistent install row only when platform support is real.
+  - Use deterministic test seams:
+    - mockable registration wrapper for `onNeedRefresh` / update action tests,
+    - pure capability helper for Chromium/iOS/unsupported detection,
+    - Playwright preview-server offline validation for real service worker caching.
+- Justification for simplicity:
+  - Reject custom hand-written service worker. Agreed plugin + GenerateSW already solves manifest/service worker build output with less code and less maintenance.
+  - Reject per-screen PWA hooks. Install/update browser events are global and duplicating them across Home/Album/NotFound would drift behavior and create race conditions.
+  - Reject persisted install/update state. Deferred install prompt and waiting service worker are runtime-only concerns and should not enter IndexedDB.
+  - Reject fully automated real iOS Safari install flow. Browser tests plus manual iOS checklist are more reliable than trying to fake mobile Safari semantics inside desktop automation.
+- Components to be modified/created:
+  - `STR-27 — Add PWA manifest and Workbox integration`
+    - Files to create:
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/providers/PwaProvider.tsx`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/services/pwa-registration.ts`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/test/providers/PwaProvider.browser.test.tsx`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/e2e/pwa-offline.test.ts`
+    - Files to modify:
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/package.json`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/pnpm-lock.yaml`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/vite.config.ts`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/public/manifest.json`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/routes/__root.tsx`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/playwright.config.ts`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/test/routes/__root.test.tsx`
+    - Test strategy:
+      - Build artifact verification for emitted service worker + manifest assets.
+      - Browser/provider test for one-time registration call.
+      - Playwright offline reload test against preview build.
+  - `STR-28 — Implement install UX by platform`
+    - Files to create:
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/services/pwa-install-service.ts`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/components/pwa/PwaInstallBanner.tsx`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/components/pwa/PwaInstallBanner.module.css`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/components/pwa/PwaInstallSheet.tsx`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/components/pwa/PwaInstallSheet.module.css`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/test/services/pwa-install-service.test.ts`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/test/components/pwa/PwaInstallBanner.browser.test.tsx`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/test/components/pwa/PwaInstallSheet.browser.test.tsx`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/e2e/pwa-install.test.ts`
+    - Files to modify:
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/providers/PwaProvider.tsx`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/components/AppShell.tsx`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/components/AppShell.module.css`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/components/MenuDrawer.tsx`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/components/MenuDrawer.module.css` (only if secondary install meta text needs styling)
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/locales/en/translation.json`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/locales/es/translation.json`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/locales/pt-BR/translation.json`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/test/providers/PwaProvider.browser.test.tsx`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/test/components/AppShell.browser.test.tsx`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/test/components/MenuDrawer.browser.test.tsx`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/test/i18n/translation-resources.test.ts`
+    - Test strategy:
+      - Pure helper tests for platform detection.
+      - Browser tests for `beforeinstallprompt` capture, banner visibility, iOS sheet behavior, drawer row visibility, and unsupported-browser hiding.
+      - Chromium Playwright smoke with synthetic prompt harness.
+      - Manual iOS Safari verification checklist.
+  - `STR-29 — Implement service worker update flow`
+    - Files to create:
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/components/pwa/PwaUpdateToast.tsx`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/components/pwa/PwaUpdateToast.module.css`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/test/components/pwa/PwaUpdateToast.browser.test.tsx`
+    - Files to modify:
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/services/pwa-registration.ts`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/providers/PwaProvider.tsx`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/components/AppShell.tsx`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/components/AppShell.module.css`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/locales/en/translation.json`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/locales/es/translation.json`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/locales/pt-BR/translation.json`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/test/providers/PwaProvider.browser.test.tsx`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/test/components/AppShell.browser.test.tsx`
+      - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/test/i18n/translation-resources.test.ts`
+    - Test strategy:
+      - Deterministic browser harness by mocking `pwa-registration` callbacks.
+      - Toast interaction tests for dismiss vs update action.
+      - Manual production two-build smoke only if needed after browser harness is stable.
+
+## Implementation Steps
+
+1. Execute `STR-27` first by making Playwright capable of exercising production service workers before touching UI.
+   - Files to modify:
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/package.json`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/pnpm-lock.yaml`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/playwright.config.ts`
+   - Implementation details:
+     - Add `vite-plugin-pwa` as a dev dependency using the repo's `save-prefix=~` npm rule.
+     - Add a dedicated preview-style E2E script in `package.json` so Playwright can run against a built app instead of `pnpm dev`.
+       - Preferred shape: `preview:e2e = pnpm build && pnpm exec vite preview --strictPort --port 4000`.
+     - Point `playwright.config.ts` `webServer.command` at the preview script so offline/service worker tests use production semantics.
+     - Keep existing Chromium/WebKit projects for broad regression, but gate offline/install assertions to Chromium where actual capability exists.
+   - Test strategy:
+     - Re-run existing E2E suite once against preview output before additional PWA code lands.
+   - Correctness checkpoint:
+     - Existing route/UI E2E tests still pass when served from preview build; this confirms the PWA work will be tested in a real service-worker-capable environment.
+   - Rollback / mitigation:
+     - If moving the whole E2E suite to preview build destabilizes unrelated tests, split PWA tests into a dedicated Playwright project using preview output rather than reverting to a dev-server-only setup.
+
+2. Finish `STR-27` by adding manifest linkage, GenerateSW Workbox config, and a minimal registration provider.
+   - Files to create:
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/providers/PwaProvider.tsx`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/services/pwa-registration.ts`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/test/providers/PwaProvider.browser.test.tsx`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/e2e/pwa-offline.test.ts`
+   - Files to modify:
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/vite.config.ts`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/public/manifest.json`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/routes/__root.tsx`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/test/routes/__root.test.tsx`
+   - Implementation details:
+     - In `vite.config.ts`, add `VitePWA()` with:
+       - `strategies: 'generateSW'`
+       - `registerType: 'prompt'`
+       - `injectRegister: false`
+       - `manifest: false` so `/public/manifest.json` stays single source of truth
+       - `workbox.cleanupOutdatedCaches = true`
+       - `workbox.skipWaiting = false`
+       - `workbox.clientsClaim = false`
+       - explicit `runtimeCaching` rules:
+         - same-origin `script/style/font/worker/image` requests -> `StaleWhileRevalidate`
+         - same-origin navigation/document requests -> `NetworkFirst`
+       - explicit same-origin guards so no backend/external cache coupling is introduced.
+     - Before finalizing `NetworkFirst`, inspect the built shell file name in `dist/client` and match `navigateFallback` to the actual SPA entry output instead of assuming blindly.
+     - In `public/manifest.json`, keep current icons and add missing installability fields that should be explicit for root deployment, at minimum:
+       - `id: '/'`
+       - `scope: '/'`
+       - `start_url: '/'`
+       - `lang: 'en'`
+       - `description` aligned with existing app description.
+     - In `src/routes/__root.tsx`, extend `head()` links with:
+       - manifest link,
+       - apple touch icon link,
+       - any minimal iOS web-app meta required by install guidance.
+     - Create `src/services/pwa-registration.ts` as a thin wrapper around the plugin registration API so tests can mock `onOfflineReady`, `onNeedRefresh`, and the returned update callback without mocking the virtual module directly.
+     - Create `PwaProvider` now, even if UI is added later, so service worker registration happens once at the app shell layer and the same provider can be extended by `STR-28` and `STR-29`.
+     - Wrap `AppShell` with `PwaProvider` inside `src/routes/__root.tsx`.
+   - Test strategy:
+     - `test/routes/__root.test.tsx` should assert manifest/apple links exist in the head contract.
+     - `test/providers/PwaProvider.browser.test.tsx` should verify service worker registration happens once on client render.
+     - `e2e/pwa-offline.test.ts` should:
+       1. load `/` online,
+       2. wait for `navigator.serviceWorker.ready`,
+       3. switch browser context offline,
+       4. reload or open the app again,
+       5. assert the home screen still renders.
+   - Correctness checkpoint:
+     - Production build emits service worker and manifest assets, and the app reloads successfully offline after one online visit.
+   - Rollback / mitigation:
+     - If broad runtime caching causes incorrect shell/data behavior, tighten the Workbox matchers rather than disabling offline support entirely.
+
+3. Execute `STR-28` foundation by modeling install capability as pure helpers and expanding `PwaProvider` to own prompt/install state.
+   - Files to create:
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/services/pwa-install-service.ts`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/test/services/pwa-install-service.test.ts`
+   - Files to modify:
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/providers/PwaProvider.tsx`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/test/providers/PwaProvider.browser.test.tsx`
+   - Implementation details:
+     - Put platform branching in `pwa-install-service.ts`, not inline in components.
+     - Add explicit helper API, for example:
+       - `isStandaloneDisplayMode()` -> checks `matchMedia('(display-mode: standalone)')` and iOS `navigator.standalone`
+       - `detectInstallPlatform()` -> returns `'chromium' | 'ios' | 'unsupported'`
+       - `shouldShowInstallEntry()` / `shouldShowInstallBanner()` -> centralize visibility rules.
+     - Define a local typed `BeforeInstallPromptEvent` contract with `prompt()` and `userChoice` so prompt handling is strongly typed.
+     - Expand `PwaProvider` to:
+       - capture `beforeinstallprompt` and `preventDefault()` it,
+       - store deferred prompt only for Chromium-supported browsers,
+       - listen for `appinstalled` to clear prompt/banner state,
+       - compute whether install UI should be visible,
+       - expose provider actions for `promptInstall()`, `openInstallInstructions()`, `closeInstallInstructions()`, and banner dismissal.
+     - Keep all state in memory only; do not add new storage keys.
+   - Test strategy:
+     - Unit tests cover Chromium, iOS, unsupported, and standalone-installed detection rules.
+     - Browser/provider tests simulate `beforeinstallprompt` and `appinstalled` events and assert state transitions.
+   - Correctness checkpoint:
+     - Chromium install state appears only after prompt capture; iOS state appears only when not already standalone; unsupported browsers return hidden state.
+   - Rollback / mitigation:
+     - If raw user-agent detection becomes noisy, keep heuristics behind the helper module and bias toward hiding UI instead of showing a misleading install CTA.
+
+4. Complete `STR-28` by adding platform-aware install UI to `AppShell` and `MenuDrawer`, plus full translations.
+   - Files to create:
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/components/pwa/PwaInstallBanner.tsx`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/components/pwa/PwaInstallBanner.module.css`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/components/pwa/PwaInstallSheet.tsx`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/components/pwa/PwaInstallSheet.module.css`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/test/components/pwa/PwaInstallBanner.browser.test.tsx`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/test/components/pwa/PwaInstallSheet.browser.test.tsx`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/e2e/pwa-install.test.ts`
+   - Files to modify:
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/components/AppShell.tsx`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/components/AppShell.module.css`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/components/MenuDrawer.tsx`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/components/MenuDrawer.module.css`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/locales/en/translation.json`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/locales/es/translation.json`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/locales/pt-BR/translation.json`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/test/components/AppShell.browser.test.tsx`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/test/components/MenuDrawer.browser.test.tsx`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/test/providers/PwaProvider.browser.test.tsx`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/test/i18n/translation-resources.test.ts`
+   - Implementation details:
+     - `AppShell` should render the Chromium install banner globally from `PwaContext` so every route gets the same install surface without prop drilling.
+     - `MenuDrawer` should consume `PwaContext` and add one persistent install row using existing drawer row/divider structure:
+       - Chromium + deferred prompt captured -> enabled row calls `promptInstall()`.
+       - iOS Safari not standalone -> enabled row opens `PwaInstallSheet` guidance.
+       - Unsupported browsers -> install row omitted.
+     - `PwaInstallSheet` should mirror the existing modal/sheet interaction contract used by `LocaleSwitcher` and `ThemeSheet`: portal, backdrop dismiss, Escape close, close button, token-driven spacing.
+     - `AppShell.module.css` should allocate safe fixed-position stacking for install UI and avoid conflict with route content.
+     - Translation keys to add in all 3 locale files:
+       - `pwa.install.menuLabel`
+       - `pwa.install.menuMetaChromium`
+       - `pwa.install.menuMetaIos`
+       - `pwa.install.bannerTitle`
+       - `pwa.install.bannerBody`
+       - `pwa.install.action`
+       - `pwa.install.dismiss`
+       - `pwa.install.iosTitle`
+       - `pwa.install.iosBody`
+       - `pwa.install.iosStepOpenShare`
+       - `pwa.install.iosStepChooseHomeScreen`
+       - `pwa.install.iosStepConfirm`
+       - `pwa.install.close`
+     - Keep wording literal and capability-specific so unsupported browsers never see misleading copy.
+   - Test strategy:
+     - `PwaInstallBanner.browser.test.tsx` validates render, dismiss, and CTA click behavior.
+     - `PwaInstallSheet.browser.test.tsx` validates open/close, translated steps, backdrop/Escape dismissal.
+     - `MenuDrawer.browser.test.tsx` validates row visibility/absence for Chromium, iOS, and unsupported states.
+     - `AppShell.browser.test.tsx` validates banner mounting through the global shell.
+     - `e2e/pwa-install.test.ts` should inject a synthetic `beforeinstallprompt` harness in Chromium to prove the CTA stays hidden until the event is captured, then appears in both banner and drawer.
+     - Manual QA note: on real iOS Safari, verify MenuDrawer guidance is visible, translated, and install UI disappears after app launches standalone.
+   - Correctness checkpoint:
+     - Chromium shows install banner + drawer row only after prompt capture; iOS shows drawer guidance only when relevant; unsupported browsers show nothing.
+   - Rollback / mitigation:
+     - If banner and toast compete for the same bottom-space slot, prioritize update UI over install UI and temporarily suppress the install banner while an update is waiting.
+
+5. Execute `STR-29` by wiring update detection into the same provider and surfacing a user-triggered toast in AppShell.
+   - Files to create:
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/components/pwa/PwaUpdateToast.tsx`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/components/pwa/PwaUpdateToast.module.css`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/test/components/pwa/PwaUpdateToast.browser.test.tsx`
+   - Files to modify:
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/services/pwa-registration.ts`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/providers/PwaProvider.tsx`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/components/AppShell.tsx`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/components/AppShell.module.css`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/locales/en/translation.json`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/locales/es/translation.json`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/src/locales/pt-BR/translation.json`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/test/providers/PwaProvider.browser.test.tsx`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/test/components/AppShell.browser.test.tsx`
+     - `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/test/i18n/translation-resources.test.ts`
+   - Implementation details:
+     - Extend `pwa-registration.ts` so the provider receives `onNeedRefresh` and the returned `updateServiceWorker` function from the plugin registration call.
+     - In `PwaProvider`, add state for:
+       - `isUpdateAvailable`
+       - `isUpdateDismissed`
+       - `applyUpdate()`
+       - `dismissUpdate()`
+     - Do not auto-apply updates when `onNeedRefresh` fires.
+     - `PwaUpdateToast` should render in the existing AppShell toast region, with fixed bottom placement, dismiss control, and a CTA that calls `updateServiceWorker(true)` only after explicit user interaction.
+     - Lower the AppShell toast z-index below drawer/modal layers if necessary; current shell placeholder uses a higher z-index than the accepted behavior allows.
+     - Translation keys to add in all 3 locale files:
+       - `pwa.update.title`
+       - `pwa.update.body`
+       - `pwa.update.action`
+       - `pwa.update.dismiss`
+     - Keep `workbox.skipWaiting = false` and `clientsClaim = false`; changing either would risk hidden automatic updates that violate acceptance.
+   - Test strategy:
+     - `PwaUpdateToast.browser.test.tsx` validates translated render, dismiss behavior, and CTA click behavior.
+     - `PwaProvider.browser.test.tsx` uses the mocked registration wrapper to trigger `onNeedRefresh` deterministically and assert:
+       - toast appears,
+       - dismiss hides it without calling update,
+       - update action calls the wrapper callback,
+       - no forced reload occurs before click.
+     - `AppShell.browser.test.tsx` validates toast mounting and install/update surface priority.
+     - Manual production smoke can remain optional until a stable two-build Playwright harness is worth the extra complexity.
+   - Correctness checkpoint:
+     - Waiting service worker produces visible translated update UI; user-triggered action activates update; app never reloads automatically on detection.
+   - Rollback / mitigation:
+     - If the provider logic becomes tangled, keep the update state machine inside the provider and keep `PwaUpdateToast` presentational only; do not let components call Workbox/plugin APIs directly.
+
+6. Close epic with targeted regression, build verification, and full project QA.
+   - Files affected:
+     - No new source files required; this step validates all files touched in Steps 1-5.
+   - Implementation details:
+     - Run validation in dependency order:
+       1. `STR-27` build + offline tests.
+       2. `STR-28` helper/provider/component/browser tests.
+       3. `STR-29` update harness tests.
+       4. Full repo QA via `pnpm complete-check`.
+     - Explicitly confirm generated artifacts exist in `dist/client` after build:
+       - manifest asset,
+       - service worker asset,
+       - Workbox runtime chunk if emitted by plugin.
+     - Re-run translation alignment tests so all `pwa.*` keys are present in `en`, `es`, and `pt-BR`.
+   - Test strategy:
+     - Targeted Vitest runs during each task, then one final `pnpm complete-check` pass.
+   - Correctness checkpoint:
+     - Offline, install, and update behavior all work together with no regressions in drawer, locale/theme sheets, or existing route flows.
+   - Rollback / mitigation:
+     - If a late regression appears, revert the most recent task slice only (`STR-29`, then `STR-28`, then `STR-27`) instead of backing out the entire epic.
+
+## Validation
+
+- Success criteria:
+  - Plan file exists at `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/docs/plan/Plan STR-26 EP7: PWA Offline, Install + Update Experience.md`.
+  - `STR-27` is complete when:
+    - production build emits manifest-linked install assets plus a service worker,
+    - Workbox caching is explicit and same-origin controlled,
+    - the app reloads offline after one successful online load,
+    - no backend dependency is introduced.
+  - `STR-28` is complete when:
+    - Chromium install CTA is hidden until `beforeinstallprompt` is captured,
+    - Chromium shows both banner and MenuDrawer entry once eligible,
+    - iOS shows translated Add to Home Screen guidance from MenuDrawer,
+    - unsupported browsers show no broken install UI.
+  - `STR-29` is complete when:
+    - waiting service worker shows translated update UI,
+    - user-triggered action activates update/reload,
+    - no automatic reload happens on detection,
+    - update behavior is covered by a deterministic mocked-registration harness.
+  - `pnpm complete-check` passes after all PWA changes land.
+- Checkpoints:
+  - Pre-implementation assumptions check:
+    - Confirm the actual production shell output path in `dist/client` before finalizing Workbox `navigateFallback`.
+    - Confirm PWA E2E uses preview/build output, not dev-server semantics.
+    - Confirm install/update state remains runtime-only and does not enter IndexedDB.
+  - During-implementation correctness checks:
+    - After `STR-27`, verify `dist/client` contains the service worker asset and offline reload succeeds.
+    - After install helper/provider work, verify `beforeinstallprompt` capture and standalone detection produce the correct platform state.
+    - After install UI work, verify MenuDrawer row behavior is correct on Chromium/iOS/unsupported paths and all `pwa.install.*` keys exist in every locale.
+    - After update flow work, verify dismiss does not reload, update action does reload, and toast z-index stays below drawer/modal surfaces.
+  - Post-implementation verification and regression checks:
+    - Existing E2E routes still load correctly from preview build.
+    - Locale/theme/share/drawer behavior remains intact after AppShell and MenuDrawer changes.
+    - Offline, install, and update features coexist without overlapping or misleading UI.
+    - Final `pnpm complete-check` stays green.

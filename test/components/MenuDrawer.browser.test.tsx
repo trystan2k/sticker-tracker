@@ -8,6 +8,15 @@ import '@/i18n/config';
 
 import { MenuDrawer } from '@/components/MenuDrawer';
 
+vi.mock('@/providers/PwaProvider', () => ({
+  usePwa: () => ({
+    installPlatform: 'unsupported',
+    canPromptInstall: false,
+    promptInstall: async () => {},
+    openInstallSheet: () => {}
+  })
+}));
+
 function waitFor(predicate: () => boolean, timeoutMs = 3000): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     const start = Date.now();

@@ -8,15 +8,17 @@ describe('__root route', () => {
       expect(Route.options.head).toBeTypeOf('function');
     });
 
-    it('head returns links with favicon', () => {
+    it('head returns links with favicon, manifest and apple touch icon', () => {
       const headFn = Route.options.head as
         | (() => { links: unknown[]; meta: unknown[] })
         | undefined;
       const head = headFn?.();
 
       expect(head?.links).toBeDefined();
-      expect(head?.links).toHaveLength(1);
+      expect(head?.links).toHaveLength(3);
       expect(head?.links[0]).toEqual({ rel: 'icon', href: '/favicon.ico' });
+      expect(head?.links[1]).toEqual({ rel: 'manifest', href: '/manifest.json' });
+      expect(head?.links[2]).toEqual({ rel: 'apple-touch-icon', href: '/logo192.png' });
     });
 
     it('head returns meta with charset, viewport, title, description, theme-color', () => {
@@ -34,7 +36,7 @@ describe('__root route', () => {
       expect(meta[2]).toEqual({ title: 'Sticker Tracker' });
       expect(meta[3]).toEqual({
         name: 'description',
-        content: 'Track your FIFA 2026 sticker album progress'
+        content: 'Track your COPA 26 sticker album progress'
       });
       expect(meta[4]).toEqual({ name: 'theme-color', content: 'var(--color-brand-primary)' });
     });

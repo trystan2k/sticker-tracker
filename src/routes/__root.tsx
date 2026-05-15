@@ -4,6 +4,7 @@ import { TanStackDevtools } from '@tanstack/react-devtools';
 import { type ReactNode, useContext, useEffect } from 'react';
 
 import { AppStateContext, AppStateProvider } from '@/providers/AppStateProvider';
+import { PwaProvider } from '@/providers/PwaProvider';
 import { AppShell } from '@/components/AppShell';
 import { NotFoundPage } from '@/components/not-found/NotFoundPage';
 
@@ -16,6 +17,14 @@ export const Route = createRootRoute({
       {
         rel: 'icon',
         href: '/favicon.ico'
+      },
+      {
+        rel: 'manifest',
+        href: '/manifest.json'
+      },
+      {
+        rel: 'apple-touch-icon',
+        href: '/logo192.png'
       }
     ],
     meta: [
@@ -31,7 +40,7 @@ export const Route = createRootRoute({
       },
       {
         name: 'description',
-        content: 'Track your FIFA 2026 sticker album progress'
+        content: 'Track your COPA 26 sticker album progress'
       },
       {
         name: 'theme-color',
@@ -55,8 +64,10 @@ function RootDocument({ children }: RootDocumentProps) {
       </head>
       <body>
         <AppStateProvider>
-          <RootLanguageSync />
-          <AppShell>{children}</AppShell>
+          <PwaProvider>
+            <RootLanguageSync />
+            <AppShell>{children}</AppShell>
+          </PwaProvider>
           <TanStackDevtools
             // oxlint-disable-next-line jsx-no-new-object-as-prop
             config={{

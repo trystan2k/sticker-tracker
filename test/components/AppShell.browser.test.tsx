@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import React from 'react';
 import { createRoot, type Root } from 'react-dom/client';
@@ -10,6 +10,18 @@ import {
   setStorageDriverForTests
 } from '@/lib/storage/app-storage';
 import { AppShell } from '@/components/AppShell';
+
+vi.mock('@/components/pwa/PwaInstallBanner', () => ({
+  PwaInstallBanner: () => React.createElement('div', { 'data-testid': 'pwa-install-banner' })
+}));
+
+vi.mock('@/components/pwa/PwaUpdateToast', () => ({
+  PwaUpdateToast: () => React.createElement('div', { 'data-testid': 'pwa-update-toast' })
+}));
+
+vi.mock('@/components/pwa/PwaInstallSheet', () => ({
+  PwaInstallSheet: () => React.createElement('div', { 'data-testid': 'pwa-install-sheet' })
+}));
 
 function waitFor(predicate: () => boolean, timeoutMs = 8000): Promise<void> {
   return new Promise<void>((resolve, reject) => {
@@ -138,7 +150,11 @@ describe('AppShell', () => {
       expect(nav?.getAttribute('aria-label')).toBe('Navigation');
 
       const overlays = mounted.container.querySelectorAll('[aria-live="polite"]');
-      expect(overlays.length).toBeGreaterThanOrEqual(2);
+      expect(overlays.length).toBeGreaterThanOrEqual(1);
+
+      expect(mounted.container.querySelector('[data-testid="pwa-update-toast"]')).not.toBeNull();
+      expect(mounted.container.querySelector('[data-testid="pwa-install-banner"]')).not.toBeNull();
+      expect(mounted.container.querySelector('[data-testid="pwa-install-sheet"]')).not.toBeNull();
     } finally {
       cleanup(mounted);
     }

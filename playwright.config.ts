@@ -28,7 +28,9 @@ export default defineConfig({
     }
   ],
   webServer: {
-    command: 'pnpm dev',
+    command: process.env.PWA_E2E
+      ? 'pnpm build && pnpm exec vite preview --strictPort --port 4000'
+      : 'pnpm dev',
     url: 'http://localhost:4000',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000

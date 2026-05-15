@@ -1,0 +1,92 @@
+@keyframes slide-up-fade {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-2));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.toast {
+  width: min(calc(100vw - var(--space-6)), calc(var(--space-2) * 48.75));
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  background-color: var(--surface-album-secondary);
+  padding: var(--space-3);
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  justify-content: space-between;
+  pointer-events: auto;
+  animation: slide-up-fade 180ms ease;
+}
+
+.content {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  color: var(--color-text-primary);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--typography-family-heading);
+  font-size: var(--typography-size-md-lg);
+  font-weight: var(--typography-weight-bold);
+  color: var(--color-text-primary);
+}
+
+.body {
+  margin: 0;
+  font-family: var(--typography-family-body);
+  font-size: var(--typography-size-md);
+  font-weight: var(--typography-weight-regular);
+  color: var(--color-text-secondary);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.actionButton {
+  border: none;
+  border-radius: var(--radius-md);
+  background-color: var(--color-brand-primary);
+  color: var(--color-text-inverse);
+  height: var(--size-control-md);
+  padding: 0 var(--space-3);
+  font-family: var(--typography-family-body);
+  font-size: var(--typography-size-md);
+  font-weight: var(--typography-weight-semibold);
+  cursor: pointer;
+}
+
+.dismissButton {
+  width: var(--space-8);
+  height: var(--space-8);
+  border: none;
+  border-radius: var(--radius-lg);
+  background-color: var(--surface-album-tertiary);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.actionButton:focus-visible,
+.dismissButton:focus-visible {
+  outline: var(--border-width-strong) solid var(--color-brand-primary);
+  outline-offset: var(--border-width-strong);
+}
