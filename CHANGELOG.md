@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.0](https://github.com/trystan2k/sticker-tracker/compare/v1.10.0...v1.11.0) (2026-05-15)
+
+
+### Features
+
+* add app preferences menu with theme switcher and data reset ([#23](https://github.com/trystan2k/sticker-tracker/issues/23)) ([e2d8c71](https://github.com/trystan2k/sticker-tracker/commit/e2d8c71d47c0c776e0ede09ce41260a82d7a2e01))
+
 ## [1.10.0](https://github.com/trystan2k/sticker-tracker/compare/v1.9.0...v1.10.0) (2026-05-14)
 
 
