@@ -14,6 +14,7 @@ import {
   saveSupportedLocale,
   type SupportedLocale
 } from '@/services/locale-service';
+import { applyTheme, readTheme, saveTheme, type ThemeValue } from '@/services/theme-service';
 
 type AppRenderState = 'loading' | 'ready' | 'storage-error';
 
@@ -21,9 +22,12 @@ type AppStateContextValue = Readonly<{
   renderState: AppRenderState;
   storageState: StorageState;
   locale: SupportedLocale;
+  theme: ThemeValue;
   collection: CollectionState;
   retryBootstrap: () => Promise<void>;
+  resetAppData: () => Promise<void>;
   setLocale: (locale: SupportedLocale) => Promise<StorageState>;
+  setTheme: (theme: ThemeValue) => Promise<void>;
   toggleCollected: typeof toggleStickerCollectionState;
 }>;
 
@@ -40,6 +44,7 @@ export function AppStateProvider({ children }: AppStateProviderProps) {
   const [renderState, setRenderState] = useState<AppRenderState>('loading');
   const [storageState, setStorageState] = useState<StorageState>('unavailable');
   const [locale, setLocaleState] = useState<SupportedLocale>('en');
+  const [theme, setThemeState] = useState<ThemeValue>('system');
   const [collection, setCollection] = useState<CollectionState>(EMPTY_COLLECTION);
 
   async function runBootstrap(): Promise<void> {
@@ -91,8 +96,12 @@ export function AppStateProvider({ children }: AppStateProviderProps) {
       return;
     }
 
+    const resolvedTheme = await readTheme();
+    applyTheme(resolvedTheme);
+
     setStorageState('ready');
     setLocaleState(resolvedLocale);
+    setThemeState(resolvedTheme);
     setCollection(collectionResult.value);
     setRenderState('ready');
   }
@@ -120,7 +129,7 @@ export function AppStateProvider({ children }: AppStateProviderProps) {
     return 'ready';
   }, []);
 
-  const resetAndRetry = useCallback(async (): Promise<void> => {
+  const resetAppData = useCallback(async (): Promise<void> => {
     const resetResult = await resetAllData();
 
     if (resetResult.state !== 'ready') {
@@ -130,7 +139,23 @@ export function AppStateProvider({ children }: AppStateProviderProps) {
       return;
     }
 
+    // Prevent flash of previous theme before bootstrap resolves
+    applyTheme('system');
+
     await runBootstrap();
+  }, []);
+
+  const setTheme = useCallback(async (themeToSet: ThemeValue): Promise<void> => {
+    const result = await saveTheme(themeToSet);
+    if (result.state !== 'ready') {
+      setStorageState(result.state);
+      setRenderState('storage-error');
+
+      return;
+    }
+
+    applyTheme(themeToSet);
+    setThemeState(themeToSet);
   }, []);
 
   const handleRetryClick = useCallback((): void => {
@@ -138,8 +163,8 @@ export function AppStateProvider({ children }: AppStateProviderProps) {
   }, [retryBootstrap]);
 
   const handleResetClick = useCallback((): void => {
-    void resetAndRetry();
-  }, [resetAndRetry]);
+    void resetAppData();
+  }, [resetAppData]);
 
   const toggleCollected = useCallback(
     async (...args: Parameters<typeof toggleStickerCollectionState>) => {
@@ -163,12 +188,26 @@ export function AppStateProvider({ children }: AppStateProviderProps) {
       renderState,
       storageState,
       locale,
+      theme,
       collection,
       retryBootstrap,
+      resetAppData,
       setLocale,
+      setTheme,
       toggleCollected
     }),
-    [renderState, storageState, locale, collection, retryBootstrap, setLocale, toggleCollected]
+    [
+      renderState,
+      storageState,
+      locale,
+      theme,
+      collection,
+      retryBootstrap,
+      resetAppData,
+      setLocale,
+      setTheme,
+      toggleCollected
+    ]
   );
 
   if (renderState === 'storage-error') {

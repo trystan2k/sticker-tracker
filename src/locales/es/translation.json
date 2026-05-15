@@ -213,6 +213,17 @@
   "drawer": {
     "share": "Compartir",
     "language": "Idioma",
+    "theme": "Tema",
+    "delete_data": "Borrar datos",
+    "delete_confirm_title": "Borrar datos de la app",
+    "delete_confirm": "Toda tu colección de figuritas, preferencia de idioma y tema se eliminarán permanentemente. Esta acción no se puede deshacer.",
     "close": "Cerrar panel"
+  },
+  "theme": {
+    "sheetTitle": "Tema",
+    "light": "Claro",
+    "dark": "Oscuro",
+    "system": "Sistema",
+    "close": "Cerrar"
   }
 }

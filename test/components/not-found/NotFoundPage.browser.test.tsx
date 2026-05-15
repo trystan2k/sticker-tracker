@@ -339,4 +339,130 @@ describe('NotFoundPage', () => {
       cleanup(mounted);
     }
   });
+
+  it('shows theme row in menu drawer', async () => {
+    await resetStorage();
+
+    const mounted = mount(
+      React.createElement(AppStateProvider, null, React.createElement(NotFoundPage))
+    );
+
+    try {
+      await waitFor(() => {
+        const header = document.body.querySelector('header');
+        return header !== null;
+      });
+
+      const menuButton = document.body.querySelector('header button') as HTMLButtonElement;
+      menuButton?.click();
+
+      await waitFor(() => document.body.textContent?.includes('Theme') ?? false);
+
+      expect(document.body.textContent).toContain('Theme');
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('shows delete data row in menu drawer', async () => {
+    await resetStorage();
+
+    const mounted = mount(
+      React.createElement(AppStateProvider, null, React.createElement(NotFoundPage))
+    );
+
+    try {
+      await waitFor(() => {
+        const header = document.body.querySelector('header');
+        return header !== null;
+      });
+
+      const menuButton = document.body.querySelector('header button') as HTMLButtonElement;
+      menuButton?.click();
+
+      await waitFor(() => document.body.textContent?.includes('Delete app data') ?? false);
+
+      expect(document.body.textContent).toContain('Delete app data');
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('opens theme sheet from menu drawer theme row', async () => {
+    await resetStorage();
+
+    const mounted = mount(
+      React.createElement(AppStateProvider, null, React.createElement(NotFoundPage))
+    );
+
+    try {
+      await waitFor(() => {
+        const header = document.body.querySelector('header');
+        return header !== null;
+      });
+
+      // Open drawer
+      const menuButton = document.body.querySelector('header button') as HTMLButtonElement;
+      menuButton?.click();
+
+      await waitFor(() => document.body.textContent?.includes('Theme') ?? false);
+
+      // Click theme row
+      const themeButton = Array.from(document.body.querySelectorAll('button')).find(
+        (button) => button.textContent?.includes('Theme') ?? false
+      ) as HTMLButtonElement;
+
+      themeButton?.click();
+
+      // Wait for ThemeSheet to appear
+      await waitFor(() => document.body.querySelector('[aria-label="Theme"]') !== null);
+
+      const dialog = document.body.querySelector('[aria-label="Theme"]');
+      expect(dialog).not.toBeNull();
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('closes theme sheet on escape', async () => {
+    await resetStorage();
+
+    const mounted = mount(
+      React.createElement(AppStateProvider, null, React.createElement(NotFoundPage))
+    );
+
+    try {
+      await waitFor(() => {
+        const header = document.body.querySelector('header');
+        return header !== null;
+      });
+
+      // Open drawer
+      const menuButton = document.body.querySelector('header button') as HTMLButtonElement;
+      menuButton?.click();
+
+      await waitFor(() => document.body.textContent?.includes('Theme') ?? false);
+
+      // Open theme sheet
+      const themeButton = Array.from(document.body.querySelectorAll('button')).find(
+        (button) => button.textContent?.includes('Theme') ?? false
+      ) as HTMLButtonElement;
+      themeButton?.click();
+
+      await waitFor(() => document.body.querySelector('[aria-label="Theme"]') !== null);
+
+      // Close with escape
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+
+      // Wait for theme sheet to close
+      await waitFor(() => {
+        const dialog = document.body.querySelector('[aria-label="Theme"]');
+        return dialog === null;
+      });
+
+      expect(document.body.querySelector('[aria-label="Theme"]')).toBeNull();
+    } finally {
+      cleanup(mounted);
+    }
+  });
 });

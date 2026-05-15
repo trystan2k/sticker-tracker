@@ -4,10 +4,12 @@ import { useTranslation } from 'react-i18next';
 
 import { LocaleSwitcher } from '@/components/LocaleSwitcher';
 import { MenuDrawer } from '@/components/MenuDrawer';
+import { ThemeSheet } from '@/components/ThemeSheet';
 import { buildInitialShareSelection, encodeShareSelection } from '@/components/share/share-state';
 import { AppStateContext } from '@/providers/AppStateProvider';
 
 import type { CollectionState } from '@/services/collection-service';
+import type { ThemeValue } from '@/services/theme-service';
 
 import { HomeGroupCards } from './HomeGroupCards';
 import { HomeHeader } from './HomeHeader';
@@ -24,6 +26,7 @@ export function HomeScreen() {
   const { t, i18n } = useTranslation();
   const [isMenuDrawerOpen, setIsMenuDrawerOpen] = useState(false);
   const [isLocaleSwitcherOpen, setIsLocaleSwitcherOpen] = useState(false);
+  const [isThemeSheetOpen, setIsThemeSheetOpen] = useState(false);
 
   const collection = appState?.collection ?? EMPTY_COLLECTION;
 
@@ -86,6 +89,35 @@ export function HomeScreen() {
     setIsLocaleSwitcherOpen(false);
   }, []);
 
+  const handleOpenThemeSheet = useCallback(() => {
+    setIsThemeSheetOpen(true);
+  }, []);
+
+  const handleCloseThemeSheet = useCallback(() => {
+    setIsThemeSheetOpen(false);
+  }, []);
+
+  const handleOpenDeleteConfirm = useCallback(async () => {
+    // oxlint-disable-next-line no-alert
+    const isConfirmed = window.confirm(
+      `${t('drawer.delete_confirm_title')}\n\n${t('drawer.delete_confirm')}`
+    );
+
+    if (!isConfirmed) {
+      return;
+    }
+
+    await appState?.resetAppData();
+    await navigate({ to: '/' });
+  }, [appState, navigate, t]);
+
+  const handleSelectTheme = useCallback(
+    (theme: ThemeValue) => {
+      void appState?.setTheme(theme);
+    },
+    [appState]
+  );
+
   if (appState === null) {
     return null;
   }
@@ -125,10 +157,18 @@ export function HomeScreen() {
         isOpen={isMenuDrawerOpen}
         onClose={handleCloseMenuDrawer}
         onOpenLocaleSwitcher={handleOpenLocaleSwitcher}
+        onOpenThemeSwitcher={handleOpenThemeSheet}
+        onOpenDeleteConfirm={handleOpenDeleteConfirm}
         onOpenShare={handleOpenShare}
         currentLocale={appState.locale}
       />
       <LocaleSwitcher isOpen={isLocaleSwitcherOpen} onClose={handleCloseLocaleSwitcher} />
+      <ThemeSheet
+        isOpen={isThemeSheetOpen}
+        onClose={handleCloseThemeSheet}
+        currentTheme={appState.theme}
+        onSelectTheme={handleSelectTheme}
+      />
     </main>
   );
 }

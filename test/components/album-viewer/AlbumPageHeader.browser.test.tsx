@@ -357,4 +357,101 @@ describe('AlbumPageHeader', () => {
       cleanup(mounted);
     }
   });
+
+  it('shows theme row in menu drawer', async () => {
+    const mounted = mountWithRouter(
+      React.createElement(AlbumPageHeader, {
+        page: teamPage,
+        onOpenQuickNavigation: () => {},
+        onOpenShare: () => {}
+      })
+    );
+
+    try {
+      await waitFor(() => mounted.container.querySelector('header') !== null);
+
+      const menuBtn = mounted.container.querySelector('[class*="menuButton"]');
+      menuBtn?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+      await waitFor(() => document.body.textContent?.includes('Theme') ?? false);
+      expect(document.body.textContent).toContain('Theme');
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('opens theme sheet from drawer theme row', async () => {
+    const mounted = mountWithRouter(
+      React.createElement(AlbumPageHeader, {
+        page: teamPage,
+        onOpenQuickNavigation: () => {},
+        onOpenShare: () => {}
+      })
+    );
+
+    try {
+      await waitFor(() => mounted.container.querySelector('header') !== null);
+
+      // Open drawer
+      const menuBtn = mounted.container.querySelector('[class*="menuButton"]');
+      menuBtn?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+      await waitFor(() => document.body.textContent?.includes('Theme') ?? false);
+
+      // Click theme row
+      const themeBtn = Array.from(document.body.querySelectorAll('button')).find((btn) =>
+        btn.textContent?.includes('Theme')
+      );
+      themeBtn?.click();
+
+      // Wait for ThemeSheet to appear
+      await waitFor(() => document.body.querySelector('[aria-label="Theme"]') !== null);
+
+      const dialog = document.body.querySelector('[aria-label="Theme"]');
+      expect(dialog).not.toBeNull();
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('closes theme sheet on escape', async () => {
+    const mounted = mountWithRouter(
+      React.createElement(AlbumPageHeader, {
+        page: teamPage,
+        onOpenQuickNavigation: () => {},
+        onOpenShare: () => {}
+      })
+    );
+
+    try {
+      await waitFor(() => mounted.container.querySelector('header') !== null);
+
+      // Open drawer
+      const menuBtn = mounted.container.querySelector('[class*="menuButton"]');
+      menuBtn?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+      await waitFor(() => document.body.textContent?.includes('Theme') ?? false);
+
+      // Open theme sheet
+      const themeBtn = Array.from(document.body.querySelectorAll('button')).find((btn) =>
+        btn.textContent?.includes('Theme')
+      );
+      themeBtn?.click();
+
+      await waitFor(() => document.body.querySelector('[aria-label="Theme"]') !== null);
+
+      // Close with escape
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+
+      // Wait for theme sheet to close
+      await waitFor(() => {
+        const dialog = document.body.querySelector('[aria-label="Theme"]');
+        return dialog === null;
+      });
+
+      expect(document.body.querySelector('[aria-label="Theme"]')).toBeNull();
+    } finally {
+      cleanup(mounted);
+    }
+  });
 });

@@ -1,18 +1,24 @@
 import { SearchX } from 'lucide-react';
-import { Link } from '@tanstack/react-router';
-import { useCallback, useState } from 'react';
+import { Link, useNavigate } from '@tanstack/react-router';
+import { useCallback, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { LocaleSwitcher } from '@/components/LocaleSwitcher';
 import { MenuDrawer } from '@/components/MenuDrawer';
+import { ThemeSheet } from '@/components/ThemeSheet';
 import { HomeHeader } from '@/components/home/HomeHeader';
+import { AppStateContext } from '@/providers/AppStateProvider';
+import type { ThemeValue } from '@/services/theme-service';
 
 import styles from './NotFoundPage.module.css';
 
 export function NotFoundPage() {
+  const appState = useContext(AppStateContext);
+  const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const [isMenuDrawerOpen, setIsMenuDrawerOpen] = useState(false);
   const [isLocaleSwitcherOpen, setIsLocaleSwitcherOpen] = useState(false);
+  const [isThemeSheetOpen, setIsThemeSheetOpen] = useState(false);
 
   const handleOpenMenuDrawer = useCallback(() => {
     setIsMenuDrawerOpen(true);
@@ -29,6 +35,39 @@ export function NotFoundPage() {
   const handleCloseLocaleSwitcher = useCallback(() => {
     setIsLocaleSwitcherOpen(false);
   }, []);
+
+  const handleOpenThemeSheet = useCallback(() => {
+    setIsThemeSheetOpen(true);
+  }, []);
+
+  const handleCloseThemeSheet = useCallback(() => {
+    setIsThemeSheetOpen(false);
+  }, []);
+
+  const handleOpenDeleteConfirm = useCallback(async () => {
+    // oxlint-disable-next-line no-alert
+    const isConfirmed = window.confirm(
+      `${t('drawer.delete_confirm_title')}\n\n${t('drawer.delete_confirm')}`
+    );
+
+    if (!isConfirmed) {
+      return;
+    }
+
+    await appState?.resetAppData();
+    await navigate({ to: '/' });
+  }, [appState, navigate, t]);
+
+  const handleSelectTheme = useCallback(
+    (theme: ThemeValue) => {
+      if (!appState) {
+        return;
+      }
+
+      void appState.setTheme(theme);
+    },
+    [appState]
+  );
 
   return (
     <main className={styles.screen}>
@@ -53,9 +92,17 @@ export function NotFoundPage() {
         isOpen={isMenuDrawerOpen}
         onClose={handleCloseMenuDrawer}
         onOpenLocaleSwitcher={handleOpenLocaleSwitcher}
+        onOpenThemeSwitcher={handleOpenThemeSheet}
+        onOpenDeleteConfirm={handleOpenDeleteConfirm}
         currentLocale={i18n.resolvedLanguage ?? i18n.language}
       />
       <LocaleSwitcher isOpen={isLocaleSwitcherOpen} onClose={handleCloseLocaleSwitcher} />
+      <ThemeSheet
+        isOpen={isThemeSheetOpen}
+        onClose={handleCloseThemeSheet}
+        currentTheme={appState?.theme ?? 'system'}
+        onSelectTheme={handleSelectTheme}
+      />
     </main>
   );
 }

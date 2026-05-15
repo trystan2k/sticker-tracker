@@ -14,7 +14,7 @@ const DATABASE_VERSION = 1;
 const STORE_NAME = 'app-storage';
 const UNRECOVERABLE_FAILURE_THRESHOLD = 2;
 
-type AppStorageKey = 'collection' | 'locale';
+type AppStorageKey = 'collection' | 'locale' | 'theme';
 
 type OpenDatabaseFunction = (
   name: string,
@@ -34,6 +34,7 @@ export type PersistedCollection = Readonly<Record<PageId, readonly StickerIdenti
 type AppStorageValueByKey = {
   collection: PersistedCollection;
   locale: string;
+  theme: string;
 };
 
 type AppStorageEntry = {

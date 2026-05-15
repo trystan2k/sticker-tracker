@@ -158,6 +158,8 @@ describe('MenuDrawer', () => {
         isOpen: true,
         onClose,
         onOpenLocaleSwitcher: () => {},
+        onOpenThemeSwitcher: () => {},
+        onOpenDeleteConfirm: () => {},
         currentLocale: 'en'
       })
     );

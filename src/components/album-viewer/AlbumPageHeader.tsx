@@ -1,11 +1,14 @@
 import { Menu } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { useCallback, useContext, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 
 import { LocaleSwitcher } from '@/components/LocaleSwitcher';
 import { MenuDrawer } from '@/components/MenuDrawer';
+import { ThemeSheet } from '@/components/ThemeSheet';
 import type { AlbumPage } from '@/data/album';
+import { AppStateContext } from '@/providers/AppStateProvider';
+import type { ThemeValue } from '@/services/theme-service';
 
 import styles from './AlbumPageHeader.module.css';
 
@@ -20,10 +23,12 @@ export function AlbumPageHeader({
   onOpenQuickNavigation,
   onOpenShare
 }: AlbumPageHeaderProps) {
+  const appState = useContext(AppStateContext);
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [isMenuDrawerOpen, setIsMenuDrawerOpen] = useState(false);
   const [isLocaleModalOpen, setIsLocaleModalOpen] = useState(false);
+  const [isThemeSheetOpen, setIsThemeSheetOpen] = useState(false);
 
   const handleOpenMenuDrawer = useCallback((): void => {
     setIsMenuDrawerOpen(true);
@@ -42,9 +47,42 @@ export function AlbumPageHeader({
     setIsLocaleModalOpen(false);
   }, []);
 
+  const handleOpenThemeSheet = useCallback((): void => {
+    setIsThemeSheetOpen(true);
+  }, []);
+
+  const handleCloseThemeSheet = useCallback((): void => {
+    setIsThemeSheetOpen(false);
+  }, []);
+
   const handleNavigateHome = useCallback((): void => {
     void navigate({ to: '/' });
   }, [navigate]);
+
+  const handleOpenDeleteConfirm = useCallback(async (): Promise<void> => {
+    // oxlint-disable-next-line no-alert
+    const isConfirmed = window.confirm(
+      `${t('drawer.delete_confirm_title')}\n\n${t('drawer.delete_confirm')}`
+    );
+
+    if (!isConfirmed) {
+      return;
+    }
+
+    await appState?.resetAppData();
+    await navigate({ to: '/' });
+  }, [appState, navigate, t]);
+
+  const handleSelectTheme = useCallback(
+    (theme: ThemeValue): void => {
+      if (!appState) {
+        return;
+      }
+
+      void appState.setTheme(theme);
+    },
+    [appState]
+  );
 
   const centerContent =
     page.type === 'team' ? (
@@ -96,10 +134,18 @@ export function AlbumPageHeader({
         isOpen={isMenuDrawerOpen}
         onClose={handleCloseMenuDrawer}
         onOpenLocaleSwitcher={handleOpenLocaleModalFromDrawer}
+        onOpenThemeSwitcher={handleOpenThemeSheet}
+        onOpenDeleteConfirm={handleOpenDeleteConfirm}
         onOpenShare={onOpenShare}
         currentLocale={i18n.resolvedLanguage ?? i18n.language ?? 'en'}
       />
       <LocaleSwitcher isOpen={isLocaleModalOpen} onClose={handleCloseLocaleModal} />
+      <ThemeSheet
+        isOpen={isThemeSheetOpen}
+        onClose={handleCloseThemeSheet}
+        currentTheme={appState?.theme ?? 'system'}
+        onSelectTheme={handleSelectTheme}
+      />
     </>
   );
 }

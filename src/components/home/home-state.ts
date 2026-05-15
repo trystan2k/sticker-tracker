@@ -74,7 +74,7 @@ function getSpecialTotalByKey(page: SpecialPage): number {
     case 'coca-cola':
       return COCA_COLA_COUNT;
     default: {
-      // eslint-disable-next-line typescript/no-unsafe-type-assertion
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion
       throw new Error(`Unhandled special page key: ${(page as { key: string }).key}`);
     }
   }
