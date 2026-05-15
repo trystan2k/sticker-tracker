@@ -7,7 +7,7 @@ test.describe('Delete App Data', () => {
     await page.getByRole('button', { name: /Open menu|Abrir menú|Abrir menu/ }).click();
 
     await expect(
-      page.getByRole('button', { name: /Delete app data|Excluir datos|Excluir dados/ })
+      page.getByRole('button', { name: /Delete app data|Borrar datos|Excluir dados/ })
     ).toBeVisible();
   });
 
@@ -25,7 +25,7 @@ test.describe('Delete App Data', () => {
     });
 
     await page.getByRole('button', { name: /Open menu|Abrir menú|Abrir menu/ }).click();
-    await page.getByRole('button', { name: /Delete app data|Excluir datos|Excluir dados/ }).click();
+    await page.getByRole('button', { name: /Delete app data|Borrar datos|Excluir dados/ }).click();
 
     // Page should still be on home
     await expect(
@@ -51,7 +51,7 @@ test.describe('Delete App Data', () => {
     await page.goto('/');
 
     await page.getByRole('button', { name: /Open menu|Abrir menú|Abrir menu/ }).click();
-    await page.getByRole('button', { name: /Delete app data|Excluir datos|Excluir dados/ }).click();
+    await page.getByRole('button', { name: /Delete app data|Borrar datos|Excluir dados/ }).click();
 
     // Should navigate back to home after delete
     await expect(page).toHaveURL('/');
