@@ -20,6 +20,7 @@
     "dev": "vite",
     "prebuild": "pnpm tokens:build",
     "build": "vite build",
+    "postbuild": "node scripts/generate-sw.mjs",
     "tokens:build": "style-dictionary build --config design-tokens/style-dictionary.config.js",
     "prepare": "husky",
     "lint": "pnpm lint:oxlint && pnpm lint:stylelint",
@@ -37,6 +38,7 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
+    "preview:e2e": "pnpm build && pnpm exec vite preview --strictPort --port 4000",
     "complete-check": "pnpm knip:fix && pnpm typecheck && pnpm lint:fix && pnpm format && pnpm test && pnpm test:e2e && pnpm build",
     "knip": "knip",
     "knip:fix": "pnpm knip --fix"
@@ -83,6 +85,7 @@
     "vite": "~8.0.10",
     "vite-plugin-killer-instincts": "~1.1.0",
     "vitest": "~4.1.5",
+    "workbox-build": "^7.4.1",
     "wrangler": "~4.90.0"
   },
   "engines": {

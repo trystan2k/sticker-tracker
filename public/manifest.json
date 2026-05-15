@@ -1,6 +1,11 @@
 {
-  "short_name": "Sticker Tracker",
-  "name": "FIFA 2026 Sticker Tracker",
+  "id": "/",
+  "short_name": "Copa 26",
+  "name": "Copa 26 Sticker Tracker",
+  "description": "Track your Copa 26 sticker album progress",
+  "lang": "en",
+  "scope": "/",
+  "start_url": "/",
   "icons": [
     {
       "src": "favicon.ico",
@@ -10,15 +15,28 @@
     {
       "src": "logo192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "maskable"
     },
     {
       "src": "logo512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
     }
   ],
-  "start_url": ".",
   "display": "standalone",
   "theme_color": "#00A651",
   "background_color": "#F5F7F5"

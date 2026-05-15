@@ -1,9 +1,10 @@
-import { ChevronRight, Menu, Palette, Share2, Trash2, X } from 'lucide-react';
+import { ChevronRight, Download, Menu, Palette, Share2, Trash2, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 
 import { APP_VERSION } from '@/version';
+import { usePwa } from '@/providers/PwaProvider';
 
 import styles from './MenuDrawer.module.css';
 
@@ -33,6 +34,7 @@ export function MenuDrawer({
   currentLocale
 }: MenuDrawerProps) {
   const { t } = useTranslation();
+  const { installPlatform, canPromptInstall, promptInstall, openInstallSheet } = usePwa();
   const [isMounted, setIsMounted] = useState(isOpen);
   const [isClosing, setIsClosing] = useState(false);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -163,6 +165,20 @@ export function MenuDrawer({
     onOpenThemeSwitcher();
   }, [onClose, onOpenThemeSwitcher]);
 
+  const handleInstallClick = useCallback(() => {
+    if (installPlatform === 'chromium') {
+      onClose();
+      void promptInstall();
+      return;
+    }
+
+    if (installPlatform === 'ios') {
+      triggerRef.current = null;
+      onClose();
+      openInstallSheet();
+    }
+  }, [installPlatform, onClose, openInstallSheet, promptInstall]);
+
   if (!isMounted && !isOpen) {
     return null;
   }
@@ -240,6 +256,22 @@ export function MenuDrawer({
           </button>
 
           <div className={styles.divider} aria-hidden="true" />
+
+          {installPlatform === 'ios' || (installPlatform === 'chromium' && canPromptInstall) ? (
+            <>
+              <button type="button" className={styles.row} onClick={handleInstallClick}>
+                <Download size={22} aria-hidden="true" />
+                <span className={styles.rowLabel}>{t('pwa.install.menuLabel')}</span>
+                <span className={styles.localeMeta}>
+                  {installPlatform === 'ios'
+                    ? t('pwa.install.menuMetaIos')
+                    : t('pwa.install.menuMetaChromium')}
+                </span>
+              </button>
+
+              <div className={styles.divider} aria-hidden="true" />
+            </>
+          ) : null}
 
           <button
             type="button"

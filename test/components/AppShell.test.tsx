@@ -21,15 +21,15 @@ describe('AppShell', () => {
     expect(html).toContain('aria-label="Navigation"');
   });
 
-  it('renders overlay and toast divs with aria-live', () => {
+  it('renders overlay and toast divs', () => {
     const html = renderToString(
       React.createElement(AppShell, null, React.createElement('span', null, 'content'))
     );
 
     expect(html).toContain('aria-live="polite"');
-    // Two aria-live elements: overlay and toast
+    // One aria-live element: toast (overlay has no aria-live)
     const matches = html.match(/aria-live="polite"/g);
-    expect(matches).toHaveLength(2);
+    expect(matches).toHaveLength(1);
   });
 
   it('renders with null children', () => {

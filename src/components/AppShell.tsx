@@ -1,5 +1,9 @@
 import type { ReactNode } from 'react';
 
+import { PwaInstallBanner } from '@/components/pwa/PwaInstallBanner';
+import { PwaUpdateToast } from '@/components/pwa/PwaUpdateToast';
+import { PwaInstallSheet } from '@/components/pwa/PwaInstallSheet';
+
 import styles from './AppShell.module.css';
 
 interface AppShellProps {
@@ -11,8 +15,12 @@ export function AppShell({ children }: AppShellProps) {
     <div className={styles.shell}>
       <main className={styles.main}>{children}</main>
       <nav className={styles.nav} aria-label="Navigation" />
-      <div className={styles.overlay} aria-live="polite" />
-      <div className={styles.toast} aria-live="polite" />
+      <div className={styles.overlay} />
+      <div className={styles.toast} aria-live="polite">
+        <PwaUpdateToast />
+        <PwaInstallBanner />
+      </div>
+      <PwaInstallSheet />
     </div>
   );
 }

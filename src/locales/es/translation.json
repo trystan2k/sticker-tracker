@@ -154,7 +154,7 @@
   "home": {
     "header": {
       "ariaLabel": "Encabezado de inicio",
-      "title": "Copa Mundial FIFA 2026",
+      "title": "Copa Mundial 2026",
       "openMenu": "Abrir menú"
     },
     "hero": {
@@ -208,6 +208,31 @@
       "downloading": "Descargando...",
       "error": "Algo salió mal",
       "shareUnsupported": "Compartir no disponible, archivo descargado"
+    }
+  },
+  "pwa": {
+    "install": {
+      "menuLabel": "Instalar app",
+      "menuMetaChromium": "Disponible",
+      "menuMetaIos": "iPhone/iPad",
+      "bannerTitle": "Instalar Sticker Tracker",
+      "bannerBody": "Agrega la app a tu pantalla de inicio para acceso rápido.",
+      "action": "Instalar",
+      "dismiss": "Cerrar banner de instalación",
+      "bannerAriaLabel": "Banner para instalar app",
+      "iosTitle": "Agregar a pantalla de inicio",
+      "iosBody": "Instala en iPhone o iPad en 3 pasos:",
+      "iosStepOpenShare": "Toca el botón Compartir en Safari",
+      "iosStepChooseHomeScreen": "Elige “Agregar a pantalla de inicio”",
+      "iosStepConfirm": "Toca “Agregar” para confirmar",
+      "close": "Cerrar instrucciones de instalación"
+    },
+    "update": {
+      "title": "Nueva versión disponible",
+      "body": "Actualiza para obtener las últimas mejoras",
+      "action": "Actualizar ahora",
+      "dismiss": "Descartar",
+      "ariaLabel": "Actualización disponible"
     }
   },
   "drawer": {
