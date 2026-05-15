@@ -11,14 +11,14 @@ export function PwaUpdateToast() {
   const { isUpdateAvailable, isUpdateDismissed, applyUpdate, dismissUpdate } = usePwa();
   const [isApplying, setIsApplying] = useState(false);
 
-  if (!isUpdateAvailable || isUpdateDismissed) {
-    return null;
-  }
-
   const handleApplyUpdate = useCallback(async () => {
     setIsApplying(true);
     await applyUpdate();
   }, [applyUpdate]);
+
+  if (!isUpdateAvailable || isUpdateDismissed) {
+    return null;
+  }
 
   return (
     <div

@@ -1,3 +1,11 @@
+/**
+ * Service worker registration wrapper.
+ *
+ * Caching: The registration result is cached on first call. Subsequent calls
+ * return the same cached result and discard their options. This is intentional
+ * — the SW should only be registered once per app lifecycle. Only PwaProvider
+ * should call this function.
+ */
 /* v8 ignore file */
 export type SWUpdateCallback = () => void;
 
