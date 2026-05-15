@@ -278,9 +278,9 @@ describe('LocaleSwitcher', () => {
       );
 
       expect(selectedButton).toBeDefined();
-      // The checkmark span should contain '✓' for the selected locale
-      const checkIcon = selectedButton?.querySelector('[aria-hidden="true"]:last-child');
-      expect(checkIcon?.textContent).toBe('✓');
+      // Lucide Check renders as SVG for selected locale
+      const checkIcon = selectedButton?.querySelector('svg[aria-hidden="true"]');
+      expect(checkIcon).not.toBeNull();
     } finally {
       cleanup(mounted);
     }

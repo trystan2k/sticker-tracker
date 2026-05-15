@@ -213,6 +213,17 @@
   "drawer": {
     "share": "Share",
     "language": "Language",
+    "theme": "Theme",
+    "delete_data": "Delete app data",
+    "delete_confirm_title": "Delete App Data",
+    "delete_confirm": "All your sticker collection, language preference, and theme will be permanently deleted. This action cannot be undone.",
     "close": "Close drawer"
+  },
+  "theme": {
+    "sheetTitle": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "close": "Close"
   }
 }

@@ -1,4 +1,4 @@
-import { ChevronRight, Menu, Share2, X } from 'lucide-react';
+import { ChevronRight, Menu, Palette, Share2, Trash2, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
@@ -11,6 +11,8 @@ interface MenuDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenLocaleSwitcher: () => void;
+  onOpenThemeSwitcher?: () => void;
+  onOpenDeleteConfirm?: () => void;
   onOpenShare?: (() => void) | undefined;
   currentLocale: string;
 }
@@ -25,6 +27,8 @@ export function MenuDrawer({
   isOpen,
   onClose,
   onOpenLocaleSwitcher,
+  onOpenThemeSwitcher,
+  onOpenDeleteConfirm,
   onOpenShare,
   currentLocale
 }: MenuDrawerProps) {
@@ -77,7 +81,7 @@ export function MenuDrawer({
         }
 
         const focusableElements = panel.querySelectorAll<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
         );
 
         if (focusableElements.length === 0) {
@@ -138,6 +142,26 @@ export function MenuDrawer({
     onClose();
     onOpenShare();
   }, [onClose, onOpenShare]);
+
+  const handleOpenDeleteConfirm = useCallback(() => {
+    if (!onOpenDeleteConfirm) {
+      return;
+    }
+
+    triggerRef.current = null;
+    onClose();
+    onOpenDeleteConfirm();
+  }, [onClose, onOpenDeleteConfirm]);
+
+  const handleOpenThemeSwitcher = useCallback(() => {
+    if (!onOpenThemeSwitcher) {
+      return;
+    }
+
+    triggerRef.current = null;
+    onClose();
+    onOpenThemeSwitcher();
+  }, [onClose, onOpenThemeSwitcher]);
 
   if (!isMounted && !isOpen) {
     return null;
@@ -201,6 +225,30 @@ export function MenuDrawer({
             <span className={styles.rowLabel}>{t('drawer.language')}</span>
             <span className={styles.localeMeta}>{t(`locale.${currentLocale}`)}</span>
             <ChevronRight size={18} aria-hidden="true" />
+          </button>
+
+          <div className={styles.divider} aria-hidden="true" />
+
+          <button
+            type="button"
+            className={styles.row}
+            onClick={handleOpenThemeSwitcher}
+            disabled={!onOpenThemeSwitcher}
+          >
+            <Palette size={22} aria-hidden="true" />
+            <span className={styles.rowLabel}>{t('drawer.theme')}</span>
+          </button>
+
+          <div className={styles.divider} aria-hidden="true" />
+
+          <button
+            type="button"
+            className={styles.row}
+            onClick={handleOpenDeleteConfirm}
+            disabled={!onOpenDeleteConfirm}
+          >
+            <Trash2 size={22} aria-hidden="true" />
+            <span className={styles.rowLabel}>{t('drawer.delete_data')}</span>
           </button>
 
           <div className={styles.divider} aria-hidden="true" />

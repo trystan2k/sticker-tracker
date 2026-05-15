@@ -1,3 +1,4 @@
+import { Check, X } from 'lucide-react';
 import { useCallback, useContext, useEffect, type MouseEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
@@ -92,7 +93,7 @@ export function LocaleSwitcher({ isOpen, onClose }: LocaleSwitcherProps) {
             onClick={onClose}
             aria-label={t('locale.close')}
           >
-            ✕
+            <X size={18} aria-hidden="true" />
           </button>
         </div>
 
@@ -117,7 +118,7 @@ export function LocaleSwitcher({ isOpen, onClose }: LocaleSwitcherProps) {
                 />
                 <span className={styles.localeName}>{t(`locale.${locale}`)}</span>
                 <span className={styles.checkIcon} aria-hidden="true">
-                  {isSelected ? '✓' : ''}
+                  {isSelected ? <Check size={20} aria-hidden="true" /> : null}
                 </span>
               </button>
             );

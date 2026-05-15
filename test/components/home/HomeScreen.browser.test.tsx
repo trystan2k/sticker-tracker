@@ -255,4 +255,90 @@ describe('HomeScreen', () => {
       cleanup(mounted);
     }
   });
+
+  it('shows theme row in drawer', async () => {
+    await resetStorage();
+
+    const mounted = mount(
+      React.createElement(AppStateProvider, null, React.createElement(HomeScreen))
+    );
+
+    try {
+      await waitFor(() => {
+        const headerButtons = mounted.container.querySelectorAll('header button');
+        return headerButtons.length >= 2;
+      });
+
+      const menuButton = mounted.container.querySelectorAll(
+        'header button'
+      )[0] as HTMLButtonElement;
+      menuButton.click();
+
+      await waitFor(() => document.body.textContent?.includes('Theme') ?? false);
+
+      expect(document.body.textContent).toContain('Theme');
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('shows delete data row in drawer', async () => {
+    await resetStorage();
+
+    const mounted = mount(
+      React.createElement(AppStateProvider, null, React.createElement(HomeScreen))
+    );
+
+    try {
+      await waitFor(() => {
+        const headerButtons = mounted.container.querySelectorAll('header button');
+        return headerButtons.length >= 2;
+      });
+
+      const menuButton = mounted.container.querySelectorAll(
+        'header button'
+      )[0] as HTMLButtonElement;
+      menuButton.click();
+
+      await waitFor(() => document.body.textContent?.includes('Delete app data') ?? false);
+
+      expect(document.body.textContent).toContain('Delete app data');
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('opens theme sheet from drawer theme row', async () => {
+    await resetStorage();
+
+    const mounted = mount(
+      React.createElement(AppStateProvider, null, React.createElement(HomeScreen))
+    );
+
+    try {
+      await waitFor(() => {
+        const headerButtons = mounted.container.querySelectorAll('header button');
+        return headerButtons.length >= 2;
+      });
+
+      const menuButton = mounted.container.querySelectorAll(
+        'header button'
+      )[0] as HTMLButtonElement;
+      menuButton.click();
+
+      await waitFor(() => document.body.textContent?.includes('Theme') ?? false);
+
+      const themeButton = Array.from(document.body.querySelectorAll('button')).find(
+        (button) => button.textContent?.includes('Theme') ?? false
+      );
+      themeButton?.click();
+
+      await waitFor(() => document.body.querySelector('[aria-label="Theme"]') !== null);
+
+      const dialog = document.body.querySelector('[aria-label="Theme"]');
+      expect(dialog).not.toBeNull();
+    } finally {
+      cleanup(mounted);
+    }
+  });
 });
