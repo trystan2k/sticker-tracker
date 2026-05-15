@@ -69,7 +69,7 @@ jobs:
           ref: refs/tags/${{ needs.release_please.outputs.tag_name }}
 
       - name: Set up pnpm
-        uses: pnpm/action-setup@v6.0.5
+        uses: pnpm/action-setup@v6.0.8
         with:
           version: ${{ env.PNPM_VERSION }}
 
