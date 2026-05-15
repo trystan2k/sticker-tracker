@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.0](https://github.com/trystan2k/sticker-tracker/compare/v1.11.0...v1.12.0) (2026-05-15)
+
+
+### Features
+
+* add PWA offline, install and update experience ([85ae7ac](https://github.com/trystan2k/sticker-tracker/commit/85ae7ac370d23d128edc24b8fd6b1289799fe008))
+
 ## [1.11.0](https://github.com/trystan2k/sticker-tracker/compare/v1.10.0...v1.11.0) (2026-05-15)
 
 
