@@ -69,26 +69,40 @@ function parseOpeningSticker(normalizedText: string): string | null {
   return tokens.includes('00') ? '00' : null;
 }
 
-function parseNumericSpecialSticker(normalizedText: string): string | null {
-  const tokens = normalizedText.split(' ');
+function parseFwcCode(normalizedText: string): string | null {
+  const separatedFwcMatches = normalizedText.matchAll(/(?:^| )FWC (00|0?[1-9]|1[0-9])(?=$| )/g);
 
-  if (tokens.length !== 1) {
-    return null;
+  for (const match of separatedFwcMatches) {
+    const rawNumber = match[1];
+
+    if (!rawNumber) {
+      continue;
+    }
+
+    if (rawNumber === '00') {
+      return '00';
+    }
+
+    return String(Number.parseInt(rawNumber, 10));
   }
 
-  const token = tokens[0];
+  const compactFwcMatches = normalizedText.matchAll(/(?:^| )FWC(00|0?[1-9]|1[0-9])(?=$| )/g);
 
-  if (token === undefined) {
-    return null;
+  for (const match of compactFwcMatches) {
+    const rawNumber = match[1];
+
+    if (!rawNumber) {
+      continue;
+    }
+
+    if (rawNumber === '00') {
+      return '00';
+    }
+
+    return String(Number.parseInt(rawNumber, 10));
   }
 
-  if (!/^(0?[1-9]|1[0-9])$/.test(token)) {
-    return null;
-  }
-
-  const parsedNumber = Number.parseInt(token, 10);
-
-  return String(parsedNumber);
+  return null;
 }
 
 function parseCcCode(normalizedText: string): string | null {
@@ -128,10 +142,10 @@ function parseCcCode(normalizedText: string): string | null {
 }
 
 const parserPipeline: readonly StickerParser[] = [
+  parseFwcCode,
   parseOpeningSticker,
   parseCcCode,
-  parseTeamCode,
-  parseNumericSpecialSticker
+  parseTeamCode
 ];
 
 export function parseStickerNumber(rawText: string): StickerParseResult {

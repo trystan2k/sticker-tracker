@@ -17,6 +17,7 @@ try {
 generateSW({
   globDirectory: 'dist/client',
   globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2,wasm,gz}'],
+  maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
   globIgnores: ['sw.js', 'server/**'],
   swDest: 'dist/client/sw.js',
   navigateFallback: '/index.html',

@@ -675,4 +675,103 @@ describe('ReviewModal', () => {
       cleanup(mounted);
     }
   });
+
+  it('moves focus into modal when opened', async () => {
+    const triggerButton = document.createElement('button');
+    triggerButton.textContent = 'open';
+    document.body.appendChild(triggerButton);
+    triggerButton.focus();
+
+    const mounted = mount(
+      React.createElement(ReviewModal, {
+        isOpen: true,
+        items: sampleItems,
+        onConfirm: () => {},
+        onCancel: () => {}
+      })
+    );
+
+    try {
+      await waitFor(() => document.body.querySelector('[role="dialog"]') !== null);
+      await new Promise((r) => requestAnimationFrame(r));
+
+      const closeButton = document.body.querySelector(
+        'button[class*="iconButton"][aria-label*="Close review"]'
+      ) as HTMLButtonElement;
+      expect(document.activeElement).toBe(closeButton);
+    } finally {
+      cleanup(mounted);
+      triggerButton.remove();
+    }
+  });
+
+  it('traps tab navigation inside modal', async () => {
+    const mounted = mount(
+      React.createElement(ReviewModal, {
+        isOpen: true,
+        items: sampleItems,
+        onConfirm: () => {},
+        onCancel: () => {}
+      })
+    );
+
+    try {
+      await waitFor(() => document.body.querySelector('[role="dialog"]') !== null);
+      await new Promise((r) => requestAnimationFrame(r));
+
+      const closeButton = document.body.querySelector(
+        'button[class*="iconButton"][aria-label*="Close review"]'
+      ) as HTMLButtonElement;
+      const confirmButton = document.body.querySelector(
+        'button[class*="primaryButton"]'
+      ) as HTMLButtonElement;
+
+      confirmButton.focus();
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
+      expect(document.activeElement).toBe(closeButton);
+
+      closeButton.focus();
+      document.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true })
+      );
+      expect(document.activeElement).toBe(confirmButton);
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('restores focus to previous element when closed', async () => {
+    const triggerButton = document.createElement('button');
+    triggerButton.textContent = 'open';
+    document.body.appendChild(triggerButton);
+    triggerButton.focus();
+
+    const mounted = mount(
+      React.createElement(ReviewModal, {
+        isOpen: true,
+        items: sampleItems,
+        onConfirm: () => {},
+        onCancel: () => {}
+      })
+    );
+
+    try {
+      await waitFor(() => document.body.querySelector('[role="dialog"]') !== null);
+
+      mounted.root.render(
+        React.createElement(ReviewModal, {
+          isOpen: false,
+          items: sampleItems,
+          onConfirm: () => {},
+          onCancel: () => {}
+        })
+      );
+
+      await new Promise((r) => requestAnimationFrame(r));
+      expect(document.activeElement).toBe(triggerButton);
+    } finally {
+      cleanup(mounted);
+      triggerButton.remove();
+    }
+  });
 });

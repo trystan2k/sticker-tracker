@@ -1,5 +1,5 @@
 import { Trash2, X } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -136,6 +136,8 @@ export function ReviewModal({
   onCancel
 }: ReviewModalProps) {
   const { t } = useTranslation();
+  const modalRef = useRef<HTMLDivElement | null>(null);
+  const previouslyFocusedElementRef = useRef<HTMLElement | null>(null);
   const [draftItems, setDraftItems] = useState<readonly ReviewStickerItem[]>(items);
   const knownStickerCodes = useMemo(() => {
     return new Set(Object.keys(buildScannerLookupIndex().entries));
@@ -143,10 +145,37 @@ export function ReviewModal({
 
   useEffect(() => {
     if (!isOpen) {
-      return;
+      if (previouslyFocusedElementRef.current) {
+        previouslyFocusedElementRef.current.focus();
+        previouslyFocusedElementRef.current = null;
+      }
+
+      return undefined;
     }
 
+    const activeElement = document.activeElement;
+    previouslyFocusedElementRef.current =
+      activeElement instanceof HTMLElement ? activeElement : null;
+
     setDraftItems(items);
+
+    const focusTimer = window.setTimeout(() => {
+      const modalNode = modalRef.current;
+
+      if (!modalNode) {
+        return;
+      }
+
+      const firstFocusableElement = modalNode.querySelector<HTMLElement>(
+        'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [href], [tabindex]:not([tabindex="-1"])'
+      );
+
+      firstFocusableElement?.focus();
+    }, 0);
+
+    return () => {
+      window.clearTimeout(focusTimer);
+    };
   }, [isOpen, items]);
 
   useEffect(() => {
@@ -155,6 +184,46 @@ export function ReviewModal({
     }
 
     const handleKeyDown = (event: KeyboardEvent): void => {
+      if (event.key === 'Tab') {
+        const modalNode = modalRef.current;
+
+        if (!modalNode) {
+          return;
+        }
+
+        const focusableElements = Array.from(
+          modalNode.querySelectorAll<HTMLElement>(
+            'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [href], [tabindex]:not([tabindex="-1"])'
+          )
+        );
+
+        if (focusableElements.length === 0) {
+          event.preventDefault();
+          return;
+        }
+
+        const firstFocusableElement = focusableElements[0];
+        const lastFocusableElement = focusableElements[focusableElements.length - 1];
+
+        if (!firstFocusableElement || !lastFocusableElement) {
+          return;
+        }
+
+        if (event.shiftKey && document.activeElement === firstFocusableElement) {
+          event.preventDefault();
+          lastFocusableElement.focus();
+          return;
+        }
+
+        if (!event.shiftKey && document.activeElement === lastFocusableElement) {
+          event.preventDefault();
+          firstFocusableElement.focus();
+          return;
+        }
+
+        return;
+      }
+
       if (event.key !== 'Escape') {
         return;
       }
@@ -236,7 +305,7 @@ export function ReviewModal({
         aria-label={t('scanner.review.close', { defaultValue: 'Close review modal' })}
       />
 
-      <div className={styles.modal}>
+      <div className={styles.modal} ref={modalRef}>
         <header className={styles.header}>
           <h2 className={styles.title}>
             {t('scanner.review.title', { defaultValue: 'Review scanned stickers' })}
