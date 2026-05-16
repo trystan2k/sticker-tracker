@@ -208,12 +208,14 @@
       "stickerLabel": "Código de figurita",
       "rawText": "OCR leyó: {{text}}",
       "invalidFormat": "Formato inválido. Usa un código como BRA-12, 00 o CC1.",
+      "unknownSticker": "Código de figurita no encontrado en el álbum.",
       "delete": "Eliminar",
       "duplicatesFiltered": "Se detectaron códigos duplicados. {{count}} duplicado(s) se ignorarán al confirmar.",
       "empty": "No quedan figuritas en esta sesión. Cancela para descartar la sesión.",
       "cancel": "Cancelar sesión",
       "confirming": "Confirmando...",
       "confirm": "Confirmar como recolectadas",
+      "saveError": "No se pudieron guardar las figuritas. Intenta de nuevo.",
       "success": "Figuritas marcadas como recolectadas correctamente."
     }
   },

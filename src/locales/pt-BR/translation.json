@@ -208,12 +208,14 @@
       "stickerLabel": "Código da figurinha",
       "rawText": "OCR leu: {{text}}",
       "invalidFormat": "Formato inválido. Use código como BRA-12, 00 ou CC1.",
+      "unknownSticker": "Código da figurinha não encontrado no álbum.",
       "delete": "Excluir",
       "duplicatesFiltered": "Códigos de figurinha duplicados detectados. {{count}} duplicata(s) serão ignoradas na confirmação.",
       "empty": "Nenhuma figurinha restante nesta sessão. Cancele para descartar a sessão.",
       "cancel": "Cancelar sessão",
       "confirming": "Confirmando...",
       "confirm": "Confirmar como coletadas",
+      "saveError": "Falha ao salvar figurinhas. Tente novamente.",
       "success": "Figurinhas marcadas como coletadas com sucesso."
     }
   },

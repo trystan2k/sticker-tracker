@@ -234,5 +234,14 @@ describe('scanner-collection', () => {
       const result = await markStickersAsHave(['BRA-1']);
       expect(result.state).toBe('unavailable');
     });
+
+    it('closes idb connection after transaction', async () => {
+      await markStickersAsHave(['BRA-1']);
+
+      expect(mockIdb.openDB).toHaveBeenCalledTimes(1);
+      const firstCallResult = await mockIdb.openDB.mock.results[0]?.value;
+
+      expect(firstCallResult?.close).toHaveBeenCalledTimes(1);
+    });
   });
 });

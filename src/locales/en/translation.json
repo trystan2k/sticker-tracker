@@ -208,12 +208,14 @@
       "stickerLabel": "Sticker code",
       "rawText": "OCR read: {{text}}",
       "invalidFormat": "Invalid format. Use code like BRA-12, 00 or CC1.",
+      "unknownSticker": "Sticker code not found in album.",
       "delete": "Delete",
       "duplicatesFiltered": "Duplicate sticker codes detected. {{count}} duplicate(s) will be ignored on confirm.",
       "empty": "No stickers left in this session. Cancel to discard session.",
       "cancel": "Cancel session",
       "confirming": "Confirming...",
       "confirm": "Confirm as collected",
+      "saveError": "Failed to save stickers. Try again.",
       "success": "Stickers marked as collected successfully."
     }
   },

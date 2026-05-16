@@ -376,6 +376,32 @@ describe('AppStateProvider', () => {
         cleanup(mounted);
       }
     });
+
+    it('markScannedStickersAsHave keeps renderState ready on save failure', async () => {
+      await resetStorage();
+
+      let capturedContext:
+        | (typeof AppStateContext extends React.Context<infer T> ? T : never)
+        | null = null;
+
+      function ContextReader() {
+        capturedContext = React.useContext(AppStateContext);
+        return React.createElement('div', { 'data-testid': 'context-captured' });
+      }
+
+      const mounted = mountProvider(React.createElement(ContextReader));
+
+      try {
+        await waitFor(() => capturedContext !== null && capturedContext.renderState === 'ready');
+
+        const result = await capturedContext!.markScannedStickersAsHave(['BRA-1']);
+
+        expect(result.state).toBe('unavailable');
+        expect(capturedContext!.renderState).toBe('ready');
+      } finally {
+        cleanup(mounted);
+      }
+    });
   });
 
   describe('resetAndRetry failure branch', () => {

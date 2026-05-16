@@ -75,62 +75,65 @@ export async function markStickersAsHave(stickerIds: string[]): Promise<MarkStic
 
   try {
     const db = await openDatabase(getDatabaseNameForStorage(), APP_STORAGE_DATABASE_VERSION);
-    const transaction = db.transaction(APP_STORAGE_STORE_NAME, 'readwrite');
+    try {
+      const transaction = db.transaction(APP_STORAGE_STORE_NAME, 'readwrite');
 
-    const scannerLookupRaw = await transaction.store.get('scannerLookup');
+      const scannerLookupRaw = await transaction.store.get('scannerLookup');
 
-    if (!isScannerLookupEntry(scannerLookupRaw)) {
-      transaction.abort();
-      return { state: 'unavailable' };
-    }
-
-    const scannerLookupEntry = scannerLookupRaw;
-
-    const collectionRaw = await transaction.store.get('collection');
-    const collectionEntry = isCollectionEntry(collectionRaw) ? collectionRaw : undefined;
-
-    const currentCollection = hydrateCollectionState(collectionEntry?.value ?? null);
-    const nextCollection: Record<string, ReadonlySet<StickerIdentifier>> = {
-      ...currentCollection
-    };
-
-    const updatedStickerIds: StickerIdentifier[] = [];
-
-    for (const stickerId of uniqueStickerIds) {
-      const lookupMatch = scannerLookupEntry.value.entries[stickerId];
-
-      if (!lookupMatch) {
-        continue;
+      if (!isScannerLookupEntry(scannerLookupRaw)) {
+        return { state: 'unavailable' };
       }
 
-      const currentPageState = new Set(nextCollection[lookupMatch.pageId] ?? []);
+      const scannerLookupEntry = scannerLookupRaw;
 
-      if (currentPageState.has(lookupMatch.stickerId)) {
-        continue;
+      const collectionRaw = await transaction.store.get('collection');
+      const collectionEntry = isCollectionEntry(collectionRaw) ? collectionRaw : undefined;
+
+      const currentCollection = hydrateCollectionState(collectionEntry?.value ?? null);
+      const nextCollection: Record<string, ReadonlySet<StickerIdentifier>> = {
+        ...currentCollection
+      };
+
+      const updatedStickerIds: StickerIdentifier[] = [];
+
+      for (const stickerId of uniqueStickerIds) {
+        const lookupMatch = scannerLookupEntry.value.entries[stickerId];
+
+        if (!lookupMatch) {
+          continue;
+        }
+
+        const currentPageState = new Set(nextCollection[lookupMatch.pageId] ?? []);
+
+        if (currentPageState.has(lookupMatch.stickerId)) {
+          continue;
+        }
+
+        currentPageState.add(lookupMatch.stickerId);
+        nextCollection[lookupMatch.pageId] = currentPageState;
+        updatedStickerIds.push(lookupMatch.stickerId);
       }
 
-      currentPageState.add(lookupMatch.stickerId);
-      nextCollection[lookupMatch.pageId] = currentPageState;
-      updatedStickerIds.push(lookupMatch.stickerId);
+      await transaction.store.put({
+        key: 'collection',
+        value: serializeCollectionState(nextCollection as CollectionState)
+      });
+      await transaction.done;
+
+      const refreshedCollectionResult = await loadCollectionState();
+
+      if (refreshedCollectionResult.state !== 'ready') {
+        return { state: refreshedCollectionResult.state };
+      }
+
+      return {
+        state: 'ready',
+        value: refreshedCollectionResult.value,
+        updatedStickerIds
+      };
+    } finally {
+      db.close();
     }
-
-    await transaction.store.put({
-      key: 'collection',
-      value: serializeCollectionState(nextCollection as CollectionState)
-    });
-    await transaction.done;
-
-    const refreshedCollectionResult = await loadCollectionState();
-
-    if (refreshedCollectionResult.state !== 'ready') {
-      return { state: refreshedCollectionResult.state };
-    }
-
-    return {
-      state: 'ready',
-      value: refreshedCollectionResult.value,
-      updatedStickerIds
-    };
   } catch {
     return { state: 'unavailable' };
   }

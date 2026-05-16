@@ -9,13 +9,16 @@ const LazyScannerScreen = lazy(async () => {
   return { default: module.ScannerScreen };
 });
 
+function isSafeInAppOrigin(origin: string): boolean {
+  return origin.startsWith('/') && !origin.startsWith('//') && !origin.includes('\\');
+}
+
 export const Route = createFileRoute('/scanner')({
   validateSearch: (search) => {
     const origin = typeof search.origin === 'string' ? search.origin : '/';
-    const isSafeInAppRoute = origin.startsWith('/') && !origin.startsWith('//');
 
     return {
-      origin: isSafeInAppRoute ? origin : '/'
+      origin: isSafeInAppOrigin(origin) ? origin : '/'
     };
   },
   beforeLoad: () => {
@@ -34,9 +37,7 @@ function ScannerRoute() {
       ? null
       : new URLSearchParams(window.location.search).get('origin');
   const origin =
-    typeof queryOrigin === 'string' && queryOrigin.startsWith('/') && !queryOrigin.startsWith('//')
-      ? queryOrigin
-      : '/';
+    typeof queryOrigin === 'string' && isSafeInAppOrigin(queryOrigin) ? queryOrigin : '/';
 
   const handleBack = useCallback(() => {
     void navigate({ to: origin || '/' });

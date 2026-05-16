@@ -190,8 +190,6 @@ export function AppStateProvider({ children }: AppStateProviderProps) {
     const result = await markStickersAsHave([...stickerIds]);
 
     if (result.state !== 'ready') {
-      setStorageState(result.state);
-      setRenderState('storage-error');
       return result;
     }
 

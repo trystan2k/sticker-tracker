@@ -170,5 +170,31 @@ describe('scanner route component', () => {
       origin: '/album/group-a/bra'
     });
     expect(validateSearch?.({ origin: '//evil.test/path' })).toEqual({ origin: '/' });
+    expect(validateSearch?.({ origin: '/\\evil.example/path' })).toEqual({ origin: '/' });
+  });
+
+  it('runtime origin sanitization rejects backslash-based origin', async () => {
+    navigateMock.mockClear();
+    window.history.replaceState({}, '', '/scanner?origin=%2F%5C%5Cevil.example%2Fpath');
+
+    const { Route: ScannerRoute } = await import('@/routes/scanner');
+    const Component = ScannerRoute.options.component;
+    if (!Component) {
+      throw new Error('Route component is undefined');
+    }
+    const mounted = mount(React.createElement(Component));
+
+    try {
+      await waitFor(() => mounted.container.querySelector('[data-testid="back-button"]') !== null);
+
+      const backButton = mounted.container.querySelector(
+        '[data-testid="back-button"]'
+      ) as HTMLButtonElement;
+      backButton.click();
+
+      expect(navigateMock).toHaveBeenCalledWith({ to: '/' });
+    } finally {
+      cleanup(mounted);
+    }
   });
 });
