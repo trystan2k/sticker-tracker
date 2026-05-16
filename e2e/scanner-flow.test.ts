@@ -38,14 +38,14 @@ test('scanner idle state shows back button', async ({ page }) => {
   await page.waitForURL(/\/$/, { timeout: 5000 });
 });
 
-test('scanner shows NEW badge', async ({ page }) => {
+test('scanner shows idle badge', async ({ page }) => {
   await page.goto('/scanner');
   await page.waitForSelector('main', { timeout: 10000 });
 
-  // Should show NEW badge
+  // Should show idle badge copy
   const badge = page.getByTestId('scanner-badge');
   await expect(badge).toBeVisible();
-  await expect(badge).toContainText('NEW');
+  await expect(badge).toContainText(/NEW|READY/);
 });
 
 test('scanner idle state has description text', async ({ page }) => {

@@ -40,6 +40,8 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
   const streamRef = useRef<MediaStream | null>(null);
   const scanTimerRef = useRef<number | null>(null);
   const popupOpenRef = useRef(false);
+  const isMountedRef = useRef(true);
+  const pendingStartRequestIdRef = useRef(0);
   const reviewItemIdRef = useRef(0);
   const sessionIdRef = useRef(0);
   const isVideoReadyRef = useRef(false);
@@ -214,6 +216,8 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
 
     try {
       let stream: MediaStream;
+      const requestId = pendingStartRequestIdRef.current + 1;
+      pendingStartRequestIdRef.current = requestId;
 
       try {
         stream = await navigator.mediaDevices.getUserMedia({
@@ -229,6 +233,17 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
           video: true,
           audio: false
         });
+      }
+
+      const isStaleRequest =
+        requestId !== pendingStartRequestIdRef.current || !isMountedRef.current;
+
+      if (isStaleRequest) {
+        for (const track of stream.getTracks()) {
+          track.stop();
+        }
+
+        return;
       }
 
       streamRef.current = stream;
@@ -270,6 +285,7 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
       }
 
       scanTimerRef.current = window.setTimeout(() => {
+        scanTimerRef.current = null;
         void scanFrame();
       }, SCAN_DEBOUNCE_MS);
     };
@@ -390,7 +406,11 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
   }, [scanFrame, scanResultPopup, state]);
 
   useEffect(() => {
+    isMountedRef.current = true;
+
     return () => {
+      isMountedRef.current = false;
+      pendingStartRequestIdRef.current += 1;
       stopStream();
     };
   }, [stopStream]);

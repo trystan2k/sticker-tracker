@@ -360,6 +360,48 @@ describe('ScannerScreen browser', () => {
         cleanup(mounted);
       }
     });
+
+    it('stops late-resolved stream if component unmounts before permission resolves', async () => {
+      let resolveStream: (stream: typeof fakeStream) => void = () => {};
+      const delayedStreamPromise = new Promise<typeof fakeStream>((resolve) => {
+        resolveStream = resolve;
+      });
+
+      const delayedTrack = { stop: vi.fn<() => void>() };
+      const delayedStream = {
+        getTracks: vi.fn<() => (typeof delayedTrack)[]>().mockReturnValue([delayedTrack])
+      };
+
+      vi.stubGlobal('navigator', {
+        mediaDevices: {
+          getUserMedia: vi.fn<() => Promise<typeof fakeStream>>().mockImplementation(async () => {
+            return await delayedStreamPromise;
+          })
+        }
+      });
+
+      const mounted = mountWithProviders(React.createElement(ScannerScreen));
+
+      try {
+        await waitFor(() => mounted.container.querySelector('button') !== null);
+
+        const buttons = mounted.container.querySelectorAll('button');
+        const startButton = Array.from(buttons).find(
+          (btn) => !btn.getAttribute('aria-label')
+        ) as HTMLButtonElement;
+
+        startButton.click();
+        cleanup(mounted);
+
+        resolveStream(delayedStream as typeof fakeStream);
+        await Promise.resolve();
+        await Promise.resolve();
+
+        expect(delayedTrack.stop).toHaveBeenCalled();
+      } finally {
+        // already cleaned above
+      }
+    });
   });
 
   describe('permission denied state', () => {

@@ -41,6 +41,27 @@ describe('scanner-lookup', () => {
       const v2 = getScannerLookupVersion();
       expect(v1).toBe(v2);
     });
+
+    it('changes when relevant field value changes even with same length', () => {
+      const originalTranslationKey = albumPages[0]?.translationKey;
+
+      if (!originalTranslationKey) {
+        throw new Error('Expected first album page to exist');
+      }
+
+      const originalVersion = getScannerLookupVersion();
+      const sameLengthMutatedValue =
+        originalTranslationKey.slice(0, -1) + (originalTranslationKey.endsWith('x') ? 'y' : 'x');
+
+      // oxlint-disable-next-line typescript/no-non-null-assertion,typescript/no-unsafe-member-access,typescript/no-unsafe-type-assertion
+      (albumPages[0] as { translationKey: string }).translationKey = sameLengthMutatedValue;
+      const nextVersion = getScannerLookupVersion();
+
+      // oxlint-disable-next-line typescript/no-non-null-assertion,typescript/no-unsafe-member-access,typescript/no-unsafe-type-assertion
+      (albumPages[0] as { translationKey: string }).translationKey = originalTranslationKey;
+
+      expect(nextVersion).not.toBe(originalVersion);
+    });
   });
 
   describe('buildScannerLookupIndex', () => {
@@ -122,6 +143,8 @@ describe('scanner-lookup', () => {
   describe('ensureScannerLookupIndex', () => {
     beforeEach(() => {
       vi.resetModules();
+      readMock.mockReset();
+      writeMock.mockReset();
     });
 
     it('returns null when storage unavailable', async () => {
@@ -161,14 +184,40 @@ describe('scanner-lookup', () => {
     });
 
     it('uses cached version when available', async () => {
-      const first = await ensureScannerLookupIndex();
-      readMock.mockClear();
-      writeMock.mockClear();
+      const storedIndex = buildScannerLookupIndex();
+      readMock
+        .mockResolvedValueOnce({ state: 'ready', value: storedIndex })
+        .mockResolvedValueOnce({ state: 'ready', value: storedIndex });
 
+      const first = await ensureScannerLookupIndex();
       const second = await ensureScannerLookupIndex();
+
       expect(second).toBe(first);
-      expect(readMock).not.toHaveBeenCalled();
+      expect(readMock).toHaveBeenCalledTimes(2);
       expect(writeMock).not.toHaveBeenCalled();
+    });
+
+    it('rebuilds lookup when storage entry is missing even after cache exists', async () => {
+      const existingIndex = buildScannerLookupIndex();
+
+      readMock
+        .mockResolvedValueOnce({ state: 'ready', value: existingIndex })
+        .mockResolvedValueOnce({ state: 'ready', value: null });
+      writeMock.mockResolvedValueOnce({ state: 'ready' });
+
+      const first = await ensureScannerLookupIndex();
+      const second = await ensureScannerLookupIndex();
+
+      expect(first).not.toBeNull();
+      expect(second).not.toBeNull();
+      expect(readMock).toHaveBeenCalledTimes(2);
+      expect(writeMock).toHaveBeenCalledTimes(1);
+      expect(writeMock).toHaveBeenCalledWith(
+        'scannerLookup',
+        expect.objectContaining({
+          version: getScannerLookupVersion()
+        })
+      );
     });
   });
 

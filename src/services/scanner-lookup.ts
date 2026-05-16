@@ -29,6 +29,18 @@ export type StickerLookupResult =
 
 let lookupCache: PersistedScannerLookup | null = null;
 
+function appendHash(hash: number, value: string): number {
+  let nextHash = hash;
+
+  for (let index = 0; index < value.length; index += 1) {
+    const codePoint = value.charCodeAt(index);
+    nextHash ^= codePoint;
+    nextHash = Math.imul(nextHash, 16_777_619);
+  }
+
+  return nextHash >>> 0;
+}
+
 function createLookupEntry(
   page: AlbumPage,
   stickerId: StickerIdentifier
@@ -57,20 +69,22 @@ function createLookupEntry(
 }
 
 export function getScannerLookupVersion(): number {
-  let hash = 17;
+  let hash = 2_166_136_261;
 
   for (const page of albumPages) {
-    hash = Math.imul(hash, 31) + page.pageId.length;
-    hash = Math.imul(hash, 31) + page.translationKey.length;
+    hash = appendHash(hash, page.pageId);
+    hash = appendHash(hash, page.type);
+    hash = appendHash(hash, page.translationKey);
+    hash = appendHash(hash, page.type === 'team' ? page.albumCode : '');
+    hash = appendHash(hash, page.type === 'team' ? page.group : '');
+    hash = appendHash(hash, page.type === 'team' ? page.flagCode : '');
 
     for (const stickerId of page.stickerIds) {
-      for (const char of stickerId) {
-        hash = Math.imul(hash, 31) + char.charCodeAt(0);
-      }
+      hash = appendHash(hash, stickerId);
     }
   }
 
-  return hash >>> 0;
+  return hash;
 }
 
 export function buildScannerLookupIndex(): PersistedScannerLookup {
@@ -91,10 +105,6 @@ export function buildScannerLookupIndex(): PersistedScannerLookup {
 export async function ensureScannerLookupIndex(): Promise<PersistedScannerLookup | null> {
   const expectedVersion = getScannerLookupVersion();
 
-  if (lookupCache && lookupCache.version === expectedVersion) {
-    return lookupCache;
-  }
-
   const readResult = await read('scannerLookup');
 
   if (readResult.state !== 'ready') {
@@ -102,6 +112,10 @@ export async function ensureScannerLookupIndex(): Promise<PersistedScannerLookup
   }
 
   if (readResult.value && readResult.value.version === expectedVersion) {
+    if (lookupCache && lookupCache.version === expectedVersion) {
+      return lookupCache;
+    }
+
     lookupCache = readResult.value;
 
     return lookupCache;
