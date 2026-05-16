@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.0](https://github.com/trystan2k/sticker-tracker/compare/v1.12.0...v1.13.0) (2026-05-16)
+
+
+### Features
+
+* implement sticker scanner flow ([#28](https://github.com/trystan2k/sticker-tracker/issues/28)) ([bf64bc9](https://github.com/trystan2k/sticker-tracker/commit/bf64bc9d23338d90a28a3d99ad9b7f96908399a9))
+
 ## [1.12.0](https://github.com/trystan2k/sticker-tracker/compare/v1.11.0...v1.12.0) (2026-05-15)
 
 
