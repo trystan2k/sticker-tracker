@@ -1,6 +1,4 @@
 import workerPath from 'tesseract.js/dist/worker.min.js?url';
-import corePath from 'tesseract.js-core/tesseract-core-simd.wasm.js?url';
-import engTrainedDataPath from '@tesseract.js-data/eng/4.0.0_best_int/eng.traineddata.gz?url';
 
 export const SCAN_DEBOUNCE_MS = 2_000;
 
@@ -32,15 +30,10 @@ let workerPromise: Promise<OcrWorker> | null = null;
 async function createOcrWorker(): Promise<OcrWorker> {
   const tesseractModule = await import('tesseract.js');
 
-  const langDataDirectoryPath = engTrainedDataPath.substring(
-    0,
-    engTrainedDataPath.lastIndexOf('/')
-  );
-
   const worker = await tesseractModule.createWorker('eng', 1, {
     workerPath,
-    corePath,
-    langPath: langDataDirectoryPath,
+    corePath: '/ocr-core',
+    langPath: '/ocr-lang',
     gzip: true
   });
 

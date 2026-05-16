@@ -19,6 +19,23 @@ import styles from './ScannerScreen.module.css';
 
 type ScannerState = 'idle' | 'active' | 'denied' | 'unsupported';
 
+function isPermissionCameraError(error: unknown): boolean {
+  return (
+    error instanceof DOMException &&
+    (error.name === 'NotAllowedError' || error.name === 'SecurityError')
+  );
+}
+
+function isUnsupportedCameraError(error: unknown): boolean {
+  return (
+    error instanceof DOMException &&
+    (error.name === 'NotFoundError' ||
+      error.name === 'OverconstrainedError' ||
+      error.name === 'NotReadableError' ||
+      error.name === 'AbortError')
+  );
+}
+
 type ScannedReviewItem = Readonly<{
   id: string;
   rawText: string;
@@ -228,7 +245,11 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
           },
           audio: false
         });
-      } catch {
+      } catch (primaryError) {
+        if (isPermissionCameraError(primaryError) || isUnsupportedCameraError(primaryError)) {
+          throw primaryError;
+        }
+
         stream = await navigator.mediaDevices.getUserMedia({
           video: true,
           audio: false
@@ -249,8 +270,14 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
       streamRef.current = stream;
       isVideoReadyRef.current = false;
       setState('active');
-    } catch {
-      setState('denied');
+    } catch (error) {
+      if (isPermissionCameraError(error)) {
+        setState('denied');
+      } else if (isUnsupportedCameraError(error)) {
+        setState('unsupported');
+      } else {
+        setState('denied');
+      }
     } finally {
       setIsRequestingPermission(false);
     }

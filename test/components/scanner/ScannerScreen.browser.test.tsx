@@ -510,6 +510,39 @@ describe('ScannerScreen browser', () => {
         cleanup(mounted);
       }
     });
+
+    it('shows unsupported state for not-found camera errors', async () => {
+      vi.stubGlobal('navigator', {
+        mediaDevices: {
+          getUserMedia: vi
+            .fn<() => Promise<never>>()
+            .mockRejectedValue(new DOMException('No camera', 'NotFoundError'))
+        }
+      });
+
+      const mounted = mountWithProviders(React.createElement(ScannerScreen));
+
+      try {
+        await waitFor(() => mounted.container.querySelector('button') !== null);
+
+        const buttons = mounted.container.querySelectorAll('button');
+        const startButton = Array.from(buttons).find(
+          (btn) => !btn.getAttribute('aria-label')
+        ) as HTMLButtonElement;
+
+        startButton.click();
+        await Promise.resolve();
+
+        await waitFor(() => {
+          const heading = mounted.container.querySelector('h2');
+          return heading?.textContent?.includes('Camera unavailable') ?? false;
+        });
+
+        expect(mounted.container.querySelector('h2')?.textContent).toContain('Camera unavailable');
+      } finally {
+        cleanup(mounted);
+      }
+    });
   });
 
   describe('unsupported state', () => {

@@ -38,7 +38,9 @@
     ".vinxi/**",
     "node_modules/**",
     "**/*.gen.ts",
-    "**/*.gen.tsx"
+    "**/*.gen.tsx",
+    "public/ocr-core/**",
+    "public/ocr-lang/**"
   ],
   "rules": {
     "no-alert": "error",

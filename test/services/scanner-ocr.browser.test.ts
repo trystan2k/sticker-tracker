@@ -144,6 +144,15 @@ describe('scanner-ocr', () => {
           tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789- '
         })
       );
+      expect(createWorkerMock).toHaveBeenCalledWith(
+        'eng',
+        1,
+        expect.objectContaining({
+          corePath: '/ocr-core',
+          langPath: '/ocr-lang',
+          gzip: true
+        })
+      );
     });
 
     it('throws when video dimensions are invalid', async () => {

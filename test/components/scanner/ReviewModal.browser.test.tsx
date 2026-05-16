@@ -319,7 +319,7 @@ describe('ReviewModal', () => {
       await waitFor(() => document.body.querySelector('[role="dialog"]') !== null);
 
       const closeButton = document.body.querySelector(
-        'button[aria-label*="Close review"]'
+        'button[class*="iconButton"][aria-label*="Close review"]'
       ) as HTMLButtonElement;
       expect(closeButton).not.toBeNull();
 
@@ -352,6 +352,46 @@ describe('ReviewModal', () => {
 
       backdrop?.click();
       expect(onCancel).toHaveBeenCalled();
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('blocks cancel interactions while submitting', async () => {
+    const onCancel = vi.fn<() => void>();
+
+    const mounted = mount(
+      React.createElement(ReviewModal, {
+        isOpen: true,
+        items: sampleItems,
+        isSubmitting: true,
+        onConfirm: () => {},
+        onCancel
+      })
+    );
+
+    try {
+      await waitFor(() => document.body.querySelector('[role="dialog"]') !== null);
+
+      const cancelButton = document.body.querySelector(
+        'button[class*="secondaryButton"]'
+      ) as HTMLButtonElement;
+      const closeButton = document.body.querySelector(
+        'button[class*="iconButton"][aria-label*="Close review"]'
+      ) as HTMLButtonElement;
+      const backdrop = document.body.querySelector(
+        'button[class*="backdrop"]'
+      ) as HTMLButtonElement;
+
+      expect(cancelButton.disabled).toBe(true);
+      expect(closeButton.disabled).toBe(true);
+
+      cancelButton.click();
+      closeButton.click();
+      backdrop.click();
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+
+      expect(onCancel).not.toHaveBeenCalled();
     } finally {
       cleanup(mounted);
     }

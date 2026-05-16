@@ -16,9 +16,9 @@
   ],
   "type": "module",
   "scripts": {
-    "predev": "pnpm tokens:build",
+    "predev": "pnpm tokens:build && node scripts/sync-ocr-assets.mjs",
     "dev": "vite",
-    "prebuild": "pnpm tokens:build",
+    "prebuild": "pnpm tokens:build && node scripts/sync-ocr-assets.mjs",
     "build": "vite build",
     "postbuild": "node scripts/generate-sw.mjs",
     "tokens:build": "style-dictionary build --config design-tokens/style-dictionary.config.js",

@@ -159,6 +159,10 @@ export function ReviewModal({
         return;
       }
 
+      if (isSubmitting) {
+        return;
+      }
+
       event.preventDefault();
       onCancel();
     };
@@ -168,7 +172,15 @@ export function ReviewModal({
     return function cleanupKeyDown() {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen, onCancel]);
+  }, [isOpen, isSubmitting, onCancel]);
+
+  const handleCancel = useCallback(() => {
+    if (isSubmitting) {
+      return;
+    }
+
+    onCancel();
+  }, [isSubmitting, onCancel]);
 
   const handleChangeStickerNumber = useCallback((itemId: string, value: string) => {
     setDraftItems((currentItems) =>
@@ -220,7 +232,7 @@ export function ReviewModal({
       <button
         type="button"
         className={styles.backdrop}
-        onClick={onCancel}
+        onClick={handleCancel}
         aria-label={t('scanner.review.close', { defaultValue: 'Close review modal' })}
       />
 
@@ -233,7 +245,8 @@ export function ReviewModal({
           <button
             type="button"
             className={styles.iconButton}
-            onClick={onCancel}
+            onClick={handleCancel}
+            disabled={isSubmitting}
             aria-label={t('scanner.review.close', { defaultValue: 'Close review modal' })}
           >
             <X size={18} aria-hidden="true" />
@@ -294,7 +307,12 @@ export function ReviewModal({
         {submitErrorMessage ? <p className={styles.errorText}>{submitErrorMessage}</p> : null}
 
         <footer className={styles.actions}>
-          <button type="button" className={styles.secondaryButton} onClick={onCancel}>
+          <button
+            type="button"
+            className={styles.secondaryButton}
+            onClick={handleCancel}
+            disabled={isSubmitting}
+          >
             {t('scanner.review.cancel', { defaultValue: 'Cancel session' })}
           </button>
 
