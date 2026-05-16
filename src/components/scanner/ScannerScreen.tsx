@@ -444,7 +444,6 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
           stickerNumber={scanResultPopup?.stickerNumber ?? ''}
           hasSticker={scanResultPopup?.hasSticker ?? false}
           onClose={handleCloseScanResultPopup}
-          autoCloseMs={1200}
         />
       </>
     );

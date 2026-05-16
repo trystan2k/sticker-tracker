@@ -60,17 +60,17 @@ export function getScannerLookupVersion(): number {
   let hash = 17;
 
   for (const page of albumPages) {
-    hash = hash * 31 + page.pageId.length;
-    hash = hash * 31 + page.translationKey.length;
+    hash = Math.imul(hash, 31) + page.pageId.length;
+    hash = Math.imul(hash, 31) + page.translationKey.length;
 
     for (const stickerId of page.stickerIds) {
       for (const char of stickerId) {
-        hash = hash * 31 + char.charCodeAt(0);
+        hash = Math.imul(hash, 31) + char.charCodeAt(0);
       }
     }
   }
 
-  return Math.abs(hash);
+  return hash >>> 0;
 }
 
 export function buildScannerLookupIndex(): PersistedScannerLookup {

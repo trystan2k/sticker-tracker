@@ -54,6 +54,17 @@ vi.mock('@/services/scanner-lookup', () => ({
     .mockResolvedValue({
       version: 1,
       entries: {}
+    }),
+  buildScannerLookupIndex: vi
+    .fn<() => { version: number; entries: Record<string, unknown> }>()
+    .mockReturnValue({
+      version: 1,
+      entries: {
+        'BRA-12': {},
+        'BRA-1': {},
+        CC1: {},
+        '00': {}
+      }
     })
 }));
 

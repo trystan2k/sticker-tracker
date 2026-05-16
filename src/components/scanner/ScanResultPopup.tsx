@@ -10,15 +10,13 @@ type ScanResultPopupProps = Readonly<{
   stickerNumber: string;
   hasSticker: boolean;
   onClose: () => void;
-  autoCloseMs?: number;
 }>;
 
 export function ScanResultPopup({
   isOpen,
   stickerNumber,
   hasSticker,
-  onClose,
-  autoCloseMs = 1400
+  onClose
 }: ScanResultPopupProps) {
   const { t } = useTranslation();
   const dialogRef = useRef<HTMLDivElement | null>(null);
@@ -36,10 +34,6 @@ export function ScanResultPopup({
       return undefined;
     }
 
-    const autoCloseTimer = window.setTimeout(() => {
-      onClose();
-    }, autoCloseMs);
-
     const dialogNode = dialogRef.current;
 
     if (dialogNode) {
@@ -50,12 +44,6 @@ export function ScanResultPopup({
     }
 
     const handleKeyDown = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        onClose();
-        return;
-      }
-
       if (event.key !== 'Tab') {
         return;
       }
@@ -96,10 +84,9 @@ export function ScanResultPopup({
     document.addEventListener('keydown', handleKeyDown);
 
     return function cleanupKeyDown() {
-      window.clearTimeout(autoCloseTimer);
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [autoCloseMs, isOpen, onClose]);
+  }, [isOpen]);
 
   if (!isOpen) {
     return null;
@@ -107,12 +94,7 @@ export function ScanResultPopup({
 
   return createPortal(
     <div className={styles.overlay} role="presentation">
-      <button
-        type="button"
-        className={styles.backdrop}
-        onClick={onClose}
-        aria-label={t('scanner.popup.close', { defaultValue: 'Close scan result popup' })}
-      />
+      <div className={styles.backdrop} aria-hidden="true" />
 
       <div
         ref={dialogRef}

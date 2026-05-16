@@ -160,7 +160,7 @@ describe('ScanResultPopup', () => {
     }
   });
 
-  it('calls onClose when Escape key is pressed', async () => {
+  it('does not close when Escape key is pressed', async () => {
     const onClose = vi.fn<() => void>();
     const mounted = mount(
       React.createElement(ScanResultPopup, {
@@ -174,11 +174,10 @@ describe('ScanResultPopup', () => {
     try {
       await waitFor(() => document.body.querySelector('[role="dialog"]') !== null);
 
-      // Wait for useEffect to attach keydown listener
       await new Promise((resolve) => requestAnimationFrame(resolve));
 
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
-      expect(onClose).toHaveBeenCalled();
+      expect(onClose).not.toHaveBeenCalled();
     } finally {
       cleanup(mounted);
     }
@@ -207,7 +206,7 @@ describe('ScanResultPopup', () => {
     }
   });
 
-  it('calls onClose when backdrop is clicked', async () => {
+  it('does not close when backdrop is clicked', async () => {
     const onClose = vi.fn<() => void>();
     const mounted = mount(
       React.createElement(ScanResultPopup, {
@@ -221,19 +220,17 @@ describe('ScanResultPopup', () => {
     try {
       await waitFor(() => document.body.querySelector('[role="dialog"]') !== null);
 
-      const backdrop = document.body.querySelector(
-        'button[class*="backdrop"]'
-      ) as HTMLButtonElement;
+      const backdrop = document.body.querySelector('div[class*="backdrop"]') as HTMLDivElement;
       expect(backdrop).not.toBeNull();
 
       backdrop?.click();
-      expect(onClose).toHaveBeenCalled();
+      expect(onClose).not.toHaveBeenCalled();
     } finally {
       cleanup(mounted);
     }
   });
 
-  it('has accessible close label on backdrop', async () => {
+  it('renders non-interactive backdrop while waiting for Ok', async () => {
     const mounted = mount(
       React.createElement(ScanResultPopup, {
         isOpen: true,
@@ -246,9 +243,7 @@ describe('ScanResultPopup', () => {
     try {
       await waitFor(() => document.body.querySelector('[role="dialog"]') !== null);
 
-      const backdrop = document.body.querySelector(
-        'button[aria-label*="Close"]'
-      ) as HTMLButtonElement;
+      const backdrop = document.body.querySelector('div[class*="backdrop"]') as HTMLDivElement;
       expect(backdrop).not.toBeNull();
     } finally {
       cleanup(mounted);

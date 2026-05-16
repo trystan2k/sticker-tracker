@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 
 import { parseStickerNumber } from '@/services/scanner-parser';
+import { buildScannerLookupIndex } from '@/services/scanner-lookup';
 
 import styles from './ReviewModal.module.css';
 
@@ -22,20 +23,30 @@ type ReviewModalProps = Readonly<{
 }>;
 
 type ValidationState = Readonly<{
-  hasInvalid: boolean;
+  hasInvalidFormat: boolean;
+  hasUnknownSticker: boolean;
   duplicateCount: number;
   validUniqueStickerIds: readonly string[];
 }>;
 
-function getValidationState(values: readonly string[]): ValidationState {
+function getValidationState(
+  values: readonly string[],
+  knownCodes: ReadonlySet<string>
+): ValidationState {
   const canonicalCodes: string[] = [];
-  let hasInvalid = false;
+  let hasInvalidFormat = false;
+  let hasUnknownSticker = false;
 
   for (const value of values) {
     const parsedSticker = parseStickerNumber(value);
 
     if (parsedSticker.state !== 'matched') {
-      hasInvalid = true;
+      hasInvalidFormat = true;
+      continue;
+    }
+
+    if (!knownCodes.has(parsedSticker.code)) {
+      hasUnknownSticker = true;
       continue;
     }
 
@@ -45,7 +56,8 @@ function getValidationState(values: readonly string[]): ValidationState {
   const uniqueCodes = [...new Set(canonicalCodes)];
 
   return {
-    hasInvalid,
+    hasInvalidFormat,
+    hasUnknownSticker,
     duplicateCount: canonicalCodes.length - uniqueCodes.length,
     validUniqueStickerIds: uniqueCodes
   };
@@ -53,13 +65,13 @@ function getValidationState(values: readonly string[]): ValidationState {
 
 type ReviewItemRowProps = Readonly<{
   item: ReviewStickerItem;
-  isInvalid: boolean;
+  errorMessage: string | null;
   onChange: (itemId: string, value: string) => void;
   onDelete: (itemId: string) => void;
   t: ReturnType<typeof useTranslation>['t'];
 }>;
 
-function ReviewItemRow({ item, isInvalid, onChange, onDelete, t }: ReviewItemRowProps) {
+function ReviewItemRow({ item, errorMessage, onChange, onDelete, t }: ReviewItemRowProps) {
   const handleChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       onChange(item.id, event.currentTarget.value);
@@ -70,6 +82,8 @@ function ReviewItemRow({ item, isInvalid, onChange, onDelete, t }: ReviewItemRow
   const handleDelete = useCallback(() => {
     onDelete(item.id);
   }, [item.id, onDelete]);
+
+  const hasError = errorMessage !== null;
 
   return (
     <li className={styles.itemRow}>
@@ -82,9 +96,9 @@ function ReviewItemRow({ item, isInvalid, onChange, onDelete, t }: ReviewItemRow
           type="text"
           value={item.stickerNumber}
           onChange={handleChange}
-          className={isInvalid ? `${styles.input} ${styles.inputInvalid}` : styles.input}
-          aria-invalid={isInvalid}
-          aria-describedby={isInvalid ? `${item.id}-raw ${item.id}-error` : `${item.id}-raw`}
+          className={hasError ? `${styles.input} ${styles.inputInvalid}` : styles.input}
+          aria-invalid={hasError}
+          aria-describedby={hasError ? `${item.id}-raw ${item.id}-error` : `${item.id}-raw`}
           autoCapitalize="characters"
           autoCorrect="off"
           spellCheck={false}
@@ -98,11 +112,9 @@ function ReviewItemRow({ item, isInvalid, onChange, onDelete, t }: ReviewItemRow
         })}
       </p>
 
-      {isInvalid ? (
+      {hasError ? (
         <p id={`${item.id}-error`} className={styles.errorText}>
-          {t('scanner.review.invalidFormat', {
-            defaultValue: 'Invalid format. Use code like BRA-12, 00 or CC1.'
-          })}
+          {errorMessage}
         </p>
       ) : null}
 
@@ -123,6 +135,9 @@ export function ReviewModal({
 }: ReviewModalProps) {
   const { t } = useTranslation();
   const [draftItems, setDraftItems] = useState<readonly ReviewStickerItem[]>(items);
+  const knownStickerCodes = useMemo(() => {
+    return new Set(Object.keys(buildScannerLookupIndex().entries));
+  }, []);
 
   useEffect(() => {
     if (!isOpen) {
@@ -165,11 +180,15 @@ export function ReviewModal({
 
   const values = useMemo(() => draftItems.map((item) => item.stickerNumber.trim()), [draftItems]);
 
-  const validationState = useMemo(() => getValidationState(values), [values]);
+  const validationState = useMemo(
+    () => getValidationState(values, knownStickerCodes),
+    [knownStickerCodes, values]
+  );
 
   const canConfirm =
     !isSubmitting &&
-    !validationState.hasInvalid &&
+    !validationState.hasInvalidFormat &&
+    !validationState.hasUnknownSticker &&
     validationState.validUniqueStickerIds.length > 0;
 
   const handleConfirm = useCallback(async () => {
@@ -228,13 +247,22 @@ export function ReviewModal({
         <ul className={styles.items}>
           {draftItems.map((item) => {
             const parsedSticker = parseStickerNumber(item.stickerNumber.trim());
-            const isInvalid = parsedSticker.state !== 'matched';
+            const errorMessage =
+              parsedSticker.state !== 'matched'
+                ? t('scanner.review.invalidFormat', {
+                    defaultValue: 'Invalid format. Use code like BRA-12, 00 or CC1.'
+                  })
+                : !knownStickerCodes.has(parsedSticker.code)
+                  ? t('scanner.review.unknownSticker', {
+                      defaultValue: 'Sticker code not found in album.'
+                    })
+                  : null;
 
             return (
               <ReviewItemRow
                 key={item.id}
                 item={item}
-                isInvalid={isInvalid}
+                errorMessage={errorMessage}
                 onChange={handleChangeStickerNumber}
                 onDelete={handleDeleteItem}
                 t={t}

@@ -1,4 +1,7 @@
+import workerPath from 'tesseract.js/dist/worker.min.js?url';
+
 export const SCAN_DEBOUNCE_MS = 2_000;
+
 const VIDEO_FRAME_UNAVAILABLE_ERROR = 'video-frame-unavailable';
 
 const OCR_ROI_SIZE_RATIO = 0.68;
@@ -26,7 +29,9 @@ let workerPromise: Promise<OcrWorker> | null = null;
 
 async function createOcrWorker(): Promise<OcrWorker> {
   const tesseractModule = await import('tesseract.js');
-  const worker = await tesseractModule.createWorker('eng');
+  const worker = await tesseractModule.createWorker('eng', 1, {
+    workerPath
+  });
 
   await worker.setParameters({
     tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789- '
@@ -43,8 +48,13 @@ async function loadOcrWorker(): Promise<OcrWorker> {
     return workerPromise;
   }
 
-  workerPromise = createOcrWorker();
-  return workerPromise;
+  const nextWorkerPromise = createOcrWorker().catch((error: unknown) => {
+    workerPromise = null;
+    throw error;
+  });
+
+  workerPromise = nextWorkerPromise;
+  return nextWorkerPromise;
 }
 
 type RoiRect = Readonly<{
@@ -420,9 +430,15 @@ export async function resetScannerOcrSession(): Promise<void> {
     return;
   }
 
-  const worker = await workerPromise;
+  const currentWorkerPromise = workerPromise;
   workerPromise = null;
-  await worker.terminate();
+
+  try {
+    const worker = await currentWorkerPromise;
+    await worker.terminate();
+  } catch {
+    // Ignore termination errors during session reset.
+  }
 }
 
 export async function recognizeFromVideo(
