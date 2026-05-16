@@ -2,6 +2,7 @@ import { ArrowLeft, Camera, ClipboardCheck, ShieldAlert, Smartphone } from 'luci
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { FEATURE_FLAGS } from '@/config/features';
 import { AppStateContext } from '@/providers/AppStateProvider';
 import { lookupSticker } from '@/services/scanner-lookup';
 import {
@@ -58,6 +59,7 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
   } | null>(null);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [reviewError, setReviewError] = useState<string | null>(null);
   const [scannedItems, setScannedItems] = useState<readonly ScannedReviewItem[]>([]);
   const [hasReviewSuccess, setHasReviewSuccess] = useState(false);
   const [ocrDebugPreview, setOcrDebugPreview] = useState<{
@@ -101,6 +103,11 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
       return;
     }
 
+    if (popupOpenRef.current) {
+      setIsScanning(false);
+      return;
+    }
+
     const currentSessionId = sessionIdRef.current;
 
     setIsScanning(true);
@@ -108,9 +115,13 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
     try {
       const text = await recognizeFromVideo(videoRef.current, {
         viewfinderElement: viewfinderRef.current,
-        onDebugPreview: (preview) => {
-          setOcrDebugPreview(preview);
-        }
+        ...(FEATURE_FLAGS.scannerDiagnosticsEnabled
+          ? {
+              onDebugPreview: (preview: { label: string; imageDataUrl: string }) => {
+                setOcrDebugPreview(preview);
+              }
+            }
+          : {})
       });
 
       if (currentSessionId !== sessionIdRef.current) {
@@ -176,6 +187,11 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
       if (!isVideoFrameUnavailableError(error)) {
         setScanError(t('scanner.scanError', { defaultValue: 'Could not read the camera frame.' }));
       }
+    }
+
+    if (popupOpenRef.current) {
+      setIsScanning(false);
+      return;
     }
 
     setIsScanning(false);
@@ -293,6 +309,7 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
     setState('idle');
     setIsReviewModalOpen(true);
     setScanError(null);
+    setReviewError(null);
     popupOpenRef.current = false;
     setScanResultPopup(null);
   }, [stopStream]);
@@ -300,6 +317,7 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
   const closeReviewModalAndResetToIdle = useCallback(() => {
     setIsReviewModalOpen(false);
     setState('idle');
+    setReviewError(null);
     popupOpenRef.current = false;
     setScanResultPopup(null);
   }, []);
@@ -311,9 +329,20 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
       }
 
       setIsSubmittingReview(true);
+      setReviewError(null);
 
       try {
-        await appState.markScannedStickersAsHave([...stickerIds]);
+        const result = await appState.markScannedStickersAsHave([...stickerIds]);
+
+        if (result.state !== 'ready') {
+          setReviewError(
+            t('scanner.review.saveError', {
+              defaultValue: 'Failed to save stickers. Try again.'
+            })
+          );
+          return;
+        }
+
         setScannedItems([]);
         setHasReviewSuccess(true);
         closeReviewModalAndResetToIdle();
@@ -321,11 +350,17 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
         if (onFinishScanning) {
           onFinishScanning();
         }
+      } catch {
+        setReviewError(
+          t('scanner.review.saveError', {
+            defaultValue: 'Failed to save stickers. Try again.'
+          })
+        );
       } finally {
         setIsSubmittingReview(false);
       }
     },
-    [appState, closeReviewModalAndResetToIdle, onFinishScanning]
+    [appState, closeReviewModalAndResetToIdle, onFinishScanning, t]
   );
 
   const handleCancelReview = useCallback(() => {
@@ -426,7 +461,7 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
               </p>
             ) : null}
             {scanError ? <p className={styles.error}>{scanError}</p> : null}
-            {ocrDebugPreview ? (
+            {FEATURE_FLAGS.scannerDiagnosticsEnabled && ocrDebugPreview ? (
               <figure className={styles.ocrDebugPreview}>
                 <figcaption className={styles.ocrDebugLabel}>{ocrDebugPreview.label}</figcaption>
                 <img
@@ -536,6 +571,7 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
         isOpen={isReviewModalOpen}
         items={scannedItems}
         isSubmitting={isSubmittingReview}
+        submitErrorMessage={reviewError}
         onConfirm={handleConfirmReview}
         onCancel={handleCancelReview}
       />

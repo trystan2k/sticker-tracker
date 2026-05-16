@@ -18,6 +18,7 @@ type ReviewModalProps = Readonly<{
   isOpen: boolean;
   items: readonly ReviewStickerItem[];
   isSubmitting?: boolean;
+  submitErrorMessage?: string | null;
   onConfirm: (stickerIds: readonly string[]) => void | Promise<void>;
   onCancel: () => void;
 }>;
@@ -130,6 +131,7 @@ export function ReviewModal({
   isOpen,
   items,
   isSubmitting = false,
+  submitErrorMessage,
   onConfirm,
   onCancel
 }: ReviewModalProps) {
@@ -247,7 +249,7 @@ export function ReviewModal({
         <ul className={styles.items}>
           {draftItems.map((item) => {
             const parsedSticker = parseStickerNumber(item.stickerNumber.trim());
-            const errorMessage =
+            const rowErrorMessage =
               parsedSticker.state !== 'matched'
                 ? t('scanner.review.invalidFormat', {
                     defaultValue: 'Invalid format. Use code like BRA-12, 00 or CC1.'
@@ -262,7 +264,7 @@ export function ReviewModal({
               <ReviewItemRow
                 key={item.id}
                 item={item}
-                errorMessage={errorMessage}
+                errorMessage={rowErrorMessage}
                 onChange={handleChangeStickerNumber}
                 onDelete={handleDeleteItem}
                 t={t}
@@ -288,6 +290,8 @@ export function ReviewModal({
             })}
           </p>
         ) : null}
+
+        {submitErrorMessage ? <p className={styles.errorText}>{submitErrorMessage}</p> : null}
 
         <footer className={styles.actions}>
           <button type="button" className={styles.secondaryButton} onClick={onCancel}>

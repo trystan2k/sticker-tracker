@@ -1,11 +1,9 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import React from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 
-// Ensure i18n is initialized
-// oxlint-disable-next-line import/no-unassigned-import
-import '@/i18n/config';
+import { getI18nInstance } from '@/i18n/config';
 
 import { AppStateContext, AppStateProvider } from '@/providers/AppStateProvider';
 import {
@@ -92,6 +90,10 @@ function makeMockAppState(
 }
 
 describe('HomeScreen', () => {
+  beforeEach(async () => {
+    await getI18nInstance().changeLanguage('en');
+  });
+
   it('returns null when appState is null', async () => {
     const mounted = mount(
       React.createElement(
@@ -174,7 +176,7 @@ describe('HomeScreen', () => {
 
       // Share button should be present and enabled
       const shareButton = Array.from(document.body.querySelectorAll('button')).find(
-        (button) => button.textContent?.trim() === 'Share'
+        (button) => button.textContent?.includes('Share') ?? false
       );
       expect(shareButton).not.toBeUndefined();
       expect(shareButton?.disabled).toBe(false);
@@ -247,7 +249,7 @@ describe('HomeScreen', () => {
 
       // Share button should be enabled (not disabled) since onOpenShare is provided
       const shareButton = Array.from(document.body.querySelectorAll('button')).find(
-        (button) => button.textContent?.trim() === 'Share'
+        (button) => button.textContent?.includes('Share') ?? false
       );
       expect(shareButton).not.toBeUndefined();
       expect(shareButton?.disabled).toBe(false);

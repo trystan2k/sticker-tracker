@@ -8,6 +8,7 @@ import { getI18nInstance } from '@/i18n/config';
 import { AppStateContext } from '@/providers/AppStateProvider';
 import type { CollectionState, ToggleStickerResult } from '@/services/collection-service';
 import type { PageId, StickerIdentifier } from '@/data/album';
+import type { MarkStickersAsHaveResult } from '@/services/scanner-collection';
 import { recognizeFromVideo } from '@/services/scanner-ocr';
 import { lookupSticker } from '@/services/scanner-lookup';
 
@@ -35,8 +36,8 @@ const mockAppState = {
     .fn<() => Promise<ToggleStickerResult>>()
     .mockResolvedValue({ state: 'ready', value: {} }),
   markScannedStickersAsHave: vi
-    .fn<(ids: readonly string[]) => Promise<void>>()
-    .mockResolvedValue(undefined)
+    .fn<(ids: readonly string[]) => Promise<MarkStickersAsHaveResult>>()
+    .mockResolvedValue({ state: 'ready', value: {}, updatedStickerIds: [] })
 };
 
 vi.mock('@/services/scanner-ocr', () => ({
@@ -320,6 +321,41 @@ describe('ScannerScreen browser', () => {
           (btn) => btn.getAttribute('aria-label') === 'Back'
         );
         expect(backButton).not.toBeNull();
+      } finally {
+        cleanup(mounted);
+      }
+    });
+
+    it('does not pass OCR debug callback when diagnostics flag is off', async () => {
+      recognizeFromVideoMock.mockResolvedValue('BRA-01');
+      lookupStickerMock.mockResolvedValue({
+        state: 'unmatched',
+        reason: 'parse-failed',
+        parsedCode: null
+      });
+
+      const mounted = mountWithProviders(React.createElement(ScannerScreen));
+
+      try {
+        await waitFor(() => mounted.container.querySelector('button') !== null);
+
+        const buttons = mounted.container.querySelectorAll('button');
+        const startButton = Array.from(buttons).find(
+          (btn) => !btn.getAttribute('aria-label')
+        ) as HTMLButtonElement;
+
+        startButton.click();
+        await Promise.resolve();
+
+        await waitFor(() => mounted.container.querySelector('video') !== null);
+        makeScannerVideoReady(mounted.container);
+        await delay(20);
+
+        expect(recognizeFromVideoMock).toHaveBeenCalled();
+
+        const options = recognizeFromVideoMock.mock.calls[0]?.[1];
+        expect(options).toBeDefined();
+        expect(options?.onDebugPreview).toBeUndefined();
       } finally {
         cleanup(mounted);
       }
@@ -1318,6 +1354,74 @@ describe('ScannerScreen browser', () => {
         await delay(100);
 
         expect(onFinishMock).toHaveBeenCalled();
+      } finally {
+        cleanup(mounted);
+      }
+    });
+
+    it('keeps review modal open and preserves items when save fails', async () => {
+      recognizeFromVideoMock.mockResolvedValue('BRA-01');
+      lookupStickerMock.mockResolvedValue({
+        state: 'matched',
+        stickerId: asStickerIdentifier('BRA-01'),
+        pageId: asPageId('bra'),
+        pageType: 'team',
+        translationKey: 'pages.bra',
+        albumCode: null,
+        group: null,
+        flagCode: 'br',
+        hasSticker: false,
+        missingSticker: true
+      });
+
+      mockAppState.markScannedStickersAsHave.mockResolvedValueOnce({ state: 'unavailable' });
+
+      const mounted = mountWithProviders(React.createElement(ScannerScreen));
+
+      try {
+        await waitFor(() => mounted.container.querySelector('button') !== null);
+
+        const startButton = Array.from(mounted.container.querySelectorAll('button')).find(
+          (btn) => !btn.getAttribute('aria-label')
+        ) as HTMLButtonElement;
+
+        startButton.click();
+        await Promise.resolve();
+
+        await waitFor(() => mounted.container.querySelector('video') !== null);
+        makeScannerVideoReady(mounted.container);
+        await delay(60);
+
+        const popupOkButton = Array.from(document.body.querySelectorAll('button')).find(
+          (btn) => btn.textContent?.trim() === 'OK'
+        ) as HTMLButtonElement;
+        expect(popupOkButton).not.toBeNull();
+        popupOkButton.click();
+
+        await delay(30);
+
+        const finishButton = Array.from(mounted.container.querySelectorAll('button')).find((btn) =>
+          btn.textContent?.includes('Finish')
+        ) as HTMLButtonElement;
+        expect(finishButton).not.toBeNull();
+        finishButton.click();
+
+        await waitFor(
+          () => document.body.querySelector('[data-testid="scanner-review-modal"]') !== null,
+          3000
+        );
+
+        const confirmButton = Array.from(document.body.querySelectorAll('button')).find((btn) =>
+          btn.textContent?.includes('Confirm')
+        ) as HTMLButtonElement;
+        expect(confirmButton).not.toBeNull();
+        confirmButton.click();
+        await delay(30);
+
+        expect(mockAppState.markScannedStickersAsHave).toHaveBeenCalledWith(['BRA-1']);
+        expect(document.body.querySelector('[data-testid="scanner-review-modal"]')).not.toBeNull();
+        expect(document.body.textContent).toContain('BRA-01');
+        expect(document.body.textContent).toContain('Failed to save stickers. Try again.');
       } finally {
         cleanup(mounted);
       }

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import React from 'react';
 import { createRoot, type Root } from 'react-dom/client';
@@ -11,9 +11,7 @@ import {
   Outlet
 } from '@tanstack/react-router';
 
-// Ensure i18n is initialized
-// oxlint-disable-next-line import/no-unassigned-import
-import '@/i18n/config';
+import { getI18nInstance } from '@/i18n/config';
 
 import { albumPages, type AlbumPage, type StickerIdentifier } from '@/data/album';
 import { AppStateContext } from '@/providers/AppStateProvider';
@@ -129,6 +127,10 @@ function makeMockAppState(
 }
 
 describe('AlbumRouteScreen', () => {
+  beforeEach(async () => {
+    await getI18nInstance().changeLanguage('en');
+  });
+
   const mexPage = albumPages.find((p) => p.pageId === 'mex') as AlbumPage;
   const openingPage = albumPages.find((p) => p.pageId === 'fwc-opening') as AlbumPage;
 
@@ -318,7 +320,7 @@ describe('AlbumRouteScreen', () => {
       await waitFor(() => document.body.textContent?.includes('Share') ?? false);
 
       const shareDrawerButton = Array.from(document.body.querySelectorAll('button')).find(
-        (button) => button.textContent?.trim() === 'Share'
+        (button) => button.textContent?.includes('Share') ?? false
       );
       shareDrawerButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
@@ -395,7 +397,7 @@ describe('AlbumRouteScreen', () => {
       await waitFor(() => document.body.textContent?.includes('Share') ?? false);
 
       const shareBtn = Array.from(document.body.querySelectorAll('button')).find(
-        (btn) => btn.textContent?.trim() === 'Share'
+        (btn) => btn.textContent?.includes('Share') ?? false
       );
       shareBtn?.click();
 

@@ -1,4 +1,4 @@
-import { redirect, createFileRoute, useNavigate, useRouter } from '@tanstack/react-router';
+import { redirect, createFileRoute, useNavigate } from '@tanstack/react-router';
 import { lazy, Suspense, useCallback } from 'react';
 
 import { FEATURE_FLAGS } from '@/config/features';
@@ -10,6 +10,14 @@ const LazyScannerScreen = lazy(async () => {
 });
 
 export const Route = createFileRoute('/scanner')({
+  validateSearch: (search) => {
+    const origin = typeof search.origin === 'string' ? search.origin : '/';
+    const isSafeInAppRoute = origin.startsWith('/') && !origin.startsWith('//');
+
+    return {
+      origin: isSafeInAppRoute ? origin : '/'
+    };
+  },
   beforeLoad: () => {
     if (!FEATURE_FLAGS.scannerEnabled) {
       throw redirect({ to: '/' });
@@ -20,16 +28,19 @@ export const Route = createFileRoute('/scanner')({
 
 function ScannerRoute() {
   const navigate = useNavigate();
-  const router = useRouter();
+
+  const queryOrigin =
+    typeof window === 'undefined'
+      ? null
+      : new URLSearchParams(window.location.search).get('origin');
+  const origin =
+    typeof queryOrigin === 'string' && queryOrigin.startsWith('/') && !queryOrigin.startsWith('//')
+      ? queryOrigin
+      : '/';
 
   const handleBack = useCallback(() => {
-    const history = router.history;
-    if (history.length > 1) {
-      history.back();
-    } else {
-      void navigate({ to: '/' });
-    }
-  }, [navigate, router.history]);
+    void navigate({ to: origin || '/' });
+  }, [navigate, origin]);
 
   return (
     <Suspense fallback={null}>

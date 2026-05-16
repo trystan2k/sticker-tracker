@@ -29,6 +29,9 @@ importers:
       '@tanstack/react-start':
         specifier: ~1.167.63
         version: 1.167.65(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(vite@8.0.11(@types/node@25.6.2)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4))
+      '@tesseract.js-data/eng':
+        specifier: ~1.0.0
+        version: 1.0.0
       flag-icons:
         specifier: ~7.5.0
         version: 7.5.0
@@ -53,6 +56,9 @@ importers:
       tesseract.js:
         specifier: ~7.0.0
         version: 7.0.0
+      tesseract.js-core:
+        specifier: ~6.0.0
+        version: 6.0.0
     devDependencies:
       '@commitlint/cli':
         specifier: ~20.5.3
@@ -2441,6 +2447,9 @@ packages:
     engines: {node: '>=20.19'}
     hasBin: true
 
+  '@tesseract.js-data/eng@1.0.0':
+    resolution: {integrity: sha512-mbTumm6KQPUHyzTPQaF3ObXYnx0SqqfV2nabqFVQBwD6Kl7PhGSLSzOlfFTWy0P3BjghaSKA2W9GB19Jk+ZcTg==}
+
   '@testing-library/dom@10.4.1':
     resolution: {integrity: sha512-o4PXJQidqJl82ckFaXUeoAW+XysPLauYI43Abki5hABd853iMhitooc6znOnczgbTYmEP6U6/y1ZyKAIsvMKGg==}
     engines: {node: '>=18'}
@@ -4404,6 +4413,9 @@ packages:
     resolution: {integrity: sha512-tPbLXTI6ohPASb/1YViL428oEHu6/qv1OxqYnfaonVCFHqx4+wCd95pHrQWsL5X4pl90CTyW9piSAsS2L0VoMw==}
     engines: {node: '>=10'}
     hasBin: true
+
+  tesseract.js-core@6.0.0:
+    resolution: {integrity: sha512-1Qncm/9oKM7xgrQXZXNB+NRh19qiXGhxlrR8EwFbK5SaUbPZnS5OMtP/ghtqfd23hsr1ZvZbZjeuAGcMxd/ooA==}
 
   tesseract.js-core@7.0.0:
     resolution: {integrity: sha512-WnNH518NzmbSq9zgTPeoF8c+xmilS8rFIl1YKbk/ptuuc7p6cLNELNuPAzcmsYw450ca6bLa8j3t0VAtq435Vw==}
@@ -6968,6 +6980,8 @@ snapshots:
 
   '@tanstack/virtual-file-routes@1.161.7': {}
 
+  '@tesseract.js-data/eng@1.0.0': {}
+
   '@testing-library/dom@10.4.1':
     dependencies:
       '@babel/code-frame': 7.29.0
@@ -9190,6 +9204,8 @@ snapshots:
       acorn: 8.16.0
       commander: 2.20.3
       source-map-support: 0.5.21
+
+  tesseract.js-core@6.0.0: {}
 
   tesseract.js-core@7.0.0: {}
 

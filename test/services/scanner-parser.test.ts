@@ -23,6 +23,12 @@ describe('scanner-parser', () => {
       expect(parseStickerNumber('OPENING 00 STICKER')).toEqual({ state: 'matched', code: '00' });
     });
 
+    it('matches numeric opening/closing sticker values 1..19', () => {
+      expect(parseStickerNumber('1')).toEqual({ state: 'matched', code: '1' });
+      expect(parseStickerNumber('09')).toEqual({ state: 'matched', code: '9' });
+      expect(parseStickerNumber('17')).toEqual({ state: 'matched', code: '17' });
+    });
+
     it('extracts team code from noisy OCR text (user repro)', () => {
       expect(parseStickerNumber('WORLD CUP 2026 | [CAN 14]')).toEqual({
         state: 'matched',
@@ -60,6 +66,8 @@ describe('scanner-parser', () => {
       expect(parseStickerNumber('')).toEqual({ state: 'unmatched' });
       expect(parseStickerNumber('   ')).toEqual({ state: 'unmatched' });
       expect(parseStickerNumber('hello world')).toEqual({ state: 'unmatched' });
+      expect(parseStickerNumber('20')).toEqual({ state: 'unmatched' });
+      expect(parseStickerNumber('1 2')).toEqual({ state: 'unmatched' });
       expect(parseStickerNumber('CC0')).toEqual({ state: 'unmatched' });
       expect(parseStickerNumber('CC15')).toEqual({ state: 'unmatched' });
       expect(parseStickerNumber('AB-1')).toEqual({ state: 'unmatched' });

@@ -279,7 +279,7 @@
     }
   },
   "drawer": {
-    "share": "Share",
+    "share": "Share Missing",
     "language": "Language",
     "theme": "Theme",
     "delete_data": "Delete app data",

@@ -15,13 +15,20 @@ export function HomeHeader({ onMenuClick }: HomeHeaderProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
+  const originPathname = typeof window === 'undefined' ? '/' : window.location.pathname;
+
   const handleNavigateHome = useCallback(() => {
     void navigate({ to: '/' });
   }, [navigate]);
 
   const handleNavigateToScanner = useCallback(() => {
-    void navigate({ to: '/scanner' });
-  }, [navigate]);
+    void navigate({
+      to: '/scanner',
+      search: {
+        origin: originPathname
+      }
+    });
+  }, [navigate, originPathname]);
 
   return (
     <header className={styles.header} aria-label={t('home.header.ariaLabel')}>

@@ -105,7 +105,6 @@
 .menuList {
   display: flex;
   flex-direction: column;
-  padding: var(--space-2) 0;
 }
 
 .row {

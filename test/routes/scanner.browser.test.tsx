@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import React from 'react';
 import { createRoot, type Root } from 'react-dom/client';
@@ -8,8 +8,6 @@ import { createRoot, type Root } from 'react-dom/client';
 import '@/i18n/config';
 
 const navigateMock = vi.fn<() => Promise<void>>().mockReturnValue(Promise.resolve());
-const historyBackMock = vi.fn<() => void>();
-const routerMock = { history: { length: 1, back: historyBackMock } };
 
 vi.mock('@tanstack/react-router', async () => {
   const actual =
@@ -18,7 +16,7 @@ vi.mock('@tanstack/react-router', async () => {
   return {
     ...actual,
     useNavigate: () => navigateMock,
-    useRouter: () => routerMock
+    useRouter: () => ({ history: { length: 1, back: vi.fn<() => void>() } })
   };
 });
 
@@ -77,6 +75,10 @@ function cleanup({ container, root }: { container: HTMLDivElement; root: Root })
 }
 
 describe('scanner route component', () => {
+  afterEach(() => {
+    window.history.replaceState({}, '', '/');
+  });
+
   it('renders ScannerScreen inside Suspense', async () => {
     const { Route: ScannerRoute } = await import('@/routes/scanner');
     const Component = ScannerRoute.options.component;
@@ -98,8 +100,7 @@ describe('scanner route component', () => {
 
   it('handleBack navigates to home via TanStack router when no history', async () => {
     navigateMock.mockClear();
-    historyBackMock.mockClear();
-    routerMock.history.length = 1;
+    window.history.replaceState({}, '', '/scanner');
 
     const { Route: ScannerRoute } = await import('@/routes/scanner');
     const Component = ScannerRoute.options.component;
@@ -117,16 +118,14 @@ describe('scanner route component', () => {
       backButton.click();
 
       expect(navigateMock).toHaveBeenCalledWith({ to: '/' });
-      expect(historyBackMock).not.toHaveBeenCalled();
     } finally {
       cleanup(mounted);
     }
   });
 
-  it('handleBack uses history.back when history exists', async () => {
+  it('handleBack navigates to explicit in-app origin', async () => {
     navigateMock.mockClear();
-    historyBackMock.mockClear();
-    routerMock.history.length = 3;
+    window.history.replaceState({}, '', '/scanner?origin=%2Falbum%2Fbra');
 
     const { Route: ScannerRoute } = await import('@/routes/scanner');
     const Component = ScannerRoute.options.component;
@@ -143,10 +142,33 @@ describe('scanner route component', () => {
       ) as HTMLButtonElement;
       backButton.click();
 
-      expect(historyBackMock).toHaveBeenCalled();
-      expect(navigateMock).not.toHaveBeenCalled();
+      expect(navigateMock).toHaveBeenCalledWith({ to: '/album/bra' });
     } finally {
       cleanup(mounted);
     }
+  });
+
+  it('sanitize invalid external origin to home fallback', async () => {
+    navigateMock.mockClear();
+
+    const { Route: ScannerRoute } = await import('@/routes/scanner');
+    const validateSearch = ScannerRoute.options.validateSearch as
+      | ((search: Record<string, unknown>) => { origin: string })
+      | undefined;
+    const validated = validateSearch?.({ origin: 'https://evil.test' });
+
+    expect(validated).toEqual({ origin: '/' });
+  });
+
+  it('keeps valid in-app origin in validated search', async () => {
+    const { Route: ScannerRoute } = await import('@/routes/scanner');
+    const validateSearch = ScannerRoute.options.validateSearch as
+      | ((search: Record<string, unknown>) => { origin: string })
+      | undefined;
+
+    expect(validateSearch?.({ origin: '/album/group-a/bra' })).toEqual({
+      origin: '/album/group-a/bra'
+    });
+    expect(validateSearch?.({ origin: '//evil.test/path' })).toEqual({ origin: '/' });
   });
 });

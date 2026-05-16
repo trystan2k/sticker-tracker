@@ -27,6 +27,8 @@ export function AlbumPageHeader({
   const appState = useContext(AppStateContext);
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+
+  const originPathname = typeof window === 'undefined' ? '/' : window.location.pathname;
   const [isMenuDrawerOpen, setIsMenuDrawerOpen] = useState(false);
   const [isLocaleModalOpen, setIsLocaleModalOpen] = useState(false);
   const [isThemeSheetOpen, setIsThemeSheetOpen] = useState(false);
@@ -61,8 +63,13 @@ export function AlbumPageHeader({
   }, [navigate]);
 
   const handleNavigateToScanner = useCallback((): void => {
-    void navigate({ to: '/scanner' });
-  }, [navigate]);
+    void navigate({
+      to: '/scanner',
+      search: {
+        origin: originPathname
+      }
+    });
+  }, [navigate, originPathname]);
 
   const handleOpenDeleteConfirm = useCallback(async (): Promise<void> => {
     // oxlint-disable-next-line no-alert

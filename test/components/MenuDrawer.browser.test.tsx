@@ -1,10 +1,9 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import React from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 
-// oxlint-disable-next-line import/no-unassigned-import
-import '@/i18n/config';
+import { getI18nInstance } from '@/i18n/config';
 
 import { MenuDrawer } from '@/components/MenuDrawer';
 
@@ -55,6 +54,10 @@ function cleanup({ container, root }: { container: HTMLDivElement; root: Root })
 }
 
 describe('MenuDrawer', () => {
+  beforeEach(async () => {
+    await getI18nInstance().changeLanguage('en');
+  });
+
   it('renders share and language rows when open', async () => {
     const mounted = mount(
       React.createElement(MenuDrawer, {
@@ -209,7 +212,7 @@ describe('MenuDrawer', () => {
       await waitFor(() => document.body.textContent?.includes('Share') ?? false);
 
       const shareButton = Array.from(document.body.querySelectorAll('button')).find(
-        (button) => button.textContent?.trim() === 'Share'
+        (button) => button.textContent?.includes('Share') ?? false
       );
 
       expect(shareButton).toBeDefined();
@@ -234,7 +237,7 @@ describe('MenuDrawer', () => {
       await waitFor(() => document.body.textContent?.includes('Share') ?? false);
 
       const shareButton = Array.from(document.body.querySelectorAll('button')).find(
-        (button) => button.textContent?.trim() === 'Share'
+        (button) => button.textContent?.includes('Share') ?? false
       );
 
       expect(shareButton).toBeDefined();
@@ -261,7 +264,7 @@ describe('MenuDrawer', () => {
       await waitFor(() => document.body.textContent?.includes('Share') ?? false);
 
       const shareButton = Array.from(document.body.querySelectorAll('button')).find(
-        (button) => button.textContent?.trim() === 'Share'
+        (button) => button.textContent?.includes('Share') ?? false
       );
 
       shareButton?.click();

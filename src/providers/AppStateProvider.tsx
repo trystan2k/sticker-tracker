@@ -9,6 +9,7 @@ import {
   toggleStickerCollectionState
 } from '@/services/collection-service';
 import { markStickersAsHave } from '@/services/scanner-collection';
+import type { MarkStickersAsHaveResult } from '@/services/scanner-collection';
 import {
   loadSavedLocale,
   resolveSupportedLocale,
@@ -30,7 +31,7 @@ type AppStateContextValue = Readonly<{
   setLocale: (locale: SupportedLocale) => Promise<StorageState>;
   setTheme: (theme: ThemeValue) => Promise<void>;
   toggleCollected: typeof toggleStickerCollectionState;
-  markScannedStickersAsHave: (stickerIds: readonly string[]) => Promise<void>;
+  markScannedStickersAsHave: (stickerIds: readonly string[]) => Promise<MarkStickersAsHaveResult>;
 }>;
 
 const EMPTY_COLLECTION: CollectionState = {};
@@ -191,10 +192,11 @@ export function AppStateProvider({ children }: AppStateProviderProps) {
     if (result.state !== 'ready') {
       setStorageState(result.state);
       setRenderState('storage-error');
-      return;
+      return result;
     }
 
     setCollection(result.value);
+    return result;
   }, []);
 
   const contextValue = useMemo<AppStateContextValue>(
