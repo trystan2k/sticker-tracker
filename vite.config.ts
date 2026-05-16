@@ -5,6 +5,8 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 
 import viteReact from '@vitejs/plugin-react';
 
+import mkcert from 'vite-plugin-mkcert';
+
 import killerInstincts from 'vite-plugin-killer-instincts';
 
 const config = defineConfig({
@@ -30,7 +32,8 @@ const config = defineConfig({
       }
     }),
     viteReact(),
-    killerInstincts({ autoKill: true })
+    killerInstincts({ autoKill: true }),
+    mkcert()
   ]
 });
 

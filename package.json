@@ -87,6 +87,7 @@
     "typescript": "~6.0.3",
     "vite": "~8.0.10",
     "vite-plugin-killer-instincts": "~1.1.0",
+    "vite-plugin-mkcert": "~2.0.0",
     "vitest": "~4.1.5",
     "workbox-build": "~7.4.1",
     "wrangler": "~4.90.0"
