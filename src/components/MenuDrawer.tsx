@@ -1,8 +1,9 @@
-import { ChevronRight, Download, Menu, Palette, Share2, Trash2, X } from 'lucide-react';
+import { Camera, ChevronRight, Download, Menu, Palette, Share2, Trash2, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 
+import { FEATURE_FLAGS } from '@/config/features';
 import { APP_VERSION } from '@/version';
 import { usePwa } from '@/providers/PwaProvider';
 
@@ -15,6 +16,7 @@ interface MenuDrawerProps {
   onOpenThemeSwitcher?: () => void;
   onOpenDeleteConfirm?: () => void;
   onOpenShare?: (() => void) | undefined;
+  onOpenScanner?: (() => void) | undefined;
   currentLocale: string;
 }
 
@@ -31,6 +33,7 @@ export function MenuDrawer({
   onOpenThemeSwitcher,
   onOpenDeleteConfirm,
   onOpenShare,
+  onOpenScanner,
   currentLocale
 }: MenuDrawerProps) {
   const { t } = useTranslation();
@@ -155,6 +158,16 @@ export function MenuDrawer({
     onOpenDeleteConfirm();
   }, [onClose, onOpenDeleteConfirm]);
 
+  const handleOpenScanner = useCallback(() => {
+    if (!onOpenScanner) {
+      return;
+    }
+
+    triggerRef.current = null;
+    onClose();
+    onOpenScanner();
+  }, [onClose, onOpenScanner]);
+
   const handleOpenThemeSwitcher = useCallback(() => {
     if (!onOpenThemeSwitcher) {
       return;
@@ -227,6 +240,22 @@ export function MenuDrawer({
           </button>
 
           <div className={styles.divider} aria-hidden="true" />
+
+          {FEATURE_FLAGS.scannerEnabled ? (
+            <>
+              <button
+                type="button"
+                className={styles.row}
+                disabled={!onOpenScanner}
+                onClick={handleOpenScanner}
+              >
+                <Camera size={22} aria-hidden="true" />
+                <span className={styles.rowLabel}>{t('scanner.title')}</span>
+              </button>
+
+              <div className={styles.divider} aria-hidden="true" />
+            </>
+          ) : null}
 
           <button
             type="button"

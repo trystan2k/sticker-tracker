@@ -172,7 +172,52 @@
   },
   "scanner": {
     "title": "Escáner",
-    "empty": "Pantalla del escáner próximamente."
+    "back": "Volver",
+    "finish": "Finalizar escaneo",
+    "viewfinder": "Visor de cámara",
+    "badge": "LISTO",
+    "idleTitle": "Escanea tus figuritas",
+    "idleDescription": "Apunta la cámara al código de la figurita y mantén la tarjeta dentro del marco.",
+    "start": "Iniciar escáner",
+    "requestingPermission": "Solicitando permiso de cámara...",
+    "requestingPermissionShort": "Cargando...",
+    "scanning": "Escaneando...",
+    "readyToScan": "Apunta la cámara al código de la figurita.",
+    "scanError": "No se pudo leer el cuadro de la cámara.",
+    "lastRead": "Última lectura: {{text}}",
+    "permissionDeniedBadge": "Permiso necesario",
+    "permissionDeniedTitle": "Acceso a cámara bloqueado",
+    "permissionDeniedDescription": "Activa el permiso de cámara en la configuración del navegador e inténtalo otra vez.",
+    "tryAgain": "Intentar de nuevo",
+    "unsupportedBadge": "Dispositivo no compatible",
+    "unsupportedTitle": "Cámara no disponible",
+    "unsupportedDescription": "Este dispositivo o navegador no admite captura de cámara.",
+    "backToAlbum": "Volver",
+    "popup": {
+      "title": "Resultado del escaneo",
+      "close": "Cerrar resultado del escaneo",
+      "stickerNumber": "Figurita {{stickerNumber}}",
+      "alreadyHave": "Ya la tengo",
+      "missing": "¡Falta!",
+      "ok": "OK"
+    },
+    "review": {
+      "title": "Revisar figuritas escaneadas",
+      "close": "Cerrar modal de revisión",
+      "description": "Corrige errores de OCR, elimina elementos y confirma las figuritas recolectadas.",
+      "stickerLabel": "Código de figurita",
+      "rawText": "OCR leyó: {{text}}",
+      "invalidFormat": "Formato inválido. Usa un código como BRA-12, 00 o CC1.",
+      "unknownSticker": "Código de figurita no encontrado en el álbum.",
+      "delete": "Eliminar",
+      "duplicatesFiltered": "Se detectaron códigos duplicados. {{count}} duplicado(s) se ignorarán al confirmar.",
+      "empty": "No quedan figuritas en esta sesión. Cancela para descartar la sesión.",
+      "cancel": "Cancelar sesión",
+      "confirming": "Confirmando...",
+      "confirm": "Confirmar como recolectadas",
+      "saveError": "No se pudieron guardar las figuritas. Intenta de nuevo.",
+      "success": "Figuritas marcadas como recolectadas correctamente."
+    }
   },
   "notFound": {
     "heading": "Página no encontrada",
@@ -236,7 +281,7 @@
     }
   },
   "drawer": {
-    "share": "Compartir",
+    "share": "Compartir Faltantes",
     "language": "Idioma",
     "theme": "Tema",
     "delete_data": "Borrar datos",

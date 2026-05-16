@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import React from 'react';
 import { createRoot, type Root } from 'react-dom/client';
@@ -11,9 +11,7 @@ import {
   Outlet
 } from '@tanstack/react-router';
 
-// Ensure i18n is initialized
-// oxlint-disable-next-line import/no-unassigned-import
-import '@/i18n/config';
+import { getI18nInstance } from '@/i18n/config';
 
 import { albumPages, type AlbumPage } from '@/data/album';
 import { AlbumPageHeader } from '@/components/album-viewer/AlbumPageHeader';
@@ -97,6 +95,10 @@ afterEach(() => {
 });
 
 describe('AlbumPageHeader', () => {
+  beforeEach(async () => {
+    await getI18nInstance().changeLanguage('en');
+  });
+
   const teamPage = albumPages.find((p) => p.pageId === 'mex') as AlbumPage;
   const specialPage = albumPages.find((p) => p.pageId === 'fwc-opening') as AlbumPage;
 
@@ -213,6 +215,25 @@ describe('AlbumPageHeader', () => {
     }
   });
 
+  it('does not render scanner button in header', async () => {
+    const mounted = mountWithRouter(
+      React.createElement(AlbumPageHeader, {
+        page: teamPage,
+        onOpenQuickNavigation: () => {},
+        onOpenShare: () => {}
+      })
+    );
+
+    try {
+      await waitFor(() => mounted.container.querySelector('header') !== null);
+
+      const scannerButton = mounted.container.querySelector('[aria-label="Scanner"]');
+      expect(scannerButton).toBeNull();
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
   it('passes onOpenShare to MenuDrawer', async () => {
     const mounted = mountWithRouter(
       React.createElement(AlbumPageHeader, {
@@ -231,7 +252,7 @@ describe('AlbumPageHeader', () => {
       await waitFor(() => document.body.textContent?.includes('Share') ?? false);
 
       const shareBtn = Array.from(document.body.querySelectorAll('button')).find(
-        (btn) => btn.textContent?.trim() === 'Share'
+        (btn) => btn.textContent?.includes('Share') ?? false
       );
       expect(shareBtn?.disabled).toBe(false);
     } finally {
@@ -257,7 +278,7 @@ describe('AlbumPageHeader', () => {
       await waitFor(() => document.body.textContent?.includes('Share') ?? false);
 
       const shareBtn = Array.from(document.body.querySelectorAll('button')).find(
-        (btn) => btn.textContent?.trim() === 'Share'
+        (btn) => btn.textContent?.includes('Share') ?? false
       );
       expect(shareBtn?.disabled).toBe(true);
     } finally {

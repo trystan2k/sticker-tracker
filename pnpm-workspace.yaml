@@ -1,4 +1,8 @@
+savePrefix: '~'
+minimumReleaseAge: 4320
+engineStrict: true
 allowBuilds:
   esbuild: true
   sharp: true
+  tesseract.js: true
   workerd: true

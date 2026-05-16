@@ -26,6 +26,8 @@ export function AlbumPageHeader({
   const appState = useContext(AppStateContext);
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+
+  const originPathname = typeof window === 'undefined' ? '/' : window.location.pathname;
   const [isMenuDrawerOpen, setIsMenuDrawerOpen] = useState(false);
   const [isLocaleModalOpen, setIsLocaleModalOpen] = useState(false);
   const [isThemeSheetOpen, setIsThemeSheetOpen] = useState(false);
@@ -58,6 +60,15 @@ export function AlbumPageHeader({
   const handleNavigateHome = useCallback((): void => {
     void navigate({ to: '/' });
   }, [navigate]);
+
+  const handleNavigateToScanner = useCallback((): void => {
+    void navigate({
+      to: '/scanner',
+      search: {
+        origin: originPathname
+      }
+    });
+  }, [navigate, originPathname]);
 
   const handleOpenDeleteConfirm = useCallback(async (): Promise<void> => {
     // oxlint-disable-next-line no-alert
@@ -128,6 +139,8 @@ export function AlbumPageHeader({
         >
           <div className={styles.center}>{centerContent}</div>
         </button>
+
+        <div className={styles.menuButton} aria-hidden="true" />
       </header>
 
       <MenuDrawer
@@ -137,6 +150,7 @@ export function AlbumPageHeader({
         onOpenThemeSwitcher={handleOpenThemeSheet}
         onOpenDeleteConfirm={handleOpenDeleteConfirm}
         onOpenShare={onOpenShare}
+        onOpenScanner={handleNavigateToScanner}
         currentLocale={i18n.resolvedLanguage ?? i18n.language ?? 'en'}
       />
       <LocaleSwitcher isOpen={isLocaleModalOpen} onClose={handleCloseLocaleModal} />

@@ -69,6 +69,17 @@ export function NotFoundPage() {
     [appState]
   );
 
+  const handleOpenScanner = useCallback(() => {
+    const originPathname = typeof window === 'undefined' ? '/' : window.location.pathname;
+
+    void navigate({
+      to: '/scanner',
+      search: {
+        origin: originPathname
+      }
+    });
+  }, [navigate]);
+
   return (
     <main className={styles.screen}>
       <HomeHeader onMenuClick={handleOpenMenuDrawer} />
@@ -94,6 +105,7 @@ export function NotFoundPage() {
         onOpenLocaleSwitcher={handleOpenLocaleSwitcher}
         onOpenThemeSwitcher={handleOpenThemeSheet}
         onOpenDeleteConfirm={handleOpenDeleteConfirm}
+        onOpenScanner={handleOpenScanner}
         currentLocale={i18n.resolvedLanguage ?? i18n.language}
       />
       <LocaleSwitcher isOpen={isLocaleSwitcherOpen} onClose={handleCloseLocaleSwitcher} />

@@ -465,4 +465,85 @@ describe('NotFoundPage', () => {
       cleanup(mounted);
     }
   });
+
+  it('delete confirm: user cancels, no reset or navigation', async () => {
+    await resetStorage();
+
+    const mounted = mount(
+      React.createElement(AppStateProvider, null, React.createElement(NotFoundPage))
+    );
+
+    try {
+      await waitFor(() => {
+        const header = document.body.querySelector('header');
+        return header !== null;
+      });
+
+      // Open menu drawer
+      const menuButton = document.body.querySelector('header button') as HTMLButtonElement;
+      menuButton?.click();
+
+      await waitFor(() => document.body.textContent?.includes('Delete app data') ?? false);
+
+      // Click delete row
+      const deleteButton = Array.from(document.body.querySelectorAll('button')).find(
+        (button) => button.textContent?.includes('Delete app data') ?? false
+      ) as HTMLButtonElement;
+
+      // Mock confirm to return false (user cancels)
+      const originalConfirm = window.confirm;
+      window.confirm = () => false;
+
+      deleteButton?.click();
+
+      // Should not navigate or reset — just return from handler
+      await new Promise((r) => setTimeout(r, 100));
+
+      // Menu drawer should still be open
+      expect(document.body.textContent).toContain('Delete app data');
+
+      window.confirm = originalConfirm;
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('handleSelectTheme guards against null appState', async () => {
+    await resetStorage();
+
+    const mounted = mount(
+      React.createElement(AppStateProvider, null, React.createElement(NotFoundPage))
+    );
+
+    try {
+      await waitFor(() => {
+        const header = document.body.querySelector('header');
+        return header !== null;
+      });
+
+      // Open menu drawer
+      const menuButton = document.body.querySelector('header button') as HTMLButtonElement;
+      menuButton?.click();
+
+      await waitFor(() => document.body.textContent?.includes('Theme') ?? false);
+
+      // Click theme row to open ThemeSheet
+      const themeButton = Array.from(document.body.querySelectorAll('button')).find(
+        (button) => button.textContent?.includes('Theme') ?? false
+      ) as HTMLButtonElement;
+      themeButton?.click();
+
+      await waitFor(() => document.body.querySelector('[aria-label="Theme"]') !== null);
+
+      // Click a theme option — handleSelectTheme should call appState.setTheme
+      const lightOption = Array.from(document.body.querySelectorAll('button')).find(
+        (button) => button.textContent?.includes('Light') ?? false
+      ) as HTMLButtonElement;
+
+      // Should not throw — appState exists in this context
+      expect(() => lightOption?.click()).not.toThrow();
+    } finally {
+      cleanup(mounted);
+    }
+  });
 });

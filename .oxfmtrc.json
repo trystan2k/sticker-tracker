@@ -19,6 +19,8 @@
     "src/routeTree.gen.ts",
     "**/*.gen.ts",
     "**/*.gen.tsx",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "public/ocr-core/**",
+    "public/ocr-lang/**"
   ]
 }

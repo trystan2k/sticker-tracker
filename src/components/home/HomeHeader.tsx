@@ -36,6 +36,8 @@ export function HomeHeader({ onMenuClick }: HomeHeaderProps) {
       >
         <span className={styles.title}>{t('home.header.title')}</span>
       </button>
+
+      <div className={styles.actionButton} aria-hidden="true" />
     </header>
   );
 }

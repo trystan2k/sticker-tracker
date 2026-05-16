@@ -6169,21 +6169,11 @@
               "alignItems": "center",
               "children": [
                 {
-                  "type": "icon_font",
-                  "id": "j3pSgM",
-                  "name": "bell",
-                  "width": 20,
-                  "height": 20,
-                  "iconFontName": "bell",
-                  "iconFontFamily": "lucide",
-                  "fill": "#FFFFFF"
-                },
-                {
                   "type": "text",
                   "id": "CTc9q",
                   "name": "btn-text",
                   "fill": "#FFFFFF",
-                  "content": "Avisar quando disponível",
+                  "content": "Iniciar",
                   "fontFamily": "Barlow",
                   "fontSize": 16,
                   "fontWeight": "600"

@@ -172,7 +172,52 @@
   },
   "scanner": {
     "title": "Scanner",
-    "empty": "Scanner screen coming soon."
+    "back": "Back",
+    "finish": "Finish scanning",
+    "viewfinder": "Camera viewfinder",
+    "badge": "READY",
+    "idleTitle": "Scan your stickers",
+    "idleDescription": "Point camera at sticker code and keep card inside frame.",
+    "start": "Start scanner",
+    "requestingPermission": "Requesting camera permission...",
+    "requestingPermissionShort": "Loading...",
+    "scanning": "Scanning...",
+    "readyToScan": "Point camera at sticker code.",
+    "scanError": "Could not read the camera frame.",
+    "lastRead": "Last read: {{text}}",
+    "permissionDeniedBadge": "Permission needed",
+    "permissionDeniedTitle": "Camera access blocked",
+    "permissionDeniedDescription": "Enable camera permission in browser settings, then try again.",
+    "tryAgain": "Try again",
+    "unsupportedBadge": "Unsupported device",
+    "unsupportedTitle": "Camera unavailable",
+    "unsupportedDescription": "This device or browser does not support camera capture.",
+    "backToAlbum": "Back",
+    "popup": {
+      "title": "Scan result",
+      "close": "Close scan result popup",
+      "stickerNumber": "Sticker {{stickerNumber}}",
+      "alreadyHave": "Already have",
+      "missing": "Missing!",
+      "ok": "OK"
+    },
+    "review": {
+      "title": "Review scanned stickers",
+      "close": "Close review modal",
+      "description": "Fix OCR errors, remove items, then confirm collected stickers.",
+      "stickerLabel": "Sticker code",
+      "rawText": "OCR read: {{text}}",
+      "invalidFormat": "Invalid format. Use code like BRA-12, 00 or CC1.",
+      "unknownSticker": "Sticker code not found in album.",
+      "delete": "Delete",
+      "duplicatesFiltered": "Duplicate sticker codes detected. {{count}} duplicate(s) will be ignored on confirm.",
+      "empty": "No stickers left in this session. Cancel to discard session.",
+      "cancel": "Cancel session",
+      "confirming": "Confirming...",
+      "confirm": "Confirm as collected",
+      "saveError": "Failed to save stickers. Try again.",
+      "success": "Stickers marked as collected successfully."
+    }
   },
   "notFound": {
     "heading": "Page not found",
@@ -236,7 +281,7 @@
     }
   },
   "drawer": {
-    "share": "Share",
+    "share": "Share Missing",
     "language": "Language",
     "theme": "Theme",
     "delete_data": "Delete app data",

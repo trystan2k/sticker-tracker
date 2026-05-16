@@ -1,0 +1,473 @@
+## Task Analysis
+
+- Main objective:
+  - Deliver epic STR-30 by adding a rollout-gated scanner flow that opens from existing app headers, requests camera access only after user intent, OCRs sticker codes with Tesseract.js v5, resolves stickers through an IndexedDB-backed lookup, and updates collection state with review/error fallback across `en`, `pt-BR`, and `es`.
+- Identified dependencies:
+  - Existing canonical sticker metadata already lives in `src/data/album.ts`; scanner lookup must derive from `albumPages`, `pageId`, `albumCode`, `group`, and `stickerIds` instead of introducing a second album dataset.
+  - Existing persistence/runtime patterns to reuse:
+    - `src/lib/storage/app-storage.ts`
+    - `src/services/collection-service.ts`
+    - `src/providers/AppStateProvider.tsx`
+    - `src/i18n/config.ts`
+  - Existing UI/navigation patterns to reuse:
+    - `src/components/home/HomeHeader.tsx`
+    - `src/components/album-viewer/AlbumPageHeader.tsx`
+    - `src/components/ThemeSheet.tsx`
+    - `src/components/LocaleSwitcher.tsx`
+    - `src/components/pwa/PwaInstallBanner.tsx`
+    - `src/components/AppShell.tsx`
+  - Existing route/test patterns to reuse:
+    - `src/routes/album.tsx`, `src/routes/share.tsx`, `src/routes/index.tsx`
+    - `test/components/**/*.browser.test.tsx`
+    - `test/services/*.test.ts`
+    - `test/storage/app-storage.browser.test.ts`
+    - `e2e/*.test.ts`
+    - `playwright.config.ts`
+  - Existing scanner i18n scaffold already exists but is minimal:
+    - `src/locales/en/translation.json`
+    - `src/locales/pt-BR/translation.json`
+    - `src/locales/es/translation.json`
+  - Current collection API is toggle-only. Scanner actions are idempotent, not toggle-driven, so scanner work depends on adding an explicit set-state write path beside `toggleCollected`.
+  - Design nuance to settle before coding:
+    - `docs/design/sticker-tracker.pen` `S6a Scanner – Em Breve – Light` is useful as the idle / pre-permission shell layout.
+    - Shipping the literal “coming soon” badge/copy would conflict with a real scanner. Simplest safe assumption: reuse S6a structure, replace copy with live scanner entry/permission copy, and reserve literal “coming soon” only for a disabled feature-flag demo if product explicitly wants it.
+  - Plan file: `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/docs/plan/Plan STR-30 EP8: Scanner Implementation.md`
+- System impact:
+  - Routing: new `/scanner` route plus header entry points from Home and Album surfaces.
+  - Runtime: new browser API usage (`getUserMedia`, `MediaStream`, video/canvas capture) and OCR worker loading on client only.
+  - Persistence: existing IndexedDB store gains scanner lookup cache data; collection write path gains explicit set semantics.
+  - UI: new scanner screen, popup, and review modal surfaces; `AppShell` should remain unchanged unless overlay stacking proves broken.
+  - Build/perf: `tesseract.js` must stay lazily loaded so `/` and `/album/...` do not pay OCR cost.
+  - QA: automated browser/E2E coverage grows, plus manual smoke on iPhone Safari and Android Chrome devices (Samsung, OnePlus) because real camera behavior differs across mobile browsers.
+
+## Chosen Approach
+
+- Proposed solution:
+  - Implement scanner as a route-local feature under `src/components/scanner/`, orchestrated by one focused hook (`use-scanner.ts`) and three pure services:
+    - `scanner-parser-service.ts` — normalize OCR text and produce supported sticker-code candidates.
+    - `scanner-ocr-service.ts` — lazy Tesseract wrapper with a stable test seam.
+    - `scanner-lookup-service.ts` — IndexedDB-backed lookup built from `albumPages`.
+  - Reuse the existing `app-storage` key-value store instead of creating a second database. Add one logical key for scanner lookup cache, store a versioned lookup wrapper, and rebuild when the dataset version changes.
+  - Extend collection writes with an explicit setter (`setStickerCollectedState` / provider equivalent) so scanner actions never accidentally toggle a sticker off on repeated scans.
+  - Reuse current UI conventions instead of inventing new primitives:
+    - S6a layout -> idle / permission-request shell.
+    - S6b layout -> active camera viewfinder.
+    - ThemeSheet / LocaleSwitcher modal contract -> review modal.
+    - PWA/global status surface conventions -> scan popup semantics and aria-live behavior.
+  - Keep parser logic deterministic and narrow:
+    - Support `ALPHA-NUM`, `ALPHA NUM`, and special `00`, `CC1...CC14`.
+    - Normalize whitespace, punctuation, casing, and team-number leading zeros.
+    - Do **not** add fuzzy OCR autocorrect or approximate matching in first pass; manual correction belongs in the review modal.
+- Justification for simplicity:
+  - Reject a global scanner provider/store. Scanner state is ephemeral and only relevant on `/scanner`.
+  - Reject a second album JSON or handwritten lookup table. `src/data/album.ts` is already the only valid source of truth.
+  - Reject fuzzy matching / heuristic correction engines. They add false positives and are harder to test than a deterministic parser + manual correction path.
+  - Reject a dedicated IndexedDB schema migration or second DB. Existing `app-storage` already supports new logical keys without broad structural change.
+  - Reject an `AppShell` navigation rewrite. Header entry buttons are the narrowest integration that matches current repo patterns and the earlier scanner-slot intent from the PRD.
+- Components to be modified/created:
+  - Foundation / OCR / parser (`STR-57`):
+    - Modify `package.json`
+    - Modify `pnpm-lock.yaml`
+    - Create `src/services/scanner-parser-service.ts`
+    - Create `src/services/scanner-ocr-service.ts`
+    - Create `src/components/scanner/use-scanner.ts`
+    - Create `test/services/scanner-parser-service.test.ts`
+    - Create `test/services/scanner-ocr-service.test.ts`
+  - IndexedDB lookup (`STR-58`):
+    - Modify `src/lib/storage/app-storage.ts`
+    - Create `src/services/scanner-lookup-service.ts`
+    - Modify `test/storage/app-storage.browser.test.ts`
+    - Create `test/services/scanner-lookup-service.test.ts`
+  - Scanner screen UI (`STR-59`):
+    - Create `src/components/scanner/ScannerScreen.tsx`
+    - Create `src/components/scanner/ScannerScreen.module.css`
+    - Create `test/components/scanner/ScannerScreen.browser.test.tsx`
+  - Per-scan popup (`STR-62`):
+    - Create `src/components/scanner/ScannerStatusPopup.tsx`
+    - Create `src/components/scanner/ScannerStatusPopup.module.css`
+    - Create `test/components/scanner/ScannerStatusPopup.browser.test.tsx`
+  - Explicit database update flow (`STR-60`):
+    - Modify `src/services/collection-service.ts`
+    - Modify `src/providers/AppStateProvider.tsx`
+    - Modify `test/services/collection-service.test.ts`
+    - Modify `test/providers/AppStateProvider.browser.test.tsx`
+  - Review modal (`STR-61`):
+    - Create `src/components/scanner/ScannerReviewModal.tsx`
+    - Create `src/components/scanner/ScannerReviewModal.module.css`
+    - Create `test/components/scanner/ScannerReviewModal.browser.test.tsx`
+  - Route + navigation (`STR-66`):
+    - Create `src/routes/scanner.tsx`
+    - Regenerate `src/routeTree.gen.ts`
+    - Modify `src/components/home/HomeHeader.tsx`
+    - Modify `src/components/home/HomeHeader.module.css`
+    - Modify `src/components/album-viewer/AlbumPageHeader.tsx`
+    - Modify `src/components/album-viewer/AlbumPageHeader.module.css`
+    - Create `test/routes/scanner.test.tsx`
+    - Modify `test/components/home/HomeScreen.browser.test.tsx`
+    - Modify `test/components/album-viewer/AlbumPageHeader.browser.test.tsx`
+  - Translations (`STR-65`):
+    - Modify `src/locales/en/translation.json`
+    - Modify `src/locales/pt-BR/translation.json`
+    - Modify `src/locales/es/translation.json`
+    - Modify `test/i18n/translation-resources.test.ts`
+  - Feature flag + lazy loading (`STR-63`):
+    - Create `src/config/features.ts`
+    - Modify `src/components/home/HomeHeader.tsx`
+    - Modify `src/components/album-viewer/AlbumPageHeader.tsx`
+    - Modify `src/routes/scanner.tsx`
+    - Create `test/config/features.test.ts` or `test/services/features.test.ts` (pick one location and keep it consistent)
+  - E2E + config (`STR-64`):
+    - Modify `playwright.config.ts`
+    - Create `e2e/scanner-flow.test.ts`
+    - Create `e2e/scanner-permission.test.ts`
+    - Optional helper if repeated setup becomes noisy: `e2e/helpers/scanner-mocks.ts`
+
+## Implementation Steps
+
+1. Pre-implementation contract check before coding `STR-57`.
+   - Lock three assumptions first:
+     - S6a ships as scanner idle / pre-permission layout, not literal “coming soon” copy.
+     - Feature flag default stays off in production until rollout approval.
+     - Review modal scope is one current pending scan, not a full batch/session history manager.
+   - Validate canonical sticker formats directly from `src/data/album.ts`:
+     - team stickers are stored as `${albumCode}-${index}` with no forced zero-padding,
+     - opening special uses `00`,
+     - sponsor stickers use `CC1...CC14`.
+   - Keep all browser APIs (`navigator.mediaDevices`, `MediaStream`, `HTMLVideoElement`, Tesseract worker loading) out of module scope to stay safe with TanStack Start SPA builds and tests.
+   - Rollback / mitigation:
+     - If product insists S6a must remain literal “coming soon”, isolate that copy behind the feature flag only and keep live scanner copy in the same layout shell so the component tree does not fork.
+
+2. Execute `STR-57` — OCR + camera foundation.
+   - Files to modify/create:
+     - `package.json`
+     - `pnpm-lock.yaml`
+     - `src/services/scanner-parser-service.ts`
+     - `src/services/scanner-ocr-service.ts`
+     - `src/components/scanner/use-scanner.ts`
+     - `test/services/scanner-parser-service.test.ts`
+     - `test/services/scanner-ocr-service.test.ts`
+   - Key functions/components:
+     - `normalizeScanText(rawText)`
+     - `parseStickerCandidates(rawText)`
+     - `loadTesseract()`
+     - `recognizeStickerText(source)`
+     - `useScanner()` with route-local camera/OCR state
+   - Implementation details:
+     - Add `tesseract.js` v5 with `~` save-prefix alignment.
+     - Wrap Tesseract import behind one cached function so the scanner route never imports OCR eagerly.
+     - Parser should accept and normalize:
+       - `BRA-12`
+       - `BRA 12`
+       - `BRA12`
+       - `00`
+       - `CC1` / `CC 1`
+     - Normalize only low-risk OCR variance:
+       - uppercase,
+       - trim,
+       - collapse whitespace / punctuation between code and number,
+       - strip leading zeros from team numbers (`BRA-01` -> `BRA-1`).
+     - Avoid fuzzy character replacement (`O`↔`0`, `I`↔`1`) in first pass; ambiguous OCR belongs in review flow.
+     - In `useScanner()`, request camera only after user taps Start.
+     - Prefer `facingMode: { ideal: 'environment' }`; fall back to generic video input if the rear-camera constraint fails.
+     - Ensure video element uses `autoPlay`, `muted`, and `playsInline` for iPhone Safari compatibility.
+     - Use a recursive `setTimeout` / timer-driven capture loop at one scan attempt every 2 seconds instead of per-frame OCR. This satisfies debounce and keeps device load bounded.
+   - Correctness checkpoint:
+     - Unit tests prove parser output for supported formats and reject junk safely.
+     - Browser-level OCR service test proves dynamic import seam works without loading real OCR in unrelated test paths.
+     - Hook/controller test seam proves camera start is user-triggered and scan attempts do not exceed the 2-second cadence.
+   - Rollback / mitigation:
+     - If direct video-frame OCR is unstable, keep the hook/service API stable and only swap capture implementation internals. Do not push OCR logic back into `ScannerScreen.tsx`.
+
+3. Execute `STR-58` — IndexedDB-backed sticker lookup service.
+   - Files to modify/create:
+     - `src/lib/storage/app-storage.ts`
+     - `src/services/scanner-lookup-service.ts`
+     - `test/storage/app-storage.browser.test.ts`
+     - `test/services/scanner-lookup-service.test.ts`
+   - Key functions/components:
+     - `buildScannerLookupIndex()`
+     - `ensureScannerLookupIndex()`
+     - `findScannerMatch(normalizedCode)`
+     - `getScannerLookupVersion()`
+   - Implementation details:
+     - Extend `app-storage` with a logical `scannerLookup` key storing a versioned wrapper such as:
+       - `version`
+       - `entries: Record<string, ScannerLookupEntry>`
+     - Build lookup data directly from `albumPages` so scanner metadata always matches the rest of the app.
+     - Each lookup entry should carry enough UI/update context for later steps:
+       - `pageId`
+       - `stickerId`
+       - `page.type`
+       - `translationKey`
+       - `albumCode` / `group` / `flagCode` when available
+     - Add an in-memory cache inside the lookup service after the IndexedDB read so repeated scans do not hit IndexedDB every 2 seconds.
+     - Version the cached lookup so future album-data changes rebuild the index instead of trusting stale persisted data.
+   - Correctness checkpoint:
+     - `00`, `CC1`, and representative team codes resolve from the cached lookup.
+     - Lookup rebuilds when version changes.
+     - No second album metadata source exists anywhere outside `albumPages`.
+   - Rollback / mitigation:
+     - If the versioned wrapper becomes noisy, split the lookup serializer into a tiny helper file but keep the same single `scannerLookup` key. Do not create a second browser database unless rebuild/perf data proves necessary.
+
+4. Execute `STR-59` — scanner screen UI shell.
+   - Files to create:
+     - `src/components/scanner/ScannerScreen.tsx`
+     - `src/components/scanner/ScannerScreen.module.css`
+     - `test/components/scanner/ScannerScreen.browser.test.tsx`
+   - Key functions/components:
+     - `ScannerScreen`
+     - route-local state branches for `idle`, `requesting-permission`, `active`, `permission-denied`, and `unsupported`
+   - Implementation details:
+     - Idle state should reuse S6a structure:
+       - top header with back button + title,
+       - centered intro body,
+       - primary Start CTA.
+     - Active state should reuse S6b structure:
+       - translucent header,
+       - live video background,
+       - square viewfinder frame,
+       - scan-line / hint text,
+       - bottom surface reserved for popup.
+     - Permission-denied and unsupported-camera states should reuse the idle shell layout instead of branching into a wholly different page.
+     - All styling stays in CSS Modules and token-backed variables only.
+     - Keep scanner route content self-contained; `AppShell` remains the frame, not a scanner-specific layout manager.
+   - Correctness checkpoint:
+     - Browser test proves idle state renders before any permission request.
+     - Start CTA moves screen into requesting/active or denied/unsupported fallback.
+     - Screen still respects app bootstrap/loading behavior from `AppStateProvider`.
+   - Rollback / mitigation:
+     - If the screen file becomes too noisy, extract only presentational subcomponents (`ScannerIdleState`, `ScannerViewfinder`) while keeping one route shell and one CSS module. Do not introduce a scanner design system.
+
+5. Execute `STR-62` — per-scan popup.
+   - Files to create:
+     - `src/components/scanner/ScannerStatusPopup.tsx`
+     - `src/components/scanner/ScannerStatusPopup.module.css`
+     - `test/components/scanner/ScannerStatusPopup.browser.test.tsx`
+   - Key functions/components:
+     - `ScannerStatusPopup`
+     - popup state derived from current collection state + scanner lookup result
+   - Implementation details:
+     - Model the popup after the S6b confirmation card.
+     - Show:
+       - resolved sticker code,
+       - translated page/team/special label,
+       - current collection status (`has` / `missing`),
+       - primary action based on current status,
+       - secondary review action,
+       - discard/delete action.
+     - Opening the popup must pause the scan loop so one sticker does not retrigger while the user is deciding.
+     - Closing after action should respect the 2-second debounce before scanning resumes.
+     - Prefer scanner-local mounting over `AppShell` toast region so popup positioning remains relative to the live scanner surface.
+   - Correctness checkpoint:
+     - Popup content changes correctly for already-collected vs missing stickers.
+     - Popup suppresses repeated scan attempts while open.
+   - Rollback / mitigation:
+     - If popup stacking conflicts with modal layering, keep popup inside scanner screen and modal in a portal. Do not move scanner surfaces into global shell layers.
+
+6. Execute `STR-60` — deterministic database update flow.
+   - Files to modify:
+     - `src/services/collection-service.ts`
+     - `src/providers/AppStateProvider.tsx`
+     - `test/services/collection-service.test.ts`
+     - `test/providers/AppStateProvider.browser.test.tsx`
+   - Key functions/components:
+     - `setStickerCollectedState(currentState, pageId, stickerId, nextCollected)`
+     - provider action such as `setStickerCollected(...)`
+   - Implementation details:
+     - Keep `toggleStickerCollectionState()` for the manual sticker grid.
+     - Add a new explicit setter for scanner actions so repeated scans stay idempotent.
+     - Setter should:
+       - add when `nextCollected === true` and missing,
+       - no-op when already collected,
+       - remove when `nextCollected === false` and present,
+       - no-op when already missing.
+     - Wire `AppStateProvider` to expose the explicit setter beside `toggleCollected`, using the same storage error handling and in-memory state update pattern.
+     - Popup actions must call the explicit setter, never the toggle API.
+   - Correctness checkpoint:
+     - Service tests cover add / remove / no-op add / no-op remove.
+     - Provider tests prove scanner write path updates context state without breaking current album toggle behavior.
+   - Rollback / mitigation:
+     - If provider API surface starts to sprawl, keep only one thin explicit setter added beside the existing toggle. Do not replace all current collection callers.
+
+7. Execute `STR-61` — review modal with correction + delete flow.
+   - Files to create:
+     - `src/components/scanner/ScannerReviewModal.tsx`
+     - `src/components/scanner/ScannerReviewModal.module.css`
+     - `test/components/scanner/ScannerReviewModal.browser.test.tsx`
+   - Key functions/components:
+     - `ScannerReviewModal`
+     - modal-local correction form + re-lookup path
+   - Implementation details:
+     - Reuse the `ThemeSheet` / `LocaleSwitcher` portal, backdrop-dismiss, Escape-close, and close-button interaction contract.
+     - Keep v1 scope intentionally narrow:
+       - one current pending scan record,
+       - one manual code input,
+       - one delete/discard action,
+       - one save/apply action after successful re-parse + re-lookup.
+     - Show raw OCR text so users understand what was recognized.
+     - Validate only supported formats in the modal; invalid input must not write to collection or dismiss the modal silently.
+     - When user deletes/discards the pending scan, close modal, clear popup state, and resume scanning after debounce.
+   - Correctness checkpoint:
+     - Browser tests cover:
+       - editing a spacing variant into a valid canonical code,
+       - rejecting invalid corrected input,
+       - deleting the pending scan,
+       - resuming scan loop on close.
+   - Rollback / mitigation:
+     - If review scope grows toward session history, hold the line at one pending item for this epic. Defer batch review/history until a later task explicitly asks for it.
+
+8. Execute `STR-66` — route + navigation.
+   - Files to create/modify:
+     - `src/routes/scanner.tsx`
+     - `src/routeTree.gen.ts` (generated only)
+     - `src/components/home/HomeHeader.tsx`
+     - `src/components/home/HomeHeader.module.css`
+     - `src/components/album-viewer/AlbumPageHeader.tsx`
+     - `src/components/album-viewer/AlbumPageHeader.module.css`
+     - `test/routes/scanner.test.tsx`
+     - `test/components/home/HomeScreen.browser.test.tsx`
+     - `test/components/album-viewer/AlbumPageHeader.browser.test.tsx`
+   - Key functions/components:
+     - `/scanner` route
+     - header scan entry button(s)
+   - Implementation details:
+     - Add a dedicated scanner route at `/scanner`.
+     - Regenerate `src/routeTree.gen.ts`; never hand-edit it.
+     - Add a right-side scan/camera entry button to `HomeHeader` and `AlbumPageHeader` instead of repurposing `AppShell.nav`.
+     - Button click should navigate to `/scanner`.
+     - Scanner back button should return to prior route when history exists; otherwise navigate to `/`.
+     - Keep share/menu/quick-navigation behavior intact on existing screens.
+   - Correctness checkpoint:
+     - Route tests verify route contract.
+     - Browser tests verify header entry buttons render and navigate from both Home and Album contexts.
+   - Rollback / mitigation:
+     - If header spacing regresses, keep the route and temporarily ship the entry from Home only while Album header layout is corrected. Do not introduce a new bottom nav bar as a workaround.
+
+9. Execute `STR-65` — scanner i18n.
+   - Files to modify:
+     - `src/locales/en/translation.json`
+     - `src/locales/pt-BR/translation.json`
+     - `src/locales/es/translation.json`
+     - `test/i18n/translation-resources.test.ts`
+   - Key translation groups to add:
+     - `scanner.entry.*`
+     - `scanner.idle.*`
+     - `scanner.permission.*`
+     - `scanner.unsupported.*`
+     - `scanner.viewfinder.*`
+     - `scanner.popup.*`
+     - `scanner.review.*`
+     - `scanner.errors.*`
+   - Implementation details:
+     - Expand the existing `scanner` namespace instead of creating a separate namespace.
+     - Keep exact key-tree parity across all three locales.
+     - Prefer reusing existing shared copy only where semantics truly match; do not overload unrelated PWA/theme/drawer strings.
+   - Correctness checkpoint:
+     - Translation parity test passes and scanner UI contains no production hardcoded strings outside tests.
+
+10. Execute `STR-63` — feature flag + lazy-loading optimization.
+
+- Files to create/modify:
+  - `src/config/features.ts`
+  - `src/routes/scanner.tsx`
+  - `src/components/home/HomeHeader.tsx`
+  - `src/components/album-viewer/AlbumPageHeader.tsx`
+  - `test/config/features.test.ts` or `test/services/features.test.ts`
+- Key functions/components:
+  - `FEATURE_FLAGS.scanner`
+  - route/button guard logic
+- Implementation details:
+  - Create one explicit config file for feature flags; avoid scattered `import.meta.env` checks across components.
+  - Recommended default:
+    - production -> scanner disabled until rollout approval,
+    - test/dev -> enabled via explicit env/config override.
+  - Hide header entry buttons when flag is off.
+  - Guard `/scanner` so direct navigation when flag is off redirects home or returns not-found behavior intentionally; choose one and keep it consistent.
+  - Ensure `scanner-ocr-service.ts` remains the **only** Tesseract import site and continues to load OCR dynamically.
+  - Validate build output to confirm OCR code splits into a separate chunk instead of joining the home/album entry bundle.
+- Correctness checkpoint:
+  - Flag-off build shows no visible scanner entry.
+  - Visiting `/` and `/album/...` does not preload Tesseract.
+  - Enabled build still scans correctly.
+- Rollback / mitigation:
+  - If route gating and lazy loading interfere, preserve dynamic OCR import first and land route visibility gating separately. Do not regress scanner correctness for enabled environments.
+
+11. Execute `STR-64` — tests, regression sweep, and device QA.
+
+- Files to modify/create:
+  - `playwright.config.ts`
+  - `e2e/scanner-flow.test.ts`
+  - `e2e/scanner-permission.test.ts`
+  - optional `e2e/helpers/scanner-mocks.ts`
+  - all unit/browser tests listed in prior steps
+- Testing strategy:
+  - Unit tests:
+    - parser normalization and candidate generation,
+    - lookup-cache build/rebuild,
+    - explicit collection set semantics,
+    - feature-flag resolution.
+  - Browser tests:
+    - scanner screen state changes,
+    - permission denied / unsupported fallback,
+    - popup branching,
+    - review modal correction/delete,
+    - header navigation entry rendering.
+  - E2E tests:
+    - use fake / mocked camera input instead of real hardware,
+    - mock OCR output deterministically for flow assertions,
+    - verify permission-allow and permission-deny flows,
+    - verify route open/back behavior.
+  - Manual mobile smoke:
+    - iPhone Safari / PWA mode,
+    - Android Chrome on Samsung,
+    - Android Chrome on OnePlus.
+- Implementation details:
+  - Keep fake camera automation Chromium-first; real cross-browser camera automation is fragile.
+  - If repeated scanner E2E setup becomes noisy, add one shared helper for permission + media mocks instead of duplicating inline browser setup.
+  - Re-run regression coverage for existing flows likely touched by scanner entry/header/provider changes:
+    - Home header,
+    - Album header,
+    - collection service,
+    - translation parity,
+    - route generation.
+  - Final QA gate:
+    - `pnpm typecheck`
+    - `pnpm test`
+    - focused scanner E2E
+    - `pnpm complete-check`
+- Correctness checkpoint:
+  - Scanner automation is deterministic without depending on live OCR or live camera hardware.
+  - Existing Home/Album flows stay green after header/provider changes.
+- Rollback / mitigation:
+  - If camera/OCR E2E becomes flaky, keep E2E focused on permission/navigation/popup wiring and push OCR exactness down to unit/browser tests. Do not weaken deterministic parser/lookup coverage.
+
+## Validation
+
+- Success criteria:
+  - Plan file exists at `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/docs/plan/Plan STR-30 EP8: Scanner Implementation.md`.
+  - `STR-57` is complete when scanner camera startup is user-triggered, rear-camera preference is attempted safely, OCR attempts run no faster than once per 2 seconds, and supported sticker formats parse deterministically.
+  - `STR-58` is complete when sticker lookup is built from `albumPages`, cached in IndexedDB, versioned, and resolves canonical page/sticker metadata without a second dataset.
+  - `STR-59` + `STR-62` are complete when `/scanner` renders idle, active, denied, and unsupported states correctly and the per-scan popup shows `has` / `missing` status with actionable controls.
+  - `STR-60` is complete when scanner writes are explicit and idempotent, never accidental toggles.
+  - `STR-61` is complete when users can correct OCR spacing/hyphen issues manually or discard the pending scan safely.
+  - `STR-66` is complete when Home and Album headers expose scanner entry points and `/scanner` back navigation returns users safely.
+  - `STR-65` is complete when the expanded `scanner` key tree is aligned across `en`, `pt-BR`, and `es`.
+  - `STR-63` is complete when feature-flag-disabled builds hide scanner entry points and Tesseract stays in a lazy chunk not loaded by home/album routes.
+  - `STR-64` is complete when unit, browser, and fake-camera E2E coverage are green and manual smoke on iPhone + Samsung + OnePlus validates real mobile behavior.
+- Checkpoints:
+  - Pre-implementation assumptions check:
+    - Confirm S6a is treated as idle/pre-permission structure, not literal shipping “coming soon” copy.
+    - Confirm feature flag default-off policy for production rollout.
+    - Confirm review modal is intentionally single-pending-scan scope for this epic.
+  - During-implementation correctness checks:
+    - After `STR-57`, scan attempts are debounced at 2 seconds and do not begin before Start is tapped.
+    - After `STR-58`, lookup reads only from the IndexedDB-cached `albumPages`-derived index.
+    - After `STR-60`, no scanner action uses the toggle API.
+    - After `STR-66`, header entry buttons navigate cleanly without an `AppShell` navigation rewrite.
+    - After `STR-63`, build output proves OCR code splitting and disabled builds hide scanner affordances.
+  - Post-implementation verification and regression checks:
+    - Permission denial and unsupported-camera states show translated retry/fallback guidance.
+    - Repeated scans of a sticker already marked `have` do not flip state unless the user explicitly chooses `missing`.
+    - Manual correction can salvage supported format spacing/hyphen variance without enabling risky fuzzy matches.
+    - Existing Home, Album, collection, and translation tests remain green.
+    - `pnpm complete-check` passes.

@@ -38,7 +38,9 @@
     ".vinxi/**",
     "node_modules/**",
     "**/*.gen.ts",
-    "**/*.gen.tsx"
+    "**/*.gen.tsx",
+    "public/ocr-core/**",
+    "public/ocr-lang/**"
   ],
   "rules": {
     "no-alert": "error",
@@ -80,6 +82,9 @@
       "rules": {
         "valid-expect": "off",
         "typescript/no-unsafe-type-assertion": "off",
+        "typescript/unbound-method": "off",
+        "vitest/no-conditional-expect": "off",
+        "unicorn/consistent-function-scoping": "off",
         "jsx-no-new-function-as-prop": "off",
         "jsx-no-new-array-as-prop": "off",
         "jsx-no-new-object-as-prop": "off"

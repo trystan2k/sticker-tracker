@@ -172,7 +172,52 @@
   },
   "scanner": {
     "title": "Scanner",
-    "empty": "Tela do scanner em breve."
+    "back": "Voltar",
+    "finish": "Finalizar escaneamento",
+    "viewfinder": "Visor da câmera",
+    "badge": "Preparado",
+    "idleTitle": "Escaneie suas figurinhas",
+    "idleDescription": "Aponte a câmera para o código da figurinha e mantenha o cartão dentro do quadro.",
+    "start": "Iniciar scanner",
+    "requestingPermission": "Solicitando permissão da câmera...",
+    "requestingPermissionShort": "Carregando...",
+    "scanning": "Escaneando...",
+    "readyToScan": "Aponte a câmera para o código da figurinha.",
+    "scanError": "Não foi possível ler o quadro da câmera.",
+    "lastRead": "Última leitura: {{text}}",
+    "permissionDeniedBadge": "Permissão necessária",
+    "permissionDeniedTitle": "Acesso à câmera bloqueado",
+    "permissionDeniedDescription": "Ative a permissão da câmera nas configurações do navegador e tente novamente.",
+    "tryAgain": "Tentar novamente",
+    "unsupportedBadge": "Dispositivo não suportado",
+    "unsupportedTitle": "Câmera indisponível",
+    "unsupportedDescription": "Este dispositivo ou navegador não suporta captura de câmera.",
+    "backToAlbum": "Voltar",
+    "popup": {
+      "title": "Resultado do scan",
+      "close": "Fechar resultado do scan",
+      "stickerNumber": "Figurinha {{stickerNumber}}",
+      "alreadyHave": "Já tenho",
+      "missing": "Faltando!",
+      "ok": "OK"
+    },
+    "review": {
+      "title": "Revisar figurinhas escaneadas",
+      "close": "Fechar modal de revisão",
+      "description": "Corrija erros de OCR, remova itens e confirme as figurinhas coletadas.",
+      "stickerLabel": "Código da figurinha",
+      "rawText": "OCR leu: {{text}}",
+      "invalidFormat": "Formato inválido. Use código como BRA-12, 00 ou CC1.",
+      "unknownSticker": "Código da figurinha não encontrado no álbum.",
+      "delete": "Excluir",
+      "duplicatesFiltered": "Códigos de figurinha duplicados detectados. {{count}} duplicata(s) serão ignoradas na confirmação.",
+      "empty": "Nenhuma figurinha restante nesta sessão. Cancele para descartar a sessão.",
+      "cancel": "Cancelar sessão",
+      "confirming": "Confirmando...",
+      "confirm": "Confirmar como coletadas",
+      "saveError": "Falha ao salvar figurinhas. Tente novamente.",
+      "success": "Figurinhas marcadas como coletadas com sucesso."
+    }
   },
   "notFound": {
     "heading": "Página não encontrada",
@@ -236,7 +281,7 @@
     }
   },
   "drawer": {
-    "share": "Compartilhar",
+    "share": "Compartilhar Faltantes",
     "language": "Idioma",
     "theme": "Tema",
     "delete_data": "Excluir dados",
