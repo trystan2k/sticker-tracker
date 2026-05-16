@@ -1628,6 +1628,66 @@ describe('ScannerScreen browser', () => {
         cleanup(mounted);
       }
     });
+
+    it('does not immediately reopen popup for same sticker after closing', async () => {
+      let nowMs = 1_000;
+      vi.spyOn(Date, 'now').mockImplementation(() => nowMs);
+
+      recognizeFromVideoMock.mockResolvedValue('BRA-01');
+      lookupStickerMock.mockResolvedValue({
+        state: 'matched',
+        stickerId: asStickerIdentifier('BRA-01'),
+        pageId: asPageId('bra'),
+        pageType: 'team',
+        translationKey: 'pages.bra',
+        albumCode: null,
+        group: null,
+        flagCode: 'br',
+        hasSticker: false,
+        missingSticker: true
+      });
+
+      const mounted = mountWithProviders(React.createElement(ScannerScreen));
+
+      try {
+        await waitFor(() => mounted.container.querySelector('button') !== null);
+
+        const startButton = Array.from(mounted.container.querySelectorAll('button')).find(
+          (btn) => !btn.getAttribute('aria-label')
+        ) as HTMLButtonElement;
+
+        startButton.click();
+        await Promise.resolve();
+
+        await waitFor(() => mounted.container.querySelector('video') !== null);
+        makeScannerVideoReady(mounted.container);
+
+        await waitFor(() => {
+          const dialogs = document.body.querySelectorAll('[role="dialog"]');
+          return Array.from(dialogs).some((dialog) => dialog.textContent?.includes('BRA-01'));
+        });
+
+        nowMs = 7_000;
+
+        const okButton = Array.from(document.body.querySelectorAll('button')).find(
+          (btn) => btn.textContent?.trim() === 'OK'
+        ) as HTMLButtonElement;
+
+        expect(okButton).not.toBeNull();
+        okButton.click();
+
+        await delay(120);
+
+        const dialogsAfterClose = Array.from(document.body.querySelectorAll('[role="dialog"]'));
+        const scanPopupReopened = dialogsAfterClose.some((dialog) =>
+          dialog.textContent?.includes('BRA-01')
+        );
+
+        expect(scanPopupReopened).toBe(false);
+      } finally {
+        cleanup(mounted);
+      }
+    });
   });
 
   describe('cleanup on unmount', () => {

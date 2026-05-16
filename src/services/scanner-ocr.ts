@@ -388,6 +388,18 @@ type OcrPassResult = Readonly<{
   score: number;
 }>;
 
+function isStickerShapedText(text: string): boolean {
+  const normalizedText = text.trim().toUpperCase();
+
+  if (!normalizedText) {
+    return false;
+  }
+
+  return /(?:^|\s)([A-Z]{3}[\s-]?\d{1,3}|CC[\s-]?\d{1,2}|FWC[\s-]?(00|0?[1-9]|1[0-9])|00)(?=$|\s)/.test(
+    normalizedText
+  );
+}
+
 function scoreRecognizedText(text: string): number {
   const trimmed = text.trim().toUpperCase();
 
@@ -462,14 +474,14 @@ export async function recognizeFromVideo(
   const topRightMildPass = await runOcrPass(worker, topRightMildCanvas);
   const topRightBestPass = getBestPass([topRightRawPass, topRightMildPass]);
 
-  if (topRightBestPass.score >= 8) {
+  if (topRightBestPass.score >= 8 && isStickerShapedText(topRightBestPass.text)) {
     return topRightBestPass.text;
   }
 
   const headerPasses = await runPrimaryHeaderPasses(worker, baseCanvas);
   const headerBestPass = getBestPass(headerPasses);
 
-  if (headerBestPass.score >= 10) {
+  if (headerBestPass.score >= 10 && isStickerShapedText(headerBestPass.text)) {
     return headerBestPass.text;
   }
 

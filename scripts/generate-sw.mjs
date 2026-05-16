@@ -18,7 +18,7 @@ generateSW({
   globDirectory: 'dist/client',
   globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2,wasm,gz}'],
   maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
-  globIgnores: ['sw.js', 'server/**'],
+  globIgnores: ['sw.js', 'server/**', 'ocr-core/**', 'ocr-lang/**'],
   swDest: 'dist/client/sw.js',
   navigateFallback: '/index.html',
   runtimeCaching: [
@@ -28,6 +28,22 @@ generateSW({
       options: {
         cacheName: 'static-assets-v1',
         expiration: { maxEntries: 200, maxAgeSeconds: 30 * 24 * 60 * 60 }
+      }
+    },
+    {
+      urlPattern: /^\/ocr-core\//i,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'ocr-core-v1',
+        expiration: { maxEntries: 32, maxAgeSeconds: 365 * 24 * 60 * 60 }
+      }
+    },
+    {
+      urlPattern: /^\/ocr-lang\//i,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'ocr-lang-v1',
+        expiration: { maxEntries: 16, maxAgeSeconds: 365 * 24 * 60 * 60 }
       }
     },
     {

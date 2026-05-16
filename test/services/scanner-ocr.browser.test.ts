@@ -229,6 +229,18 @@ describe('scanner-ocr', () => {
       expect(callCount).toBeGreaterThanOrEqual(2);
     });
 
+    it('does not early-return on numeric-only OCR text', async () => {
+      workerRecognizeMock
+        .mockResolvedValueOnce({ data: { text: '2026' } })
+        .mockResolvedValueOnce({ data: { text: '2026' } })
+        .mockResolvedValueOnce({ data: { text: 'BRA-1' } });
+
+      const result = await recognizeFromVideo(mockVideo);
+
+      expect(result).toBe('BRA-1');
+      expect(workerRecognizeMock.mock.calls.length).toBeGreaterThanOrEqual(3);
+    });
+
     it('falls back to header passes when top-right score is low', async () => {
       // First calls return low-score text, later call returns high-score
       workerRecognizeMock

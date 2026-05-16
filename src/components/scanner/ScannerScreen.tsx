@@ -413,9 +413,16 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
   }, [closeReviewModalAndResetToIdle]);
 
   const handleCloseScanResultPopup = useCallback(() => {
+    if (scanResultPopup) {
+      lastDetectedRef.current = {
+        stickerNumber: scanResultPopup.stickerNumber,
+        detectedAt: Date.now()
+      };
+    }
+
     popupOpenRef.current = false;
     setScanResultPopup(null);
-  }, []);
+  }, [scanResultPopup]);
 
   useEffect(() => {
     if (state !== 'active' || popupOpenRef.current || scanResultPopup !== null) {

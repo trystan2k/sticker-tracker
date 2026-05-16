@@ -142,7 +142,7 @@
 .viewfinderRegion {
   position: relative;
   min-height: 100dvh;
-  background: #000;
+  background: var(--color-bg-canvas);
 }
 
 .video {
