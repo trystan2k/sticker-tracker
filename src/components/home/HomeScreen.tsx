@@ -85,6 +85,17 @@ export function HomeScreen() {
     });
   }, [appState, navigate]);
 
+  const handleOpenScanner = useCallback(() => {
+    const originPathname = typeof window === 'undefined' ? '/' : window.location.pathname;
+
+    void navigate({
+      to: '/scanner',
+      search: {
+        origin: originPathname
+      }
+    });
+  }, [navigate]);
+
   const handleCloseLocaleSwitcher = useCallback(() => {
     setIsLocaleSwitcherOpen(false);
   }, []);
@@ -160,6 +171,7 @@ export function HomeScreen() {
         onOpenThemeSwitcher={handleOpenThemeSheet}
         onOpenDeleteConfirm={handleOpenDeleteConfirm}
         onOpenShare={handleOpenShare}
+        onOpenScanner={handleOpenScanner}
         currentLocale={appState.locale}
       />
       <LocaleSwitcher isOpen={isLocaleSwitcherOpen} onClose={handleCloseLocaleSwitcher} />

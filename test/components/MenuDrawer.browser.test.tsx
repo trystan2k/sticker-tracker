@@ -274,6 +274,61 @@ describe('MenuDrawer', () => {
     }
   });
 
+  it('renders scanner entry as second row after share', async () => {
+    const mounted = mount(
+      React.createElement(MenuDrawer, {
+        isOpen: true,
+        onClose: () => {},
+        onOpenLocaleSwitcher: () => {},
+        onOpenScanner: () => {},
+        currentLocale: 'en'
+      })
+    );
+
+    try {
+      await waitFor(() => document.body.textContent?.includes('Scanner') ?? false);
+
+      const rowLabels = Array.from(document.body.querySelectorAll('[class*="rowLabel"]')).map(
+        (node) => node.textContent?.trim()
+      );
+
+      const shareIndex = rowLabels.findIndex((label) => label?.includes('Share') ?? false);
+      const scannerIndex = rowLabels.findIndex((label) => label === 'Scanner');
+
+      expect(shareIndex).toBeGreaterThanOrEqual(0);
+      expect(scannerIndex).toBe(shareIndex + 1);
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('calls onOpenScanner when scanner row clicked', async () => {
+    const onOpenScanner = vi.fn<() => void>();
+
+    const mounted = mount(
+      React.createElement(MenuDrawer, {
+        isOpen: true,
+        onClose: () => {},
+        onOpenLocaleSwitcher: () => {},
+        onOpenScanner,
+        currentLocale: 'en'
+      })
+    );
+
+    try {
+      await waitFor(() => document.body.textContent?.includes('Scanner') ?? false);
+
+      const scannerButton = Array.from(document.body.querySelectorAll('button')).find(
+        (button) => button.textContent?.trim() === 'Scanner'
+      );
+
+      scannerButton?.click();
+      expect(onOpenScanner).toHaveBeenCalledTimes(1);
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
   it('does not render when initially closed', () => {
     const mounted = mount(
       React.createElement(MenuDrawer, {
@@ -393,6 +448,58 @@ describe('MenuDrawer', () => {
 
       const flag = document.body.querySelector('.fi-us');
       expect(flag).not.toBeNull();
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('calls onOpenThemeSwitcher when theme row clicked', async () => {
+    const onOpenThemeSwitcher = vi.fn<() => void>();
+
+    const mounted = mount(
+      React.createElement(MenuDrawer, {
+        isOpen: true,
+        onClose: () => {},
+        onOpenLocaleSwitcher: () => {},
+        onOpenThemeSwitcher,
+        currentLocale: 'en'
+      })
+    );
+
+    try {
+      await waitFor(() => document.body.textContent?.includes('Theme') ?? false);
+
+      const themeButton = Array.from(document.body.querySelectorAll('button')).find(
+        (button) => button.textContent?.includes('Theme') ?? false
+      );
+      themeButton?.click();
+      expect(onOpenThemeSwitcher).toHaveBeenCalledTimes(1);
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('calls onOpenDeleteConfirm when delete row clicked', async () => {
+    const onOpenDeleteConfirm = vi.fn<() => void>();
+
+    const mounted = mount(
+      React.createElement(MenuDrawer, {
+        isOpen: true,
+        onClose: () => {},
+        onOpenLocaleSwitcher: () => {},
+        onOpenDeleteConfirm,
+        currentLocale: 'en'
+      })
+    );
+
+    try {
+      await waitFor(() => document.body.textContent?.includes('Delete') ?? false);
+
+      const deleteButton = Array.from(document.body.querySelectorAll('button')).find(
+        (button) => button.textContent?.includes('Delete') ?? false
+      );
+      deleteButton?.click();
+      expect(onOpenDeleteConfirm).toHaveBeenCalledTimes(1);
     } finally {
       cleanup(mounted);
     }

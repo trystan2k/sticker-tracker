@@ -1,9 +1,7 @@
-import { Camera, Menu } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { useCallback } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
-
-import { FEATURE_FLAGS } from '@/config/features';
 
 import styles from './HomeHeader.module.css';
 
@@ -15,20 +13,9 @@ export function HomeHeader({ onMenuClick }: HomeHeaderProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const originPathname = typeof window === 'undefined' ? '/' : window.location.pathname;
-
   const handleNavigateHome = useCallback(() => {
     void navigate({ to: '/' });
   }, [navigate]);
-
-  const handleNavigateToScanner = useCallback(() => {
-    void navigate({
-      to: '/scanner',
-      search: {
-        origin: originPathname
-      }
-    });
-  }, [navigate, originPathname]);
 
   return (
     <header className={styles.header} aria-label={t('home.header.ariaLabel')}>
@@ -50,16 +37,7 @@ export function HomeHeader({ onMenuClick }: HomeHeaderProps) {
         <span className={styles.title}>{t('home.header.title')}</span>
       </button>
 
-      {FEATURE_FLAGS.scannerEnabled && (
-        <button
-          type="button"
-          className={styles.actionButton}
-          onClick={handleNavigateToScanner}
-          aria-label={t('scanner.title')}
-        >
-          <Camera size={22} aria-hidden="true" />
-        </button>
-      )}
+      <div className={styles.actionButton} aria-hidden="true" />
     </header>
   );
 }

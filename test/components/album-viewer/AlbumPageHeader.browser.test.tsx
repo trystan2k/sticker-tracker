@@ -215,6 +215,25 @@ describe('AlbumPageHeader', () => {
     }
   });
 
+  it('does not render scanner button in header', async () => {
+    const mounted = mountWithRouter(
+      React.createElement(AlbumPageHeader, {
+        page: teamPage,
+        onOpenQuickNavigation: () => {},
+        onOpenShare: () => {}
+      })
+    );
+
+    try {
+      await waitFor(() => mounted.container.querySelector('header') !== null);
+
+      const scannerButton = mounted.container.querySelector('[aria-label="Scanner"]');
+      expect(scannerButton).toBeNull();
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
   it('passes onOpenShare to MenuDrawer', async () => {
     const mounted = mountWithRouter(
       React.createElement(AlbumPageHeader, {

@@ -8,7 +8,6 @@ import { createRoot, type Root } from 'react-dom/client';
 import '@/i18n/config';
 
 import { HomeHeader } from '@/components/home/HomeHeader';
-import { FEATURE_FLAGS } from '@/config/features';
 
 const navigateMock = vi.fn<() => Promise<void>>().mockReturnValue(Promise.resolve());
 
@@ -75,8 +74,7 @@ describe('HomeHeader', () => {
       expect(header).not.toBeNull();
 
       const buttons = mounted.container.querySelectorAll('button');
-      const expectedButtons = FEATURE_FLAGS.scannerEnabled ? 3 : 2;
-      expect(buttons.length).toBe(expectedButtons);
+      expect(buttons.length).toBe(2);
     } finally {
       cleanup(mounted);
     }
@@ -147,6 +145,19 @@ describe('HomeHeader', () => {
       const buttons = mounted.container.querySelectorAll('header button');
       const menuButton = buttons[0] as HTMLButtonElement;
       expect(menuButton?.getAttribute('aria-label')).toBeDefined();
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('does not render scanner button in header', async () => {
+    const mounted = mount(React.createElement(HomeHeader, { onMenuClick: () => {} }));
+
+    try {
+      await waitFor(() => mounted.container.querySelector('header') !== null);
+
+      const scannerButton = mounted.container.querySelector('[aria-label="Scanner"]');
+      expect(scannerButton).toBeNull();
     } finally {
       cleanup(mounted);
     }

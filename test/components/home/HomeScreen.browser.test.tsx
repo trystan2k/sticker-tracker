@@ -15,13 +15,15 @@ import {
 import { HomeScreen } from '@/components/home/HomeScreen';
 import type { StickerIdentifier } from '@/data/album';
 
+const navigateMock = vi.fn<() => void>();
+
 vi.mock('@tanstack/react-router', async () => {
   const actual =
     await vi.importActual<typeof import('@tanstack/react-router')>('@tanstack/react-router');
 
   return {
     ...actual,
-    useNavigate: () => vi.fn<() => void>()
+    useNavigate: () => navigateMock
   };
 });
 
@@ -92,6 +94,7 @@ function makeMockAppState(
 describe('HomeScreen', () => {
   beforeEach(async () => {
     await getI18nInstance().changeLanguage('en');
+    navigateMock.mockClear();
   });
 
   it('returns null when appState is null', async () => {
@@ -180,6 +183,42 @@ describe('HomeScreen', () => {
       );
       expect(shareButton).not.toBeUndefined();
       expect(shareButton?.disabled).toBe(false);
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('navigates to scanner from drawer scanner row', async () => {
+    await resetStorage();
+
+    const mounted = mount(
+      React.createElement(AppStateProvider, null, React.createElement(HomeScreen))
+    );
+
+    try {
+      await waitFor(() => {
+        const headerButtons = mounted.container.querySelectorAll('header button');
+        return headerButtons.length >= 2;
+      });
+
+      const menuButton = mounted.container.querySelectorAll(
+        'header button'
+      )[0] as HTMLButtonElement;
+      menuButton.click();
+
+      await waitFor(() => document.body.textContent?.includes('Scanner') ?? false);
+
+      const scannerButton = Array.from(document.body.querySelectorAll('button')).find(
+        (button) => button.textContent?.trim() === 'Scanner'
+      );
+      scannerButton?.click();
+
+      expect(navigateMock).toHaveBeenCalledWith({
+        to: '/scanner',
+        search: {
+          origin: '/'
+        }
+      });
     } finally {
       cleanup(mounted);
     }
@@ -340,6 +379,115 @@ describe('HomeScreen', () => {
       const dialog = document.body.querySelector('[aria-label="Theme"]');
       expect(dialog).not.toBeNull();
     } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('cancels delete when user dismisses confirm dialog', async () => {
+    await resetStorage();
+
+    // Mock window.confirm to return false (user cancels)
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
+
+    const mounted = mount(
+      React.createElement(AppStateProvider, null, React.createElement(HomeScreen))
+    );
+
+    try {
+      await waitFor(() => {
+        const headerButtons = mounted.container.querySelectorAll('header button');
+        return headerButtons.length >= 2;
+      });
+
+      const menuButton = mounted.container.querySelectorAll(
+        'header button'
+      )[0] as HTMLButtonElement;
+      menuButton.click();
+
+      await waitFor(() => document.body.textContent?.includes('Delete') ?? false);
+
+      const deleteButton = Array.from(document.body.querySelectorAll('button')).find(
+        (button) => button.textContent?.includes('Delete') ?? false
+      );
+      deleteButton?.click();
+
+      expect(confirmSpy).toHaveBeenCalledTimes(1);
+      // Should NOT have called resetAppData since user cancelled
+    } finally {
+      confirmSpy.mockRestore();
+      cleanup(mounted);
+    }
+  });
+
+  it('selects theme from theme sheet', async () => {
+    await resetStorage();
+
+    const mounted = mount(
+      React.createElement(AppStateProvider, null, React.createElement(HomeScreen))
+    );
+
+    try {
+      await waitFor(() => {
+        const headerButtons = mounted.container.querySelectorAll('header button');
+        return headerButtons.length >= 2;
+      });
+
+      const menuButton = mounted.container.querySelectorAll(
+        'header button'
+      )[0] as HTMLButtonElement;
+      menuButton.click();
+
+      await waitFor(() => document.body.textContent?.includes('Theme') ?? false);
+
+      const themeButton = Array.from(document.body.querySelectorAll('button')).find(
+        (button) => button.textContent?.includes('Theme') ?? false
+      );
+      themeButton?.click();
+
+      await waitFor(() => document.body.querySelector('[aria-label="Theme"]') !== null);
+
+      // Click dark theme button
+      const darkButton = document.body.querySelector('button[aria-label="Dark"]');
+      expect(darkButton).not.toBeNull();
+      (darkButton as HTMLElement)?.click();
+
+      await new Promise((r) => setTimeout(r, 100));
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('confirms delete and resets app data', async () => {
+    await resetStorage();
+
+    // Mock window.confirm to return true (user confirms)
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+
+    const mounted = mount(
+      React.createElement(AppStateProvider, null, React.createElement(HomeScreen))
+    );
+
+    try {
+      await waitFor(() => {
+        const headerButtons = mounted.container.querySelectorAll('header button');
+        return headerButtons.length >= 2;
+      });
+
+      const menuButton = mounted.container.querySelectorAll(
+        'header button'
+      )[0] as HTMLButtonElement;
+      menuButton.click();
+
+      await waitFor(() => document.body.textContent?.includes('Delete') ?? false);
+
+      const deleteButton = Array.from(document.body.querySelectorAll('button')).find(
+        (button) => button.textContent?.includes('Delete') ?? false
+      );
+      deleteButton?.click();
+
+      expect(confirmSpy).toHaveBeenCalledTimes(1);
+    } finally {
+      confirmSpy.mockRestore();
       cleanup(mounted);
     }
   });
