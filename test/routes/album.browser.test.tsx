@@ -157,4 +157,29 @@ describe('album route', () => {
       cleanup(mounted);
     }
   });
+
+  it('AlbumLayout renders Outlet', async () => {
+    await resetStorage();
+
+    const mounted = mountWithRouter(
+      React.createElement(
+        AppStateProvider,
+        null,
+        React.createElement('div', { 'data-testid': 'album-child' }, 'Album Content')
+      )
+    );
+
+    try {
+      await waitFor(() => {
+        const child = document.body.querySelector('[data-testid="album-child"]');
+        return child !== null;
+      });
+
+      const child = document.body.querySelector('[data-testid="album-child"]');
+      expect(child).not.toBeNull();
+      expect(child?.textContent).toBe('Album Content');
+    } finally {
+      cleanup(mounted);
+    }
+  });
 });

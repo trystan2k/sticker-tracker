@@ -1,0 +1,186 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-index-xxl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: var(--color-overlay-backdrop);
+}
+
+.modal {
+  position: relative;
+  z-index: var(--z-index-xxl);
+  width: min(100%, calc(var(--space-2) * 36));
+  max-height: calc(100dvh - (var(--space-4) * 2));
+  overflow-y: auto;
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--surface-album-secondary);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--color-text-primary) 24%, transparent);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--typography-family-heading);
+  font-size: var(--typography-size-xl);
+  font-weight: var(--typography-weight-bold);
+}
+
+.iconButton {
+  min-height: var(--size-touch-min);
+  min-width: var(--size-touch-min);
+  border: none;
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--color-text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.description {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.itemRow {
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.inputLabel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.inputLabelText {
+  font-size: var(--typography-size-sm);
+  font-weight: var(--typography-weight-semibold);
+}
+
+.input {
+  min-height: var(--size-touch-min);
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0 var(--space-3);
+  font-family: var(--typography-family-body);
+  font-size: var(--typography-size-base);
+  color: var(--color-text-primary);
+  background: var(--surface-album-primary);
+}
+
+.inputInvalid {
+  border-color: var(--color-brand-sponsor-coca-cola);
+}
+
+.rawText {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--typography-size-sm);
+}
+
+.errorText {
+  margin: 0;
+  color: var(--color-brand-sponsor-coca-cola);
+  font-size: var(--typography-size-sm);
+}
+
+.deleteButton {
+  align-self: flex-start;
+  min-height: var(--size-touch-min);
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 0 var(--space-3);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: color-mix(
+    in srgb,
+    var(--color-brand-sponsor-coca-cola) 16%,
+    var(--surface-album-secondary)
+  );
+  color: var(--color-brand-sponsor-coca-cola);
+  font-weight: var(--typography-weight-semibold);
+  cursor: pointer;
+}
+
+.helperText {
+  margin: 0;
+  font-size: var(--typography-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.secondaryButton,
+.primaryButton {
+  flex: 1;
+  min-height: var(--size-touch-min);
+  border-radius: var(--radius-pill);
+  font-weight: var(--typography-weight-bold);
+  cursor: pointer;
+}
+
+.secondaryButton {
+  border: var(--border-width-default) solid var(--color-border-subtle);
+  background: var(--surface-album-primary);
+  color: var(--color-text-primary);
+}
+
+.primaryButton {
+  border: none;
+  background: var(--color-brand-primary);
+  color: var(--color-text-on-brand);
+}
+
+.primaryButton:disabled {
+  opacity: var(--opacity-subtle);
+  cursor: not-allowed;
+}
+
+.backdrop:focus-visible,
+.iconButton:focus-visible,
+.input:focus-visible,
+.deleteButton:focus-visible,
+.secondaryButton:focus-visible,
+.primaryButton:focus-visible {
+  outline: var(--border-width-strong) solid var(--color-brand-primary);
+  outline-offset: var(--border-width-default);
+}

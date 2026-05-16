@@ -1,8 +1,9 @@
-import { Menu } from 'lucide-react';
+import { Camera, Menu } from 'lucide-react';
 import { useCallback, useContext, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 
+import { FEATURE_FLAGS } from '@/config/features';
 import { LocaleSwitcher } from '@/components/LocaleSwitcher';
 import { MenuDrawer } from '@/components/MenuDrawer';
 import { ThemeSheet } from '@/components/ThemeSheet';
@@ -57,6 +58,10 @@ export function AlbumPageHeader({
 
   const handleNavigateHome = useCallback((): void => {
     void navigate({ to: '/' });
+  }, [navigate]);
+
+  const handleNavigateToScanner = useCallback((): void => {
+    void navigate({ to: '/scanner' });
   }, [navigate]);
 
   const handleOpenDeleteConfirm = useCallback(async (): Promise<void> => {
@@ -128,6 +133,17 @@ export function AlbumPageHeader({
         >
           <div className={styles.center}>{centerContent}</div>
         </button>
+
+        {FEATURE_FLAGS.scannerEnabled && (
+          <button
+            type="button"
+            className={styles.menuButton}
+            onClick={handleNavigateToScanner}
+            aria-label={t('scanner.title')}
+          >
+            <Camera size={24} aria-hidden="true" />
+          </button>
+        )}
       </header>
 
       <MenuDrawer

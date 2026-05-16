@@ -10,11 +10,30 @@ import type { PageId, StickerIdentifier } from '@/data/album';
 
 const DEFAULT_DATABASE_NAME = 'sticker-tracker-app-storage';
 let databaseName = DEFAULT_DATABASE_NAME;
-const DATABASE_VERSION = 1;
-const STORE_NAME = 'app-storage';
+export const APP_STORAGE_DATABASE_VERSION = 1;
+export const APP_STORAGE_STORE_NAME = 'app-storage';
 const UNRECOVERABLE_FAILURE_THRESHOLD = 2;
 
-type AppStorageKey = 'collection' | 'locale' | 'theme';
+export function getDatabaseNameForStorage(): string {
+  return databaseName;
+}
+
+export type PersistedScannerLookupEntry = {
+  stickerId: StickerIdentifier;
+  pageId: PageId;
+  pageType: 'team' | 'special' | 'legend' | 'stadium' | 'group' | 'final' | 'memorable' | 'retro';
+  translationKey: string;
+  albumCode: string | null;
+  group: string | null;
+  flagCode: string | null;
+};
+
+export type PersistedScannerLookup = {
+  version: number;
+  entries: Record<string, PersistedScannerLookupEntry>;
+};
+
+type AppStorageKey = 'collection' | 'locale' | 'theme' | 'scannerLookup';
 
 type OpenDatabaseFunction = (
   name: string,
@@ -35,6 +54,7 @@ type AppStorageValueByKey = {
   collection: PersistedCollection;
   locale: string;
   theme: string;
+  scannerLookup: PersistedScannerLookup;
 };
 
 type AppStorageEntry = {
@@ -45,7 +65,7 @@ type AppStorageEntry = {
 }[AppStorageKey];
 
 interface AppStorageDatabaseSchema extends DBSchema {
-  [STORE_NAME]: {
+  [APP_STORAGE_STORE_NAME]: {
     key: AppStorageKey;
     value: AppStorageEntry;
   };
@@ -116,10 +136,10 @@ async function getDatabase(): Promise<IDBPDatabase<AppStorageDatabaseSchema> | n
     return database;
   }
 
-  database = await storageDriver.openDatabase(databaseName, DATABASE_VERSION, {
+  database = await storageDriver.openDatabase(databaseName, APP_STORAGE_DATABASE_VERSION, {
     upgrade(upgradingDatabase) {
-      if (!upgradingDatabase.objectStoreNames.contains(STORE_NAME)) {
-        upgradingDatabase.createObjectStore(STORE_NAME, {
+      if (!upgradingDatabase.objectStoreNames.contains(APP_STORAGE_STORE_NAME)) {
+        upgradingDatabase.createObjectStore(APP_STORAGE_STORE_NAME, {
           keyPath: 'key'
         });
       }
@@ -202,7 +222,7 @@ export async function read<Key extends AppStorageKey>(key: Key): Promise<Storage
       };
     }
 
-    const entry = await db.get(STORE_NAME, key);
+    const entry = await db.get(APP_STORAGE_STORE_NAME, key);
     readFailureCount = 0;
 
     if (!entry) {
@@ -236,7 +256,7 @@ export async function write<Key extends AppStorageKey>(
     }
 
     // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-    await db.put(STORE_NAME, {
+    await db.put(APP_STORAGE_STORE_NAME, {
       key,
       value
     } as AppStorageEntry);
