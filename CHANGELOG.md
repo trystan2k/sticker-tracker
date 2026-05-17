@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.14.0](https://github.com/trystan2k/sticker-tracker/compare/v1.13.0...v1.14.0) (2026-05-17)
+
+
+### Features
+
+* clean up CSS and add responsive sticker grid ([b6485db](https://github.com/trystan2k/sticker-tracker/commit/b6485db3a1232e73769f4c368ef9ac156c03bdaf))
+* **share-preview:** add better share render options and split refs ([546790a](https://github.com/trystan2k/sticker-tracker/commit/546790a91d54c2496da6151543c9fbab4d97d372))
+
 ## [1.13.0](https://github.com/trystan2k/sticker-tracker/compare/v1.12.0...v1.13.0) (2026-05-16)
 
 
