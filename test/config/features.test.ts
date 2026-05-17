@@ -11,8 +11,8 @@ describe('resolveScannerEnabled', () => {
     expect(resolveScannerEnabled({ VITE_SCANNER_ENABLED: 'false', PROD: false })).toBe(false);
   });
 
-  it('defaults to false in production without override', () => {
-    expect(resolveScannerEnabled({ PROD: true })).toBe(false);
+  it('defaults to true in production without override', () => {
+    expect(resolveScannerEnabled({ PROD: true })).toBe(true);
   });
 
   it('defaults to true in non-production without override', () => {
