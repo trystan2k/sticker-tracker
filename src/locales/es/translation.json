@@ -5,6 +5,16 @@
     "success": "Cambio de idioma guardado. Recarga para confirmar.",
     "currentLanguage": "Idioma actual: {{locale}}"
   },
+  "analytics": {
+    "consent": {
+      "bannerAriaLabel": "Consentimiento de analítica",
+      "title": "¿Permitir analítica?",
+      "body": "Usamos herramientas de analítica para medir colección de stickers y flujos de compartir. No inicia analítica hasta que elijas.",
+      "accept": "Permitir",
+      "decline": "Rechazar",
+      "saving": "Guardando..."
+    }
+  },
   "storage": {
     "loading": "Cargando estado de la aplicación...",
     "error": "Almacenamiento no disponible. La aplicación no puede continuar.",

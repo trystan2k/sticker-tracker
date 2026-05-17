@@ -5,6 +5,16 @@
     "success": "Locale switch persisted. Reload to confirm.",
     "currentLanguage": "Current language: {{locale}}"
   },
+  "analytics": {
+    "consent": {
+      "bannerAriaLabel": "Analytics consent",
+      "title": "Allow analytics?",
+      "body": "We use analytics tools to measure sticker collection and sharing flows. No analytics starts until you choose.",
+      "accept": "Allow",
+      "decline": "Decline",
+      "saving": "Saving..."
+    }
+  },
   "storage": {
     "loading": "Loading app state...",
     "error": "Storage unavailable. App cannot continue.",

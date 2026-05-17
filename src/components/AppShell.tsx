@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 
+import { AnalyticsConsentBanner } from '@/components/analytics/AnalyticsConsentBanner';
 import { PwaInstallBanner } from '@/components/pwa/PwaInstallBanner';
 import { PwaUpdateToast } from '@/components/pwa/PwaUpdateToast';
 import { PwaInstallSheet } from '@/components/pwa/PwaInstallSheet';
@@ -20,6 +21,7 @@ export function AppShell({ children }: AppShellProps) {
       <nav className={styles.nav} aria-label="Navigation" />
       <div className={styles.overlay} />
       <div className={styles.toast} aria-live="polite">
+        <AnalyticsConsentBanner />
         <PwaUpdateToast />
         <PwaInstallBanner />
       </div>

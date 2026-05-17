@@ -5,6 +5,16 @@
     "success": "Troca de idioma salva. Recarregue para confirmar.",
     "currentLanguage": "Idioma atual: {{locale}}"
   },
+  "analytics": {
+    "consent": {
+      "bannerAriaLabel": "Consentimento de analítica",
+      "title": "Permitir analítica?",
+      "body": "Usamos ferramentas de analítica para medir coleta de figurinhas e fluxos de compartilhamento. Nenhuma analítica inicia até você escolher.",
+      "accept": "Permitir",
+      "decline": "Recusar",
+      "saving": "Salvando..."
+    }
+  },
   "storage": {
     "loading": "Carregando estado do aplicativo...",
     "error": "Armazenamento indisponível. O app não pode continuar.",

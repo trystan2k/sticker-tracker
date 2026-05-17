@@ -15,6 +15,7 @@ import {
   type ReplaceCollectionResult,
   toggleStickerCollectionState
 } from '@/services/collection-service';
+import { trackAnalyticsEvent } from '@/services/analytics-service';
 import { markStickersAsHave } from '@/services/scanner-collection';
 import type { MarkStickersAsHaveResult } from '@/services/scanner-collection';
 import {
@@ -43,6 +44,10 @@ type AppStateContextValue = Readonly<{
 }>;
 
 const EMPTY_COLLECTION: CollectionState = {};
+
+function countCollectedStickers(collection: CollectionState): number {
+  return Object.values(collection).reduce((total, stickerIds) => total + stickerIds.size, 0);
+}
 
 export const AppStateContext = createContext<AppStateContextValue | null>(null);
 
@@ -187,7 +192,20 @@ export function AppStateProvider({ children }: AppStateProviderProps) {
         return toggleResult;
       }
 
+      const [currentState, pageId, stickerId] = args;
+      const wasCollected = currentState[pageId]?.has(stickerId) ?? false;
+
       setCollection(toggleResult.value);
+
+      if (!wasCollected) {
+        void trackAnalyticsEvent('stickers_marked_collected', {
+          input_method: 'manual',
+          page_id: pageId,
+          sticker_count: 1,
+          sticker_id: stickerId,
+          total_collected_count: countCollectedStickers(toggleResult.value)
+        });
+      }
 
       return toggleResult;
     },
@@ -202,6 +220,16 @@ export function AppStateProvider({ children }: AppStateProviderProps) {
     }
 
     setCollection(result.value);
+
+    if (result.updatedStickerIds.length > 0) {
+      void trackAnalyticsEvent('stickers_marked_collected', {
+        input_method: 'scanner',
+        sticker_count: result.updatedStickerIds.length,
+        sticker_ids: result.updatedStickerIds,
+        total_collected_count: countCollectedStickers(result.value)
+      });
+    }
+
     return result;
   }, []);
 

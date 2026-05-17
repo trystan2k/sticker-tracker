@@ -86,3 +86,47 @@ Whenever you need to install a new npm dependency, use the rules defined in .npm
 ## Session Name
 
 After the session is created in Opencode, append the `Sticker Tracker` prefix to the session name.
+
+## Analytics Tracking
+
+This project uses **Mixpanel** for product analytics. Do not add another analytics SDK without explicit user approval.
+
+### Mixpanel Setup
+
+| Detail               | Value                             |
+| -------------------- | --------------------------------- |
+| **Platform**         | React 19 + TanStack Start web SPA |
+| **Mixpanel SDK**     | `mixpanel-browser`                |
+| **SDK version**      | `~2.78.0`                         |
+| **Tracking method**  | client-side                       |
+| **CDP**              | none                              |
+| **Consent required** | yes                               |
+
+### Initialization
+
+- Initialize Mixpanel only through `src/services/analytics-service.ts`
+- Consent state stored in `src/services/analytics-consent.ts`
+- Consent banner rendered from `src/components/analytics/AnalyticsConsentBanner.tsx`
+- Do not import `mixpanel-browser` directly inside feature components
+- Do not initialize Mixpanel before consent is granted
+
+### Identity
+
+- App currently has no authenticated users
+- Keep Mixpanel anonymous for now
+- If auth is added later: wire `identify()` after confirmed login/signup and `reset()` on logout before adding authenticated tracking
+
+### Tracked Events
+
+| Event                       | Trigger                                                                   | Key properties                                                                                     | File                                 |
+| --------------------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| `stickers_marked_collected` | User marks stickers as collected manually or through scanner confirmation | `input_method`, `sticker_count`, `sticker_id` or `sticker_ids`, `page_id`, `total_collected_count` | `src/providers/AppStateProvider.tsx` |
+| `share_preview_generated`   | User opens share preview with at least one selected page                  | `selected_page_count`, `total_missing_sticker_count`, `selection_source_path`                      | `src/routes/share/preview.tsx`       |
+
+### Rules
+
+- Event names: `snake_case`
+- Property names: `snake_case`
+- No PII in Mixpanel properties
+- Track after successful state change, not on intent-only click, when practical
+- Update this file when adding or changing Mixpanel events
