@@ -8,6 +8,11 @@ import type { SharePreviewPayload } from '@/components/share/share-state';
 
 import styles from './SharePreviewScreen.module.css';
 
+const SHARE_RENDER_OPTIONS = {
+  preferredScale: 3,
+  maxPixelWidth: 6144
+} as const;
+
 type SharePreviewScreenProps = Readonly<{
   payload: SharePreviewPayload;
   onBack: () => void;
@@ -18,22 +23,43 @@ export function SharePreviewScreen({ payload, onBack }: SharePreviewScreenProps)
   const [isBusy, setIsBusy] = useState(false);
   const [status, setStatus] = useState('');
   const prevPayloadRef = useRef(payload);
-  const renderPromiseRef = useRef<Promise<Awaited<ReturnType<typeof renderSharePng>>> | null>(null);
+  const downloadRenderPromiseRef = useRef<Promise<
+    Awaited<ReturnType<typeof renderSharePng>>
+  > | null>(null);
+  const shareRenderPromiseRef = useRef<Promise<Awaited<ReturnType<typeof renderSharePng>>> | null>(
+    null
+  );
 
   if (prevPayloadRef.current !== payload) {
     prevPayloadRef.current = payload;
-    renderPromiseRef.current = null;
+    downloadRenderPromiseRef.current = null;
+    shareRenderPromiseRef.current = null;
   }
 
-  const getAsset = useCallback(() => {
-    if (!renderPromiseRef.current) {
-      renderPromiseRef.current = renderSharePng(payload, t).catch((err) => {
-        renderPromiseRef.current = null;
+  const getDownloadAsset = useCallback(() => {
+    if (!downloadRenderPromiseRef.current) {
+      downloadRenderPromiseRef.current = renderSharePng(payload, t).catch((err) => {
+        downloadRenderPromiseRef.current = null;
         throw err;
       });
     }
 
-    return renderPromiseRef.current;
+    return downloadRenderPromiseRef.current;
+  }, [payload, t]);
+
+  const getShareAsset = useCallback(() => {
+    if (!shareRenderPromiseRef.current) {
+      // Messaging apps often recompress images shared through Web Share.
+      // Render a larger source PNG so text stays sharper after that step.
+      shareRenderPromiseRef.current = renderSharePng(payload, t, SHARE_RENDER_OPTIONS).catch(
+        (err) => {
+          shareRenderPromiseRef.current = null;
+          throw err;
+        }
+      );
+    }
+
+    return shareRenderPromiseRef.current;
   }, [payload, t]);
 
   const downloadAsset = useCallback(
@@ -42,7 +68,7 @@ export function SharePreviewScreen({ payload, onBack }: SharePreviewScreenProps)
         setStatus(t('share.preview.downloading'));
       }
 
-      const asset = await getAsset();
+      const asset = await getDownloadAsset();
       const objectUrl = URL.createObjectURL(asset.blob);
       const link = document.createElement('a');
       link.href = objectUrl;
@@ -52,7 +78,7 @@ export function SharePreviewScreen({ payload, onBack }: SharePreviewScreenProps)
       document.body.removeChild(link);
       setTimeout(() => URL.revokeObjectURL(objectUrl), 100);
     },
-    [getAsset, t]
+    [getDownloadAsset, t]
   );
 
   const handleDownload = useCallback(async () => {
@@ -73,7 +99,7 @@ export function SharePreviewScreen({ payload, onBack }: SharePreviewScreenProps)
     setStatus(t('share.preview.sharing'));
 
     try {
-      const asset = await getAsset();
+      const asset = await getShareAsset();
       const file = new File([asset.blob], asset.fileName, { type: 'image/png' });
 
       if (navigator.canShare?.({ files: [file] })) {
@@ -97,7 +123,7 @@ export function SharePreviewScreen({ payload, onBack }: SharePreviewScreenProps)
     } finally {
       setIsBusy(false);
     }
-  }, [downloadAsset, getAsset, t]);
+  }, [downloadAsset, getShareAsset, t]);
 
   return (
     <main className={styles.screen}>
