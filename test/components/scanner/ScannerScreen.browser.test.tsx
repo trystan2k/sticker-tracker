@@ -67,6 +67,7 @@ vi.mock('@/services/scanner-lookup', () => ({
       entries: {
         'BRA-12': {},
         'BRA-1': {},
+        '3': {},
         CC1: {},
         '00': {}
       }
@@ -1155,6 +1156,74 @@ describe('ScannerScreen browser', () => {
         cleanup(mounted);
       }
     });
+
+    it('keeps FWC prefix visible and confirms canonical special sticker id', async () => {
+      recognizeFromVideoMock.mockResolvedValue('FWC 3');
+      lookupStickerMock.mockResolvedValue({
+        state: 'matched',
+        stickerId: asStickerIdentifier('3'),
+        pageId: asPageId('fwc-opening'),
+        pageType: 'special',
+        translationKey: 'special.fwc-opening',
+        albumCode: null,
+        group: null,
+        flagCode: null,
+        hasSticker: false,
+        missingSticker: true
+      });
+
+      const mounted = mountWithProviders(React.createElement(ScannerScreen));
+
+      try {
+        await waitFor(() => mounted.container.querySelector('button') !== null);
+
+        const startButton = Array.from(mounted.container.querySelectorAll('button')).find(
+          (btn) => !btn.getAttribute('aria-label')
+        ) as HTMLButtonElement;
+
+        startButton.click();
+        await Promise.resolve();
+
+        await waitFor(() => mounted.container.querySelector('video') !== null);
+        makeScannerVideoReady(mounted.container);
+        await delay(60);
+
+        expect(document.body.textContent).toContain('FWC 3');
+        expect(document.body.textContent).not.toContain('Sticker 3');
+
+        const popupOkButton = Array.from(document.body.querySelectorAll('button')).find(
+          (btn) => btn.textContent?.trim() === 'OK'
+        ) as HTMLButtonElement;
+        expect(popupOkButton).not.toBeNull();
+        popupOkButton.click();
+
+        await delay(30);
+
+        const finishButton = Array.from(mounted.container.querySelectorAll('button')).find((btn) =>
+          btn.textContent?.includes('Finish')
+        ) as HTMLButtonElement;
+        expect(finishButton).not.toBeNull();
+        finishButton.click();
+
+        await waitFor(
+          () => document.body.querySelector('[data-testid="scanner-review-modal"]') !== null,
+          3000
+        );
+
+        expect(document.body.textContent).toContain('FWC 3');
+
+        const confirmButton = Array.from(document.body.querySelectorAll('button')).find((btn) =>
+          btn.textContent?.includes('Confirm')
+        ) as HTMLButtonElement;
+        expect(confirmButton).not.toBeNull();
+        confirmButton.click();
+        await delay(30);
+
+        expect(mockAppState.markScannedStickersAsHave).toHaveBeenCalledWith(['3']);
+      } finally {
+        cleanup(mounted);
+      }
+    });
   });
 
   describe('ScanResultPopup integration', () => {
@@ -1215,6 +1284,45 @@ describe('ScannerScreen browser', () => {
         expect(popup?.textContent).toContain('BRA-01');
         expect(popup?.textContent).toContain('Missing');
         expect(playScannerSuccessBeepMock).toHaveBeenCalledTimes(1);
+      } finally {
+        cleanup(mounted);
+      }
+    });
+
+    it('popup keeps FWC prefix for special stickers', async () => {
+      recognizeFromVideoMock.mockResolvedValue('FWC 3');
+      lookupStickerMock.mockResolvedValue({
+        state: 'matched',
+        stickerId: asStickerIdentifier('3'),
+        pageId: asPageId('fwc-opening'),
+        pageType: 'special',
+        translationKey: 'special.fwc-opening',
+        albumCode: null,
+        group: null,
+        flagCode: null,
+        hasSticker: false,
+        missingSticker: true
+      });
+
+      const mounted = mountWithProviders(React.createElement(ScannerScreen));
+
+      try {
+        await waitFor(() => mounted.container.querySelector('button') !== null);
+
+        const startButton = Array.from(mounted.container.querySelectorAll('button')).find(
+          (btn) => !btn.getAttribute('aria-label')
+        ) as HTMLButtonElement;
+
+        startButton.click();
+        await Promise.resolve();
+
+        await waitFor(() => mounted.container.querySelector('video') !== null);
+        makeScannerVideoReady(mounted.container);
+
+        await waitFor(() => document.body.textContent?.includes('FWC 3') ?? false);
+
+        expect(document.body.textContent).toContain('FWC 3');
+        expect(document.body.textContent).not.toContain('Sticker 3');
       } finally {
         cleanup(mounted);
       }

@@ -20,6 +20,14 @@ import styles from './ScannerScreen.module.css';
 
 type ScannerState = 'idle' | 'active' | 'denied' | 'unsupported';
 
+function formatScannerStickerLabel(stickerId: string): string {
+  if (/^[1-9]\d?$/.test(stickerId)) {
+    return `FWC ${stickerId}`;
+  }
+
+  return stickerId;
+}
+
 function isPermissionCameraError(error: unknown): boolean {
   return (
     error instanceof DOMException &&
@@ -74,7 +82,8 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
   const [lastScanText, setLastScanText] = useState<string | null>(null);
   const [scanError, setScanError] = useState<string | null>(null);
   const [scanResultPopup, setScanResultPopup] = useState<{
-    stickerNumber: string;
+    rawStickerId: string;
+    displayStickerNumber: string;
     hasSticker: boolean;
   } | null>(null);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
@@ -189,7 +198,7 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
                   {
                     id: `scan-${reviewItemIdRef.current++}`,
                     rawText: normalizedText,
-                    stickerNumber: lookupResult.stickerId
+                    stickerNumber: formatScannerStickerLabel(lookupResult.stickerId)
                   }
                 ];
               });
@@ -198,7 +207,8 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
             popupOpenRef.current = true;
             void playScannerSuccessBeep();
             setScanResultPopup({
-              stickerNumber: lookupResult.stickerId,
+              rawStickerId: lookupResult.stickerId,
+              displayStickerNumber: formatScannerStickerLabel(lookupResult.stickerId),
               hasSticker: lookupResult.hasSticker
             });
           }
@@ -418,7 +428,7 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
   const handleCloseScanResultPopup = useCallback(() => {
     if (scanResultPopup) {
       lastDetectedRef.current = {
-        stickerNumber: scanResultPopup.stickerNumber,
+        stickerNumber: scanResultPopup.rawStickerId,
         detectedAt: Date.now()
       };
     }
@@ -533,7 +543,7 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
 
         <ScanResultPopup
           isOpen={scanResultPopup !== null}
-          stickerNumber={scanResultPopup?.stickerNumber ?? ''}
+          stickerNumber={scanResultPopup?.displayStickerNumber ?? ''}
           hasSticker={scanResultPopup?.hasSticker ?? false}
           onClose={handleCloseScanResultPopup}
         />
