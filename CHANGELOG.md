@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.19.0](https://github.com/trystan2k/sticker-tracker/compare/v1.18.0...v1.19.0) (2026-05-17)
+
+
+### Features
+
+* **analytics:** add consent and event tracking ([17eb821](https://github.com/trystan2k/sticker-tracker/commit/17eb821b51ee645744dcab231a42f49bb73edd81))
+
+
+### Bug Fixes
+
+* improve consent and storage consistency ([b2c7478](https://github.com/trystan2k/sticker-tracker/commit/b2c74788da609020ee99ab174a40348634df925a))
+
 ## [1.18.0](https://github.com/trystan2k/sticker-tracker/compare/v1.17.0...v1.18.0) (2026-05-17)
 
 
