@@ -1,5 +1,4 @@
 import {
-  deleteDB as deleteDatabase,
   openDB as openDatabase,
   type DBSchema,
   type IDBPDatabase,
@@ -41,11 +40,9 @@ type OpenDatabaseFunction = (
   callbacks?: OpenDBCallbacks<AppStorageDatabaseSchema>
 ) => Promise<IDBPDatabase<AppStorageDatabaseSchema>>;
 
-type DeleteDatabaseFunction = (name: string, callbacks?: { blocked?: () => void }) => Promise<void>;
-
 type StorageDriver = {
   openDatabase: OpenDatabaseFunction;
-  deleteDatabase: DeleteDatabaseFunction;
+  deleteDatabase?: (name: string, callbacks?: { blocked?: () => void }) => Promise<void>;
 };
 
 export type PersistedCollection = Readonly<Record<PageId, readonly StickerIdentifier[]>>;
@@ -96,9 +93,7 @@ let openFailureCount = 0;
 let readFailureCount = 0;
 
 const defaultStorageDriver: StorageDriver = {
-  openDatabase,
-  deleteDatabase: (name, callbacks) =>
-    deleteDatabase(name, callbacks?.blocked ? { blocked: callbacks.blocked } : undefined)
+  openDatabase
 };
 
 let storageDriver: StorageDriver = defaultStorageDriver;
@@ -275,17 +270,13 @@ export async function resetAllData(): Promise<ResetAllDataResult> {
   }
 
   try {
-    if (database !== null) {
-      database.close();
-      database = null;
+    const db = await getDatabase();
+
+    if (db === null) {
+      return unavailableResult();
     }
 
-    await storageDriver.deleteDatabase(databaseName, {
-      blocked() {
-        database?.close();
-        database = null;
-      }
-    });
+    await db.clear(APP_STORAGE_STORE_NAME);
 
     openFailureCount = 0;
     readFailureCount = 0;

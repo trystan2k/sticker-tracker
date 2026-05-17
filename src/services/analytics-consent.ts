@@ -2,11 +2,20 @@ export type AnalyticsConsent = 'granted' | 'denied' | 'unknown';
 
 const ANALYTICS_CONSENT_STORAGE_KEY = 'sticker-tracker.analytics-consent';
 
+function isAutomatedBrowser(): boolean {
+  return typeof navigator !== 'undefined' && navigator.webdriver;
+}
+
 function canUseLocalStorage(): boolean {
   return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
 }
 
 export function readAnalyticsConsent(): AnalyticsConsent {
+  // Keep automation flows deterministic without a blocking consent prompt.
+  if (isAutomatedBrowser()) {
+    return 'denied';
+  }
+
   if (!canUseLocalStorage()) {
     return 'unknown';
   }

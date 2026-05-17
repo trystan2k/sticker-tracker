@@ -61,6 +61,10 @@ test.describe('Delete App Data', () => {
       page.getByRole('button', { name: /FIFA World Cup|Copa Mundial/ }).first()
     ).toBeVisible({ timeout: 10000 });
 
+    // WebKit can lag one navigation behind after IndexedDB reset in long full-suite runs.
+    // Reload before the final assertion so we verify persisted state, not stale in-memory state.
+    await page.reload();
+
     // Verify data was cleared - navigate to album and check sticker is uncollected
     await page.goto('/album/fwc-opening');
     await page.waitForSelector('div[class*="grid"] button[aria-pressed]', { timeout: 10000 });

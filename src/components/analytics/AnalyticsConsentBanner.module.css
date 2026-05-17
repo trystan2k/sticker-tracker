@@ -52,7 +52,7 @@
 .primaryAction {
   border: none;
   background-color: var(--color-brand-primary);
-  color: var(--color-text-inverse);
+  color: var(--color-palette-forest-1000);
 }
 
 .secondaryAction {
