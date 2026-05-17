@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.17.0](https://github.com/trystan2k/sticker-tracker/compare/v1.16.0...v1.17.0) (2026-05-17)
+
+
+### Features
+
+* **scanner:** add success beep and clean up styles ([7700b73](https://github.com/trystan2k/sticker-tracker/commit/7700b732997bb9b0feddc8dc69b8a7efa71e6530))
+
+
+### Bug Fixes
+
+* **pwa-registration:** reload pwa immediate updates only after controllerchange ([469d3e1](https://github.com/trystan2k/sticker-tracker/commit/469d3e1223ddf80a35c3438797027771527c2be6))
+
 ## [1.16.0](https://github.com/trystan2k/sticker-tracker/compare/v1.15.0...v1.16.0) (2026-05-17)
 
 
