@@ -3,14 +3,20 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { useCallback, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { BackupRestoreSheet } from '@/components/BackupRestoreSheet';
 import { LocaleSwitcher } from '@/components/LocaleSwitcher';
 import { MenuDrawer } from '@/components/MenuDrawer';
 import { ThemeSheet } from '@/components/ThemeSheet';
 import { HomeHeader } from '@/components/home/HomeHeader';
 import { AppStateContext } from '@/providers/AppStateProvider';
+import type { CollectionState } from '@/services/collection-service';
+import type { SupportedLocale } from '@/services/locale-service';
 import type { ThemeValue } from '@/services/theme-service';
 
 import styles from './NotFoundPage.module.css';
+
+const EMPTY_COLLECTION: CollectionState = {};
+const unavailableRestoreCollection = async () => ({ state: 'unavailable' as const });
 
 export function NotFoundPage() {
   const appState = useContext(AppStateContext);
@@ -19,6 +25,8 @@ export function NotFoundPage() {
   const [isMenuDrawerOpen, setIsMenuDrawerOpen] = useState(false);
   const [isLocaleSwitcherOpen, setIsLocaleSwitcherOpen] = useState(false);
   const [isThemeSheetOpen, setIsThemeSheetOpen] = useState(false);
+  const [isBackupRestoreSheetOpen, setIsBackupRestoreSheetOpen] = useState(false);
+  const collection = appState?.collection ?? EMPTY_COLLECTION;
 
   const handleOpenMenuDrawer = useCallback(() => {
     setIsMenuDrawerOpen(true);
@@ -44,6 +52,14 @@ export function NotFoundPage() {
     setIsThemeSheetOpen(false);
   }, []);
 
+  const handleOpenBackupRestore = useCallback(() => {
+    setIsBackupRestoreSheetOpen(true);
+  }, []);
+
+  const handleCloseBackupRestoreSheet = useCallback(() => {
+    setIsBackupRestoreSheetOpen(false);
+  }, []);
+
   const handleOpenDeleteConfirm = useCallback(async () => {
     // oxlint-disable-next-line no-alert
     const isConfirmed = window.confirm(
@@ -65,6 +81,20 @@ export function NotFoundPage() {
       }
 
       void appState.setTheme(theme);
+    },
+    [appState]
+  );
+
+  const handleRestoreLocale = useCallback(
+    async (locale: SupportedLocale) => {
+      await appState?.setLocale(locale);
+    },
+    [appState]
+  );
+
+  const handleRestoreTheme = useCallback(
+    async (theme: ThemeValue) => {
+      await appState?.setTheme(theme);
     },
     [appState]
   );
@@ -104,6 +134,7 @@ export function NotFoundPage() {
         onClose={handleCloseMenuDrawer}
         onOpenLocaleSwitcher={handleOpenLocaleSwitcher}
         onOpenThemeSwitcher={handleOpenThemeSheet}
+        onOpenBackupRestore={handleOpenBackupRestore}
         onOpenDeleteConfirm={handleOpenDeleteConfirm}
         onOpenScanner={handleOpenScanner}
         currentLocale={i18n.resolvedLanguage ?? i18n.language}
@@ -114,6 +145,16 @@ export function NotFoundPage() {
         onClose={handleCloseThemeSheet}
         currentTheme={appState?.theme ?? 'system'}
         onSelectTheme={handleSelectTheme}
+      />
+      <BackupRestoreSheet
+        isOpen={isBackupRestoreSheetOpen}
+        onClose={handleCloseBackupRestoreSheet}
+        collection={collection}
+        locale={appState?.locale ?? 'en'}
+        theme={appState?.theme ?? 'system'}
+        onRestoreCollection={appState?.restoreCollection ?? unavailableRestoreCollection}
+        onRestoreLocale={handleRestoreLocale}
+        onRestoreTheme={handleRestoreTheme}
       />
     </main>
   );

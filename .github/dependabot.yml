@@ -15,7 +15,8 @@ updates:
     assignees:
       - 'trystan2k'
     commit-message:
-      prefix: 'chore'
+      prefix: 'feat(deps)'
+      prefix-development: 'chore(deps)'
     groups:
       prod-dependencies:
         dependency-type: 'production'

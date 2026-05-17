@@ -102,8 +102,7 @@
 
 .teamTile {
   position: relative;
-  height: calc(var(--space-2) * 12.5);
-  width: calc(var(--space-2) * 20);
+  aspect-ratio: 1.6;
   border: none;
   border-radius: var(--radius-md);
   overflow: hidden;

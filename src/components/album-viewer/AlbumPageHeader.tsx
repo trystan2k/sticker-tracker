@@ -3,11 +3,14 @@ import { useCallback, useContext, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 
+import { BackupRestoreSheet } from '@/components/BackupRestoreSheet';
 import { LocaleSwitcher } from '@/components/LocaleSwitcher';
 import { MenuDrawer } from '@/components/MenuDrawer';
 import { ThemeSheet } from '@/components/ThemeSheet';
 import type { AlbumPage } from '@/data/album';
 import { AppStateContext } from '@/providers/AppStateProvider';
+import type { CollectionState } from '@/services/collection-service';
+import type { SupportedLocale } from '@/services/locale-service';
 import type { ThemeValue } from '@/services/theme-service';
 
 import styles from './AlbumPageHeader.module.css';
@@ -17,6 +20,9 @@ type AlbumPageHeaderProps = Readonly<{
   onOpenQuickNavigation: () => void;
   onOpenShare?: (() => void) | undefined;
 }>;
+
+const EMPTY_COLLECTION: CollectionState = {};
+const unavailableRestoreCollection = async () => ({ state: 'unavailable' as const });
 
 export function AlbumPageHeader({
   page,
@@ -31,6 +37,8 @@ export function AlbumPageHeader({
   const [isMenuDrawerOpen, setIsMenuDrawerOpen] = useState(false);
   const [isLocaleModalOpen, setIsLocaleModalOpen] = useState(false);
   const [isThemeSheetOpen, setIsThemeSheetOpen] = useState(false);
+  const [isBackupRestoreSheetOpen, setIsBackupRestoreSheetOpen] = useState(false);
+  const collection = appState?.collection ?? EMPTY_COLLECTION;
 
   const handleOpenMenuDrawer = useCallback((): void => {
     setIsMenuDrawerOpen(true);
@@ -55,6 +63,14 @@ export function AlbumPageHeader({
 
   const handleCloseThemeSheet = useCallback((): void => {
     setIsThemeSheetOpen(false);
+  }, []);
+
+  const handleOpenBackupRestore = useCallback((): void => {
+    setIsBackupRestoreSheetOpen(true);
+  }, []);
+
+  const handleCloseBackupRestoreSheet = useCallback((): void => {
+    setIsBackupRestoreSheetOpen(false);
   }, []);
 
   const handleNavigateHome = useCallback((): void => {
@@ -91,6 +107,20 @@ export function AlbumPageHeader({
       }
 
       void appState.setTheme(theme);
+    },
+    [appState]
+  );
+
+  const handleRestoreLocale = useCallback(
+    async (locale: SupportedLocale) => {
+      await appState?.setLocale(locale);
+    },
+    [appState]
+  );
+
+  const handleRestoreTheme = useCallback(
+    async (theme: ThemeValue) => {
+      await appState?.setTheme(theme);
     },
     [appState]
   );
@@ -148,6 +178,7 @@ export function AlbumPageHeader({
         onClose={handleCloseMenuDrawer}
         onOpenLocaleSwitcher={handleOpenLocaleModalFromDrawer}
         onOpenThemeSwitcher={handleOpenThemeSheet}
+        onOpenBackupRestore={handleOpenBackupRestore}
         onOpenDeleteConfirm={handleOpenDeleteConfirm}
         onOpenShare={onOpenShare}
         onOpenScanner={handleNavigateToScanner}
@@ -159,6 +190,16 @@ export function AlbumPageHeader({
         onClose={handleCloseThemeSheet}
         currentTheme={appState?.theme ?? 'system'}
         onSelectTheme={handleSelectTheme}
+      />
+      <BackupRestoreSheet
+        isOpen={isBackupRestoreSheetOpen}
+        onClose={handleCloseBackupRestoreSheet}
+        collection={collection}
+        locale={appState?.locale ?? 'en'}
+        theme={appState?.theme ?? 'system'}
+        onRestoreCollection={appState?.restoreCollection ?? unavailableRestoreCollection}
+        onRestoreLocale={handleRestoreLocale}
+        onRestoreTheme={handleRestoreTheme}
       />
     </>
   );

@@ -16,6 +16,7 @@ interface MenuDrawerProps {
   onOpenThemeSwitcher?: () => void;
   onOpenDeleteConfirm?: () => void;
   onOpenShare?: (() => void) | undefined;
+  onOpenBackupRestore?: (() => void) | undefined;
   onOpenScanner?: (() => void) | undefined;
   currentLocale: string;
 }
@@ -33,6 +34,7 @@ export function MenuDrawer({
   onOpenThemeSwitcher,
   onOpenDeleteConfirm,
   onOpenShare,
+  onOpenBackupRestore,
   onOpenScanner,
   currentLocale
 }: MenuDrawerProps) {
@@ -158,6 +160,16 @@ export function MenuDrawer({
     onOpenDeleteConfirm();
   }, [onClose, onOpenDeleteConfirm]);
 
+  const handleOpenBackupRestore = useCallback(() => {
+    if (!onOpenBackupRestore) {
+      return;
+    }
+
+    triggerRef.current = null;
+    onClose();
+    onOpenBackupRestore();
+  }, [onClose, onOpenBackupRestore]);
+
   const handleOpenScanner = useCallback(() => {
     if (!onOpenScanner) {
       return;
@@ -282,6 +294,18 @@ export function MenuDrawer({
           >
             <Palette size={22} aria-hidden="true" />
             <span className={styles.rowLabel}>{t('drawer.theme')}</span>
+          </button>
+
+          <div className={styles.divider} aria-hidden="true" />
+
+          <button
+            type="button"
+            className={styles.row}
+            disabled={!onOpenBackupRestore}
+            onClick={handleOpenBackupRestore}
+          >
+            <Download size={22} aria-hidden="true" />
+            <span className={styles.rowLabel}>{t('drawer.backup_restore')}</span>
           </button>
 
           <div className={styles.divider} aria-hidden="true" />
