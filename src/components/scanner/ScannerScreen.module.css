@@ -182,12 +182,6 @@
   color: var(--color-brand-sponsor-coca-cola);
 }
 
-.finishButton {
-  border: var(--border-width-default) solid
-    color-mix(in srgb, var(--color-bg-surface) 40%, transparent);
-  background: color-mix(in srgb, var(--color-bg-canvas) 55%, transparent);
-}
-
 .ocrDebugPreview {
   margin: var(--space-3) auto 0;
   width: min(100%, 240px);

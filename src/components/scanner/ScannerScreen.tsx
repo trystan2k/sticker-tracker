@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { FEATURE_FLAGS } from '@/config/features';
 import { AppStateContext } from '@/providers/AppStateProvider';
+import { playScannerSuccessBeep, primeScannerSuccessBeep } from '@/services/scanner-audio';
 import { lookupSticker } from '@/services/scanner-lookup';
 import {
   isVideoFrameUnavailableError,
@@ -195,6 +196,7 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
             }
 
             popupOpenRef.current = true;
+            void playScannerSuccessBeep();
             setScanResultPopup({
               stickerNumber: lookupResult.stickerId,
               hasSticker: lookupResult.hasSticker
@@ -284,6 +286,7 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
   }, []);
 
   const handleStartScanner = useCallback(() => {
+    void primeScannerSuccessBeep();
     void startScanner();
   }, [startScanner]);
 
@@ -480,7 +483,7 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
             <button
               type="button"
               onClick={finishScanning}
-              className={`${styles.iconButton} ${styles.finishButton}`}
+              className={`${styles.iconButton} ${styles.primaryButton}`}
               data-testid="scanner-finish-button"
             >
               <ClipboardCheck size={18} aria-hidden="true" />

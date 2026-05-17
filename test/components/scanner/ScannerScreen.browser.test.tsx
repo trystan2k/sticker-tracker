@@ -9,6 +9,7 @@ import { AppStateContext } from '@/providers/AppStateProvider';
 import type { CollectionState, ToggleStickerResult } from '@/services/collection-service';
 import type { PageId, StickerIdentifier } from '@/data/album';
 import type { MarkStickersAsHaveResult } from '@/services/scanner-collection';
+import { playScannerSuccessBeep, primeScannerSuccessBeep } from '@/services/scanner-audio';
 import { recognizeFromVideo } from '@/services/scanner-ocr';
 import { lookupSticker } from '@/services/scanner-lookup';
 
@@ -72,8 +73,16 @@ vi.mock('@/services/scanner-lookup', () => ({
     })
 }));
 
+vi.mock('@/services/scanner-audio', () => ({
+  playScannerSuccessBeep: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+  primeScannerSuccessBeep: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+  resetScannerAudioForTests: vi.fn<() => void>()
+}));
+
 const recognizeFromVideoMock = vi.mocked(recognizeFromVideo);
 const lookupStickerMock = vi.mocked(lookupSticker);
+const playScannerSuccessBeepMock = vi.mocked(playScannerSuccessBeep);
+const primeScannerSuccessBeepMock = vi.mocked(primeScannerSuccessBeep);
 
 const srcObjectStore = new WeakMap<HTMLMediaElement, MediaStream | null>();
 
@@ -160,6 +169,10 @@ describe('ScannerScreen browser', () => {
     recognizeFromVideoMock.mockReset();
     await getI18nInstance().changeLanguage('en');
     lookupStickerMock.mockReset();
+    playScannerSuccessBeepMock.mockReset();
+    playScannerSuccessBeepMock.mockResolvedValue(undefined);
+    primeScannerSuccessBeepMock.mockReset();
+    primeScannerSuccessBeepMock.mockResolvedValue(undefined);
     mockAppState.markScannedStickersAsHave.mockClear();
 
     // Clear any navigator stubs from previous tests
@@ -591,6 +604,8 @@ describe('ScannerScreen browser', () => {
 
         startButton.click();
         await Promise.resolve();
+
+        expect(primeScannerSuccessBeepMock).toHaveBeenCalledTimes(1);
 
         await waitFor(() => mounted.container.querySelector('video') !== null);
         makeScannerVideoReady(mounted.container);
@@ -1199,6 +1214,7 @@ describe('ScannerScreen browser', () => {
         const popup = Array.from(dialogs).find((d) => d.textContent?.includes('BRA-01'));
         expect(popup?.textContent).toContain('BRA-01');
         expect(popup?.textContent).toContain('Missing');
+        expect(playScannerSuccessBeepMock).toHaveBeenCalledTimes(1);
       } finally {
         cleanup(mounted);
       }
