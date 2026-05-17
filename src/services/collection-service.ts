@@ -26,6 +26,15 @@ export type ToggleStickerResult =
       state: Exclude<StorageState, 'ready'>;
     };
 
+export type ReplaceCollectionResult =
+  | {
+      state: 'ready';
+      value: CollectionState;
+    }
+  | {
+      state: Exclude<StorageState, 'ready'>;
+    };
+
 function createEmptyCollectionState(): CollectionState {
   return {};
 }
@@ -96,5 +105,20 @@ export async function toggleStickerCollectionState(
   return {
     state: 'ready',
     value: nextState
+  };
+}
+
+export async function replacePersistedCollection(
+  persistedCollection: PersistedCollection
+): Promise<ReplaceCollectionResult> {
+  const writeResult = await write('collection', persistedCollection);
+
+  if (writeResult.state !== 'ready') {
+    return { state: writeResult.state };
+  }
+
+  return {
+    state: 'ready',
+    value: hydrateCollectionState(persistedCollection)
   };
 }

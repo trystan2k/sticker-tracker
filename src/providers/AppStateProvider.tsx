@@ -2,10 +2,17 @@ import { createContext, useCallback, useEffect, useMemo, useState, type ReactNod
 import { I18nextProvider } from 'react-i18next';
 
 import { changeLocale, getI18nInstance, initializeI18n } from '@/i18n/config';
-import { initializeStorage, resetAllData, type StorageState } from '@/lib/storage/app-storage';
+import {
+  initializeStorage,
+  resetAllData,
+  type PersistedCollection,
+  type StorageState
+} from '@/lib/storage/app-storage';
 import {
   loadCollectionState,
+  replacePersistedCollection,
   type CollectionState,
+  type ReplaceCollectionResult,
   toggleStickerCollectionState
 } from '@/services/collection-service';
 import { markStickersAsHave } from '@/services/scanner-collection';
@@ -31,6 +38,7 @@ type AppStateContextValue = Readonly<{
   setLocale: (locale: SupportedLocale) => Promise<StorageState>;
   setTheme: (theme: ThemeValue) => Promise<void>;
   toggleCollected: typeof toggleStickerCollectionState;
+  restoreCollection: (persistedCollection: PersistedCollection) => Promise<ReplaceCollectionResult>;
   markScannedStickersAsHave: (stickerIds: readonly string[]) => Promise<MarkStickersAsHaveResult>;
 }>;
 
@@ -197,6 +205,16 @@ export function AppStateProvider({ children }: AppStateProviderProps) {
     return result;
   }, []);
 
+  const restoreCollection = useCallback(async (persistedCollection: PersistedCollection) => {
+    const result = await replacePersistedCollection(persistedCollection);
+
+    if (result.state === 'ready') {
+      setCollection(result.value);
+    }
+
+    return result;
+  }, []);
+
   const contextValue = useMemo<AppStateContextValue>(
     () => ({
       renderState,
@@ -209,6 +227,7 @@ export function AppStateProvider({ children }: AppStateProviderProps) {
       setLocale,
       setTheme,
       toggleCollected,
+      restoreCollection,
       markScannedStickersAsHave
     }),
     [
@@ -222,6 +241,7 @@ export function AppStateProvider({ children }: AppStateProviderProps) {
       setLocale,
       setTheme,
       toggleCollected,
+      restoreCollection,
       markScannedStickersAsHave
     ]
   );

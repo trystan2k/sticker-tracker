@@ -3,12 +3,14 @@ import { useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 
 import { LocaleSwitcher } from '@/components/LocaleSwitcher';
+import { BackupRestoreSheet } from '@/components/BackupRestoreSheet';
 import { MenuDrawer } from '@/components/MenuDrawer';
 import { ThemeSheet } from '@/components/ThemeSheet';
 import { buildInitialShareSelection, encodeShareSelection } from '@/components/share/share-state';
 import { AppStateContext } from '@/providers/AppStateProvider';
 
 import type { CollectionState } from '@/services/collection-service';
+import type { SupportedLocale } from '@/services/locale-service';
 import type { ThemeValue } from '@/services/theme-service';
 
 import { HomeGroupCards } from './HomeGroupCards';
@@ -19,6 +21,7 @@ import { computeGroupsData, computeHomeSummary, computeSpecialPagesData } from '
 import styles from './HomeScreen.module.css';
 
 const EMPTY_COLLECTION: CollectionState = {};
+const unavailableRestoreCollection = async () => ({ state: 'unavailable' as const });
 
 export function HomeScreen() {
   const appState = useContext(AppStateContext);
@@ -27,6 +30,7 @@ export function HomeScreen() {
   const [isMenuDrawerOpen, setIsMenuDrawerOpen] = useState(false);
   const [isLocaleSwitcherOpen, setIsLocaleSwitcherOpen] = useState(false);
   const [isThemeSheetOpen, setIsThemeSheetOpen] = useState(false);
+  const [isBackupRestoreSheetOpen, setIsBackupRestoreSheetOpen] = useState(false);
 
   const collection = appState?.collection ?? EMPTY_COLLECTION;
 
@@ -108,6 +112,14 @@ export function HomeScreen() {
     setIsThemeSheetOpen(false);
   }, []);
 
+  const handleOpenBackupRestore = useCallback(() => {
+    setIsBackupRestoreSheetOpen(true);
+  }, []);
+
+  const handleCloseBackupRestoreSheet = useCallback(() => {
+    setIsBackupRestoreSheetOpen(false);
+  }, []);
+
   const handleOpenDeleteConfirm = useCallback(async () => {
     // oxlint-disable-next-line no-alert
     const isConfirmed = window.confirm(
@@ -125,6 +137,20 @@ export function HomeScreen() {
   const handleSelectTheme = useCallback(
     (theme: ThemeValue) => {
       void appState?.setTheme(theme);
+    },
+    [appState]
+  );
+
+  const handleRestoreLocale = useCallback(
+    async (locale: SupportedLocale) => {
+      await appState?.setLocale(locale);
+    },
+    [appState]
+  );
+
+  const handleRestoreTheme = useCallback(
+    async (theme: ThemeValue) => {
+      await appState?.setTheme(theme);
     },
     [appState]
   );
@@ -169,6 +195,7 @@ export function HomeScreen() {
         onClose={handleCloseMenuDrawer}
         onOpenLocaleSwitcher={handleOpenLocaleSwitcher}
         onOpenThemeSwitcher={handleOpenThemeSheet}
+        onOpenBackupRestore={handleOpenBackupRestore}
         onOpenDeleteConfirm={handleOpenDeleteConfirm}
         onOpenShare={handleOpenShare}
         onOpenScanner={handleOpenScanner}
@@ -180,6 +207,16 @@ export function HomeScreen() {
         onClose={handleCloseThemeSheet}
         currentTheme={appState.theme}
         onSelectTheme={handleSelectTheme}
+      />
+      <BackupRestoreSheet
+        isOpen={isBackupRestoreSheetOpen}
+        onClose={handleCloseBackupRestoreSheet}
+        collection={collection}
+        locale={appState.locale}
+        theme={appState.theme}
+        onRestoreCollection={appState?.restoreCollection ?? unavailableRestoreCollection}
+        onRestoreLocale={handleRestoreLocale}
+        onRestoreTheme={handleRestoreTheme}
       />
     </main>
   );
