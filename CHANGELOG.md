@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.18.0](https://github.com/trystan2k/sticker-tracker/compare/v1.17.0...v1.18.0) (2026-05-17)
+
+
+### Features
+
+* **scanner-screen:** format FWC sticker labels ([79272fb](https://github.com/trystan2k/sticker-tracker/commit/79272fb346bd05b5162312c7fdf0f573905daf66))
+
 ## [1.17.0](https://github.com/trystan2k/sticker-tracker/compare/v1.16.0...v1.17.0) (2026-05-17)
 
 
