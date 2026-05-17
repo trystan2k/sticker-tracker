@@ -144,9 +144,18 @@
   font-family: var(--typography-family-body);
   font-size: var(--typography-size-md);
   font-weight: var(--typography-weight-semibold);
-  color: var(--color-text-primary);
+  color: var(--color-palette-forest-700);
 }
 
+:global(html[data-theme='dark'] [class*='localeMeta']) {
+  color: var(--color-palette-cream-50);
+}
+
+@media (prefers-color-scheme: dark) {
+  :global(html:not([data-theme]) [class*='localeMeta']) {
+    color: var(--color-palette-cream-50);
+  }
+}
 
 .flag {
   width: var(--size-icon-lg);

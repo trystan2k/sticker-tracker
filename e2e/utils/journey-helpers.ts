@@ -1,6 +1,6 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 
-export const menuButtonPattern = /Open menu|Abrir menú|Abrir menu/;
+const menuButtonPattern = /Open menu|Abrir menú|Abrir menu/;
 
 export async function waitForMainContent(page: Page): Promise<void> {
   await page.waitForSelector('main', { timeout: 10000 });

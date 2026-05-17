@@ -24,7 +24,7 @@
 
 .missing {
   background-color: var(--surface-sticker-missing-bg);
-  color: var(--surface-sticker-missing-text);
+  color: var(--color-text-secondary);
   border: var(--border-width-medium) solid var(--surface-sticker-missing-border);
 }
 
@@ -46,6 +46,10 @@
 
 .collected .number {
   font-weight: var(--typography-weight-bold);
+}
+
+.missing .code {
+  opacity: 1;
 }
 
 .missing .number {

@@ -76,7 +76,10 @@ test.describe('home progress journeys', () => {
     await page.goto('/');
     await waitForMainContent(page);
 
-    await page.getByRole('button', { name: /Mexico|México|MEX/i }).first().click();
+    await page
+      .getByRole('button', { name: /Mexico|México|MEX/i })
+      .first()
+      .click();
 
     await expect(page).toHaveURL(/\/album\/[A-Z]\/[a-z-]+$/);
     await expect(page.getByRole('button', { name: /COPA 26/ })).toBeVisible();
@@ -86,7 +89,9 @@ test.describe('home progress journeys', () => {
     await page.goto('/album/A/mex');
 
     const pageProgressbar = page.getByRole('progressbar');
-    const beforeTeamProgress = getProgressValue(await pageProgressbar.getAttribute('aria-valuenow'));
+    const beforeTeamProgress = getProgressValue(
+      await pageProgressbar.getAttribute('aria-valuenow')
+    );
 
     const stickerCells = await waitForStickerGrid(page);
     await stickerCells.first().click();
@@ -108,7 +113,10 @@ test.describe('home progress journeys', () => {
       .getByRole('button', { name: /Group A .*\d+\/\d+|Grupo A .*\d+\/\d+/i })
       .first();
     await expect(groupACard).toBeVisible();
-    await expect(groupACard).toHaveAttribute('aria-label', /Group A .*\d+\/\d+|Grupo A .*\d+\/\d+/i);
+    await expect(groupACard).toHaveAttribute(
+      'aria-label',
+      /Group A .*\d+\/\d+|Grupo A .*\d+\/\d+/i
+    );
   });
 
   test('reload persistence keeps collected stickers and progress', async ({ page }) => {

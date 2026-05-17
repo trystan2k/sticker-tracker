@@ -23,7 +23,7 @@
   font-family: var(--typography-family-heading);
   font-size: var(--typography-size-lg);
   font-weight: var(--typography-weight-bold);
-  color: var(--color-brand-primary);
+  color: var(--color-text-primary);
 }
 
 .track {

@@ -83,7 +83,7 @@
   height: calc(var(--space-2) * 2.75);
   padding: 0 var(--space-2);
   background-color: var(--color-brand-secondary);
-  color: var(--color-text-tertiary);
+  color: var(--color-palette-forest-1000);
   border-radius: var(--radius-pill);
   font-family: var(--typography-family-heading);
   font-size: var(--typography-size-sm);
