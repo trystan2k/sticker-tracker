@@ -16,6 +16,18 @@ export interface PwaRegistrationResult {
 let cachedResult: PwaRegistrationResult | null = null;
 let updateWorker: ServiceWorker | null = null;
 
+function reloadWhenUpdated(): Promise<void> {
+  return new Promise((resolve) => {
+    const handleControllerChange = (): void => {
+      navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange);
+      window.location.reload();
+      resolve();
+    };
+
+    navigator.serviceWorker.addEventListener('controllerchange', handleControllerChange);
+  });
+}
+
 export function registerPwa(options: {
   onNeedRefresh: SWUpdateCallback;
   onOfflineReady: () => void;
@@ -63,13 +75,16 @@ export function registerPwa(options: {
     });
 
   const updateServiceWorker = async (immediate?: boolean): Promise<void> => {
+    const reloadPromise =
+      immediate && typeof window !== 'undefined' ? reloadWhenUpdated() : Promise.resolve();
+
     if (updateWorker) {
       // oxlint-disable-next-line unicorn/require-post-message-target-origin
       updateWorker.postMessage({ type: 'SKIP_WAITING' });
     }
 
     if (immediate) {
-      window.location.reload();
+      await reloadPromise;
     }
   };
 
