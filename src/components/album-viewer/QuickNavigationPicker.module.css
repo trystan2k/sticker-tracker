@@ -19,7 +19,6 @@
 .sheet {
   position: relative;
   width: 100%;
-  max-width: calc(var(--space-2) * 48.75);
   max-height: 80vh;
   display: flex;
   flex-direction: column;

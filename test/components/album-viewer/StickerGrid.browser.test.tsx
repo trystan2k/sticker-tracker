@@ -92,9 +92,9 @@ describe('StickerGrid', () => {
         const grid = mounted.container.querySelector('[class*="grid"]');
         expect(grid).not.toBeNull();
 
-        // Team pages use gridFour class
-        const gridFour = mounted.container.querySelector('[class*="gridFour"]');
-        expect(gridFour).not.toBeNull();
+        // Team pages use gridItems class
+        const gridItems = mounted.container.querySelector('[class*="gridItems"]');
+        expect(gridItems).not.toBeNull();
       } finally {
         cleanup(mounted);
       }
@@ -123,9 +123,9 @@ describe('StickerGrid', () => {
           return grid !== null;
         });
 
-        // Coca-Cola page now uses same gridFour class as all pages
-        const gridFour = mounted.container.querySelector('[class*="gridFour"]');
-        expect(gridFour).not.toBeNull();
+        // Coca-Cola page now uses same gridItems class as all pages
+        const gridItems = mounted.container.querySelector('[class*="gridItems"]');
+        expect(gridItems).not.toBeNull();
       } finally {
         cleanup(mounted);
       }
@@ -156,9 +156,9 @@ describe('StickerGrid', () => {
           return grid !== null;
         });
 
-        // FWC opening page uses gridFour class (not coca-cola)
-        const gridFour = mounted.container.querySelector('[class*="gridFour"]');
-        expect(gridFour).not.toBeNull();
+        // FWC opening page uses gridItems class (not coca-cola)
+        const gridItems = mounted.container.querySelector('[class*="gridItems"]');
+        expect(gridItems).not.toBeNull();
       } finally {
         cleanup(mounted);
       }

@@ -19,7 +19,6 @@
 .sheet {
   position: relative;
   width: 100%;
-  max-width: calc(var(--space-2) * 48.75);
   min-height: calc(var(--space-2) * 28);
   background-color: var(--surface-album-secondary);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;

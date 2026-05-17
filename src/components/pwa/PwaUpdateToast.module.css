@@ -11,7 +11,6 @@
 }
 
 .toast {
-  width: min(calc(100vw - var(--space-6)), calc(var(--space-2) * 48.75));
   border: var(--border-width-default) solid var(--color-border-subtle);
   border-radius: var(--radius-lg);
   background-color: var(--surface-album-secondary);

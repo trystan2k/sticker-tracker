@@ -8,6 +8,24 @@
   justify-content: center;
 }
 
-.gridFour {
-  grid-template-columns: repeat(4, calc(var(--space-2) * 10.5));
+.gridItems {
+  grid-template-columns: repeat(4, minmax(calc(var(--space-2) * 9), 1fr));
+}
+
+@media screen and (width >= 640px) and (width < 768px) {
+  .gridItems {
+    grid-template-columns: repeat(5, minmax(calc(var(--space-2) * 9), 1fr));
+  }
+}
+
+@media screen and (width >= 768px) {
+  .gridItems {
+    grid-template-columns: repeat(6, minmax(calc(var(--space-2) * 9), 1fr));
+  }
+}
+
+@media screen and (width >= 1024px) {
+  .gridItems {
+    grid-template-columns: repeat(7, minmax(calc(var(--space-2) * 9), 1fr));
+  }
 }

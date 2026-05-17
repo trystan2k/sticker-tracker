@@ -22,7 +22,7 @@ export function StickerGrid({
 
   return (
     <section className={styles.section}>
-      <div className={`${styles.grid} ${styles.gridFour}`}>
+      <div className={`${styles.grid} ${styles.gridItems}`}>
         {stickerIds.map((stickerId) => (
           <StickerCell
             key={stickerId}

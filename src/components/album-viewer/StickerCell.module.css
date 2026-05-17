@@ -1,6 +1,5 @@
 .cell {
-  width: calc(var(--space-2) * 10.5);
-  height: calc(var(--space-2) * 10.5);
+  aspect-ratio: 1;
   position: relative;
   display: flex;
   flex-direction: column;
