@@ -464,7 +464,8 @@ describe('ReviewModal', () => {
       ) as HTMLButtonElement;
       deleteButton?.click();
 
-      await new Promise((r) => requestAnimationFrame(r));
+      await waitFor(() => document.body.querySelector('input[type="text"]') === null);
+      await waitFor(() => document.body.querySelector('[class*="helperText"]') !== null);
 
       const input = document.body.querySelector('input[type="text"]');
       expect(input).toBeNull();

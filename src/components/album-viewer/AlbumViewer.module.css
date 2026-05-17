@@ -76,7 +76,7 @@
 
 .filterActive {
   background-color: var(--surface-filter-active);
-  color: var(--surface-sticker-collected-text);
+  color: var(--color-palette-forest-1000);
   font-weight: var(--typography-weight-semibold);
 }
 

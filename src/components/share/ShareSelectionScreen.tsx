@@ -55,7 +55,7 @@ export function ShareSelectionScreen({
   }, [onGenerate, validSelectedIds]);
 
   return (
-    <main className={styles.screen}>
+    <div className={styles.screen}>
       <header className={styles.header}>
         <button
           type="button"
@@ -178,6 +178,6 @@ export function ShareSelectionScreen({
           {t('share.selection.generate')}
         </button>
       </footer>
-    </main>
+    </div>
   );
 }

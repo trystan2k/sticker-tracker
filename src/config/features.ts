@@ -13,7 +13,7 @@ export function resolveScannerEnabled(env: ScannerFeatureEnv): boolean {
     return false;
   }
 
-  return !env.PROD;
+  return true;
 }
 
 export function resolveScannerDiagnosticsEnabled(env: ScannerFeatureEnv): boolean {

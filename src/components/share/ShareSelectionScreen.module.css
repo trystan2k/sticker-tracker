@@ -54,7 +54,7 @@
 .linkButton {
   border: none;
   background: transparent;
-  color: var(--color-brand-primary);
+  color: var(--color-text-primary);
   font-size: var(--typography-size-md-lg);
   font-weight: var(--typography-weight-semibold);
   padding: 0;
@@ -165,7 +165,7 @@
   border: none;
   border-radius: var(--radius-md);
   background-color: var(--color-brand-primary);
-  color: var(--color-text-on-brand);
+  color: var(--color-text-primary);
   font-size: var(--typography-size-md-lg);
   font-weight: var(--typography-weight-bold);
   cursor: pointer;
