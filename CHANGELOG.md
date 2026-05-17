@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.0](https://github.com/trystan2k/sticker-tracker/compare/v1.14.0...v1.15.0) (2026-05-17)
+
+
+### Features
+
+* add backup/restore for sticker collection data ([#33](https://github.com/trystan2k/sticker-tracker/issues/33)) ([b0ddf89](https://github.com/trystan2k/sticker-tracker/commit/b0ddf89774472dcfac22cf7f8d1de5fb388cae5e))
+
 ## [1.14.0](https://github.com/trystan2k/sticker-tracker/compare/v1.13.0...v1.14.0) (2026-05-17)
 
 
