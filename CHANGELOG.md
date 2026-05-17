@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.0](https://github.com/trystan2k/sticker-tracker/compare/v1.15.0...v1.16.0) (2026-05-17)
+
+
+### Features
+
+* Quality, Accessibility, E2E Coverage + CI/CD Hardening ([#35](https://github.com/trystan2k/sticker-tracker/issues/35)) ([6c4071d](https://github.com/trystan2k/sticker-tracker/commit/6c4071de958b1067307c493cbb22a052d7740493))
+
 ## [1.15.0](https://github.com/trystan2k/sticker-tracker/compare/v1.14.0...v1.15.0) (2026-05-17)
 
 
