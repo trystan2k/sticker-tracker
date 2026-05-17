@@ -13,7 +13,10 @@ interface AppShellProps {
 export function AppShell({ children }: AppShellProps) {
   return (
     <div className={styles.shell}>
-      <main className={styles.main}>{children}</main>
+      <main className={styles.main}>
+        <h1 className={styles.srOnly}>Sticker Tracker</h1>
+        {children}
+      </main>
       <nav className={styles.nav} aria-label="Navigation" />
       <div className={styles.overlay} />
       <div className={styles.toast} aria-live="polite">

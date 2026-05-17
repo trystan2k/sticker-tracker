@@ -85,7 +85,7 @@
   font-family: var(--typography-family-heading);
   font-size: var(--typography-size-lg);
   font-weight: var(--typography-weight-bold);
-  color: var(--color-brand-primary);
+  color: var(--color-text-primary);
   flex: 1;
 }
 
@@ -144,8 +144,9 @@
   font-family: var(--typography-family-body);
   font-size: var(--typography-size-md);
   font-weight: var(--typography-weight-semibold);
-  color: var(--color-text-secondary);
+  color: var(--color-text-primary);
 }
+
 
 .flag {
   width: var(--size-icon-lg);
@@ -171,5 +172,5 @@
   font-family: var(--typography-family-body);
   font-size: var(--typography-size-sm);
   font-weight: var(--typography-weight-regular);
-  color: var(--color-text-secondary);
+  color: var(--color-text-primary);
 }

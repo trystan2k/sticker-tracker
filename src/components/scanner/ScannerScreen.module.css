@@ -95,7 +95,7 @@
   padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-pill);
   background: var(--color-brand-secondary);
-  color: var(--color-text-on-brand);
+  color: var(--color-text-primary);
   font-size: var(--typography-size-xs);
   font-weight: var(--typography-weight-bold);
   letter-spacing: 0.08em;
@@ -128,7 +128,7 @@
   border-radius: var(--radius-pill);
   padding: 0 var(--space-4);
   background: var(--color-brand-primary);
-  color: var(--color-text-on-brand);
+  color: var(--color-text-primary);
   font-family: var(--typography-family-body);
   font-weight: var(--typography-weight-bold);
   cursor: pointer;

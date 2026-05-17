@@ -217,7 +217,7 @@ export function MenuDrawer({
         aria-label={t('drawer.close')}
       />
 
-      <aside
+      <div
         className={`${styles.panel} ${!isClosing ? styles.panelOpen : styles.panelClosing}`}
         role="dialog"
         aria-modal="true"
@@ -342,7 +342,7 @@ export function MenuDrawer({
         <div className={styles.footer}>
           <span className={styles.version}>v{APP_VERSION}</span>
         </div>
-      </aside>
+      </div>
     </div>,
     document.body
   );

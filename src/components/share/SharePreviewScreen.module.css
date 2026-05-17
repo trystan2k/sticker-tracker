@@ -94,7 +94,7 @@
 .primaryButton {
   border: none;
   background-color: var(--color-brand-primary);
-  color: var(--color-text-on-brand);
+  color: var(--color-text-primary);
 }
 
 .secondaryButton {

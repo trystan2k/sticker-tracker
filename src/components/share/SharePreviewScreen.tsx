@@ -126,7 +126,7 @@ export function SharePreviewScreen({ payload, onBack }: SharePreviewScreenProps)
   }, [downloadAsset, getShareAsset, t]);
 
   return (
-    <main className={styles.screen}>
+    <div className={styles.screen}>
       <header className={styles.header}>
         <button
           type="button"
@@ -170,6 +170,6 @@ export function SharePreviewScreen({ payload, onBack }: SharePreviewScreenProps)
           {t('share.preview.download')}
         </button>
       </footer>
-    </main>
+    </div>
   );
 }

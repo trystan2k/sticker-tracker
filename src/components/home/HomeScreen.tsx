@@ -160,11 +160,11 @@ export function HomeScreen() {
   }
 
   if (appState.renderState !== 'ready') {
-    return <main className={styles.loading}>{t('storage.loading')}</main>;
+    return <div className={styles.loading}>{t('storage.loading')}</div>;
   }
 
   return (
-    <main className={styles.screen}>
+    <div className={styles.screen}>
       <HomeHeader onMenuClick={handleOpenMenuDrawer} />
 
       <div className={styles.scrollArea}>
@@ -218,6 +218,6 @@ export function HomeScreen() {
         onRestoreLocale={handleRestoreLocale}
         onRestoreTheme={handleRestoreTheme}
       />
-    </main>
+    </div>
   );
 }

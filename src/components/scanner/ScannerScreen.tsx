@@ -464,7 +464,7 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
   if (isActive) {
     return (
       <>
-        <main className={styles.activeScreen}>
+        <div className={styles.activeScreen}>
           <header className={styles.activeHeader}>
             <button
               type="button"
@@ -526,7 +526,7 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
               </figure>
             ) : null}
           </section>
-        </main>
+        </div>
 
         <ScanResultPopup
           isOpen={scanResultPopup !== null}
@@ -570,7 +570,7 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
           };
 
   return (
-    <main className={styles.screen}>
+    <div className={styles.screen}>
       <header className={styles.header}>
         <button
           type="button"
@@ -629,6 +629,6 @@ export function ScannerScreen({ onBack, onFinishScanning }: ScannerScreenProps) 
         onConfirm={handleConfirmReview}
         onCancel={handleCancelReview}
       />
-    </main>
+    </div>
   );
 }
