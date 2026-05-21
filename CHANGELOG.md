@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.20.0](https://github.com/trystan2k/sticker-tracker/compare/v1.19.0...v1.20.0) (2026-05-21)
+
+
+### Features
+
+* add per-team progress bars to home country tiles ([57fce01](https://github.com/trystan2k/sticker-tracker/commit/57fce01563301c5aa17b0b5afaa7dda59f8ad8ea))
+
 ## [1.19.0](https://github.com/trystan2k/sticker-tracker/compare/v1.18.0...v1.19.0) (2026-05-17)
 
 
