@@ -44,10 +44,9 @@ test.describe('home progress journeys', () => {
     await page.goto('/');
     await waitForMainContent(page);
 
-    await expect(page.getByText(/MEX|BRA|ENG/).first()).toBeVisible();
-    await expect(
-      page.getByText(/Mexico|México|Brazil|Brasil|England|Inglaterra/).first()
-    ).toBeVisible();
+    await expect(page.locator('[data-team-code="MEX"]').first()).toBeVisible();
+    await expect(page.locator('[data-team-code="BRA"]').first()).toBeVisible();
+    await expect(page.locator('[data-team-code="ENG"]').first()).toBeVisible();
   });
 
   test('drawer menu exposes stable actions', async ({ page }) => {
@@ -76,10 +75,7 @@ test.describe('home progress journeys', () => {
     await page.goto('/');
     await waitForMainContent(page);
 
-    await page
-      .getByRole('button', { name: /Mexico|México|MEX/i })
-      .first()
-      .click();
+    await page.locator('[data-team-page-id="mex"]').first().click();
 
     await expect(page).toHaveURL(/\/album\/[A-Z]\/[a-z-]+$/);
     await expect(page.getByRole('button', { name: /COPA 26/ })).toBeVisible();

@@ -134,6 +134,27 @@ describe('home-state', () => {
       expect(groupA.teams.length).toBe(4);
       expect(groupA.teams[0]?.albumCode).toBe('MEX');
       expect(groupA.teams[0]?.pageId).toBe('mex' as PageId);
+      expect(groupA.teams[0]?.collected).toBe(0);
+      expect(groupA.teams[0]?.total).toBe(20);
+      expect(groupA.teams[0]?.percentage).toBe(0);
+      expect(groupA.teams[0]?.isComplete).toBe(false);
+    });
+
+    it('maps team progress stats for partial collection', () => {
+      const groups = computeGroupsData(
+        makeCollection({
+          mex: ['MEX-1', 'MEX-2', 'MEX-3']
+        })
+      );
+      const groupA = groups.find((g) => g.group === 'A')!;
+      const mex = groupA.teams.find((team) => team.pageId === ('mex' as PageId));
+      expect(mex).toMatchObject({
+        collected: 3,
+        total: 20,
+        isComplete: false
+      });
+      expect(mex!.percentage).toBeGreaterThan(0);
+      expect(mex!.percentage).toBeLessThan(100);
     });
   });
 
@@ -184,6 +205,18 @@ describe('home-state', () => {
       const special = computeSpecialPagesData(collection);
       const opening = special.find((s) => s.key === 'fwc-opening')!;
       expect(opening.collected).toBe(FWC_OPENING_COUNT);
+      expect(opening.percentage).toBe(100);
+      expect(opening.isComplete).toBe(true);
+    });
+
+    it('preserves raw special-page collected count above total', () => {
+      const collection = makeCollection({
+        'fwc-opening': Array.from({ length: 20 }, (_, index) => `X-${index + 1}`)
+      });
+      const special = computeSpecialPagesData(collection);
+      const opening = special.find((s) => s.key === 'fwc-opening')!;
+
+      expect(opening.collected).toBe(20);
       expect(opening.percentage).toBe(100);
       expect(opening.isComplete).toBe(true);
     });

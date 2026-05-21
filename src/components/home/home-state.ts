@@ -3,13 +3,13 @@ import {
   COCA_COLA_COUNT,
   FWC_CLOSING_COUNT,
   FWC_OPENING_COUNT,
-  GROUP_LIST,
   albumPages,
   type Group,
   type PageId,
   type SpecialPage,
   type TeamPage
 } from '@/data/album';
+import { computeGroupStatsFromTeamStats, computeTeamStats } from '@/data/album-stats';
 import { getAlbumPath } from '@/components/album-viewer/viewer-state';
 import type { CollectionState } from '@/services/collection-service';
 
@@ -32,6 +32,10 @@ export interface GroupCardData {
     name: string;
     pageId: PageId;
     path: string;
+    collected: number;
+    total: number;
+    percentage: number;
+    isComplete: boolean;
   }[];
   firstPagePath: string;
 }
@@ -95,7 +99,12 @@ export function computeHomeSummary(collection: CollectionState): HomeSummary {
 }
 
 export function computeGroupsData(collection: CollectionState): GroupCardData[] {
-  return GROUP_LIST.map((group) => {
+  const teamStats = computeTeamStats(collection);
+  const groupStats = computeGroupStatsFromTeamStats(teamStats);
+  const teamStatsByPageId = new Map(teamStats.map((stats) => [stats.pageId, stats]));
+
+  return groupStats.map((groupStat) => {
+    const group = groupStat.group;
     const groupTeams = getTeamPagesByGroup(group);
     const firstTeamPage = groupTeams[0];
 
@@ -103,26 +112,32 @@ export function computeGroupsData(collection: CollectionState): GroupCardData[] 
       throw new Error(`Group ${group} has no team pages configured.`);
     }
 
-    const collected = groupTeams.reduce((total, teamPage) => {
-      return total + (collection[teamPage.pageId]?.size ?? 0);
-    }, 0);
-    const total = groupTeams.reduce((sum, teamPage) => sum + teamPage.stickerIds.length, 0);
-    const percentage = clampPercentage(total === 0 ? 0 : (collected / total) * 100);
-
     return {
       group,
       label: `group.label`,
-      collected,
-      total,
-      percentage,
-      isComplete: collected >= total,
-      teams: groupTeams.map((teamPage) => ({
-        albumCode: teamPage.albumCode,
-        flagCode: teamPage.flagCode,
-        name: teamPage.translationKey,
-        pageId: teamPage.pageId,
-        path: getAlbumPath(teamPage)
-      })),
+      collected: groupStat.collected,
+      total: groupStat.total,
+      percentage: groupStat.percentage,
+      isComplete: groupStat.isComplete,
+      teams: groupTeams.map((teamPage) => {
+        const stats = teamStatsByPageId.get(teamPage.pageId);
+
+        if (!stats) {
+          throw new Error(`Team page ${teamPage.pageId} has no computed stats.`);
+        }
+
+        return {
+          albumCode: teamPage.albumCode,
+          flagCode: teamPage.flagCode,
+          name: teamPage.translationKey,
+          pageId: teamPage.pageId,
+          path: getAlbumPath(teamPage),
+          collected: stats.collected,
+          total: stats.total,
+          percentage: stats.percentage,
+          isComplete: stats.isComplete
+        };
+      }),
       firstPagePath: getAlbumPath(firstTeamPage)
     };
   });

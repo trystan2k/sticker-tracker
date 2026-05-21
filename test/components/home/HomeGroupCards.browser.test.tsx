@@ -267,9 +267,48 @@ describe('HomeGroupCards', () => {
       const fills = mounted.container.querySelectorAll('[class*="progressFill"]');
       expect(fills.length).toBeGreaterThan(0);
 
-      // First fill should have width style
-      const firstFill = fills[0] as HTMLElement;
+      const firstFill = Array.from(fills).find(
+        (fill) => !(fill as HTMLElement).className.includes('teamProgressFill')
+      ) as HTMLElement | undefined;
+      expect(firstFill).toBeDefined();
+
+      if (!firstFill) return;
+
       expect(firstFill.style.width).toBe('0%');
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('renders team tile counters and team progress bars', async () => {
+    const collection: Record<string, ReadonlySet<string>> = {
+      mex: new Set(Array.from({ length: 10 }, (_, index) => `MEX-${index + 1}`))
+    };
+    const groups = computeGroupsData(collection as never);
+
+    const mounted = mountWithRouter(React.createElement(HomeGroupCards, { groups }));
+
+    try {
+      await waitFor(() => {
+        const tiles = mounted.container.querySelectorAll('button[class*="teamTile"]');
+        return tiles.length > 0;
+      });
+
+      const mexicoTile = Array.from(
+        mounted.container.querySelectorAll('button[class*="teamTile"]')
+      ).find((tile) => tile.getAttribute('data-team-page-id') === 'mex') as
+        | HTMLButtonElement
+        | undefined;
+
+      expect(mexicoTile).toBeDefined();
+      expect(mexicoTile?.getAttribute('aria-label')).toContain('10/20');
+      expect(mexicoTile?.textContent).toContain('10/20');
+
+      const mexicoProgressFill = mexicoTile?.querySelector(
+        '[class*="teamProgressFill"]'
+      ) as HTMLElement | null;
+      expect(mexicoProgressFill).not.toBeNull();
+      expect(mexicoProgressFill?.style.width).toBe('50%');
     } finally {
       cleanup(mounted);
     }
