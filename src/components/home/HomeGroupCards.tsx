@@ -102,12 +102,21 @@ type TeamTileProps = Readonly<{
 }>;
 
 function TeamTile({ team, teamPath, onNavigate, t }: TeamTileProps) {
+  const teamProgressStyle = useMemo(() => ({ width: `${team.percentage}%` }), [team.percentage]);
+
   const handleTeamClick = useCallback(() => {
     onNavigate(teamPath);
   }, [onNavigate, teamPath]);
 
   return (
-    <button type="button" className={styles.teamTile} onClick={handleTeamClick}>
+    <button
+      type="button"
+      className={styles.teamTile}
+      onClick={handleTeamClick}
+      aria-label={`${t(team.name)} ${team.collected}/${team.total}`}
+      data-team-page-id={team.pageId}
+      data-team-code={team.albumCode}
+    >
       <img
         className={styles.flagImage}
         src={buildFlagUrl(team.flagCode)}
@@ -118,8 +127,21 @@ function TeamTile({ team, teamPath, onNavigate, t }: TeamTileProps) {
       />
 
       <div className={styles.teamOverlay}>
-        <p className={styles.teamCode}>{team.albumCode}</p>
-        <p className={styles.teamName}>{t(team.name)}</p>
+        <div className={styles.teamInfo}>
+          <p className={styles.teamCode}>{team.albumCode}</p>
+          <p className={styles.teamName}>{t(team.name)}</p>
+        </div>
+        <div className={styles.teamProgress}>
+          <p className={styles.teamCounter}>
+            {team.collected}/{team.total}
+          </p>
+          <div className={styles.teamProgressTrack} aria-hidden="true">
+            <div
+              className={`${styles.teamProgressFill} ${team.isComplete ? styles.teamProgressComplete : ''}`}
+              style={teamProgressStyle}
+            />
+          </div>
+        </div>
       </div>
     </button>
   );

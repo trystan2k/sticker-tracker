@@ -156,6 +156,38 @@ describe('HomeScreen', () => {
     }
   });
 
+  it('renders team tile collected counters on home groups section', async () => {
+    const collection = {
+      mex: new Set(
+        Array.from({ length: 20 }, (_, index) => `MEX-${index + 1}` as StickerIdentifier)
+      )
+    };
+
+    const mounted = mount(
+      React.createElement(
+        AppStateContext.Provider,
+        { value: makeMockAppState(collection) },
+        React.createElement(HomeScreen)
+      )
+    );
+
+    try {
+      await waitFor(() => {
+        const tile = mounted.container.querySelector('button[class*="teamTile"]');
+        return tile !== null;
+      });
+
+      const mexicoTile = Array.from(
+        mounted.container.querySelectorAll('button[class*="teamTile"]')
+      ).find((tile) => tile.getAttribute('data-team-page-id') === 'mex');
+
+      expect(mexicoTile).not.toBeUndefined();
+      expect(mexicoTile?.textContent).toContain('20/20');
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
   it('calls handleOpenShare when share button in drawer is clicked', async () => {
     await resetStorage();
 
