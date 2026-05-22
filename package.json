@@ -1,6 +1,6 @@
 {
   "name": "sticker-tracker",
-  "version": "1.21.0",
+  "version": "1.22.0",
   "private": true,
   "description": "A mobile-first, client-only Sticker tracker used to track the stickers that users have already and the ones missing in your album.",
   "keywords": [

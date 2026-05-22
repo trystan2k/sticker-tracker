@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.22.0](https://github.com/trystan2k/sticker-tracker/compare/v1.21.0...v1.22.0) (2026-05-22)
+
+
+### Features
+
+* add missing stickers page ([ec3e718](https://github.com/trystan2k/sticker-tracker/commit/ec3e718a5616438af1fcd859f668ffc7bbb0f8ee))
+
 ## [1.21.0](https://github.com/trystan2k/sticker-tracker/compare/v1.20.0...v1.21.0) (2026-05-22)
 
 
