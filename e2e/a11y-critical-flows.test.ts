@@ -58,6 +58,12 @@ async function waitForSharePreviewReady(page: Page): Promise<void> {
   ).toBeVisible();
 }
 
+async function waitForStatReady(page: Page): Promise<void> {
+  await expect(
+    page.getByRole('heading', { name: /Stats|Estadísticas|Estatísticas/i })
+  ).toBeVisible();
+}
+
 test('a11y: home page has no axe violations', async ({ page }) => {
   await page.goto('/');
   await waitForHomeReady(page);
@@ -162,6 +168,13 @@ test('a11y: share preview has no axe violations', async ({ page }) => {
   await expectNoA11yViolations(page);
 });
 
+test('a11y: /stat has no axe violations', async ({ page }) => {
+  await page.goto('/stat');
+  await waitForStatReady(page);
+
+  await expectNoA11yViolations(page);
+});
+
 test('a11y: dark theme key pages have no axe violations', async ({ page }) => {
   // Store dark theme, reload so app reads it and applies data-theme="dark"
   await page.goto('/');
@@ -177,5 +190,9 @@ test('a11y: dark theme key pages have no axe violations', async ({ page }) => {
   // Navigate directly — app reads stored 'dark' theme automatically
   await page.goto('/album/A/mex');
   await waitForAlbumReady(page);
+  await expectNoA11yViolations(page);
+
+  await page.goto('/stat');
+  await waitForStatReady(page);
   await expectNoA11yViolations(page);
 });

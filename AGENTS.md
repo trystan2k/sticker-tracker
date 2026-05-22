@@ -29,6 +29,8 @@ Sticker tracker application used to track the stickers that users have already a
 - Prefer simple solutions over complex ones.
 - Don't change any code without explaining the reasoning.
 - **Always follow Pencil designs strictly** when implementing app screens. Use the design and design tokens from `docs/design/sticker-tracker.pen` as the single source of truth for colors, typography, spacing, and visual styling. All design tokens are defined in `design-tokens/dist/*.css` files (after running `pnpm tokens:build`). .
+- **NEVER** hardcode user-facing copy in components. All visible strings, labels, helper text, aria labels, and status text must go through the i18n system.
+- **NEVER** hardcode CSS colors, spacing, radii, typography sizes, or other design values when an existing design token / CSS variable fits. Prefer semantic tokens first, primitive palette/space/typography variables second, and only ask for a new token when no existing token matches the design need.
 - **NEVER** Change vitest coverage thresholds without approval
 - **ALWAYS** Follow the same code standard for all files. Like CSS variable tokens usage.
 
@@ -122,6 +124,8 @@ This project uses **Mixpanel** for product analytics. Do not add another analyti
 | --------------------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------ |
 | `stickers_marked_collected` | User marks stickers as collected manually or through scanner confirmation | `input_method`, `sticker_count`, `sticker_id` or `sticker_ids`, `page_id`, `total_collected_count` | `src/providers/AppStateProvider.tsx` |
 | `share_preview_generated`   | User opens share preview with at least one selected page                  | `selected_page_count`, `total_missing_sticker_count`, `selection_source_path`                      | `src/routes/share/preview.tsx`       |
+| `stats_cta_clicked`         | User clicks Home magnify CTA to open stats                                | `source_path`                                                                                      | `src/components/home/HomeScreen.tsx` |
+| `stats_page_opened`         | User opens `/stat` page                                                   | `source_path`                                                                                      | `src/routes/stat.tsx`                |
 
 ### Rules
 

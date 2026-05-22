@@ -2,14 +2,14 @@ import { describe, expect, it } from 'vitest';
 
 import { albumPages, type PageId, type StickerIdentifier } from '@/data/album';
 import type { CollectionState } from '@/services/collection-service';
+import { sanitizeFromPath } from '@/lib/sanitize-from-path';
 import {
   buildInitialShareSelection,
   buildSharePreviewPayload,
   buildShareSelectionSections,
   compressMissingStickerIds,
   decodeShareSelection,
-  encodeShareSelection,
-  sanitizeFromPath
+  encodeShareSelection
 } from '@/components/share/share-state';
 
 function makeCollection(entries: Record<string, string[]>): CollectionState {

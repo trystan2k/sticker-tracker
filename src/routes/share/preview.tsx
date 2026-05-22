@@ -6,9 +6,9 @@ import {
   buildSharePreviewPayload,
   decodeShareSelection,
   parseShareRouteSearch,
-  sanitizeFromPath,
   type ShareRouteSearch
 } from '@/components/share/share-state';
+import { sanitizeFromPath } from '@/lib/sanitize-from-path';
 import { AppStateContext } from '@/providers/AppStateProvider';
 import { trackAnalyticsEvent } from '@/services/analytics-service';
 

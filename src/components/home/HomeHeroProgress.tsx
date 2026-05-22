@@ -1,3 +1,5 @@
+import { Search } from 'lucide-react';
+
 import type { HomeSummary } from './home-state';
 
 import styles from './HomeHeroProgress.module.css';
@@ -8,7 +10,9 @@ type HomeHeroProgressProps = Readonly<{
   collectedFormatted: string;
   totalFormatted: string;
   percentFormatted: string;
-  ringAriaLabel?: string;
+  ringAriaLabel: string;
+  openStatsLabel: string;
+  onOpenStats: () => void;
 }>;
 
 const RING_RADIUS = 75;
@@ -20,13 +24,15 @@ export function HomeHeroProgress({
   collectedFormatted,
   totalFormatted,
   percentFormatted,
-  ringAriaLabel
+  ringAriaLabel,
+  openStatsLabel,
+  onOpenStats
 }: HomeHeroProgressProps) {
   const normalizedProgress = Math.max(0, Math.min(100, summary.percentage));
   const strokeDashoffset = RING_CIRCUMFERENCE * (1 - normalizedProgress / 100);
 
   return (
-    <section className={styles.hero} aria-label={ringAriaLabel ?? 'Home progress'}>
+    <section className={styles.hero} aria-label={ringAriaLabel}>
       <div className={styles.ringWrap}>
         <svg
           className={styles.ringSvg}
@@ -55,6 +61,15 @@ export function HomeHeroProgress({
           <p className={styles.subStat}>
             {percentFormatted} {completeLabel}
           </p>
+          <button
+            type="button"
+            className={styles.openStatsButton}
+            onClick={onOpenStats}
+            data-testid="home-stats-cta"
+            aria-label={openStatsLabel}
+          >
+            <Search size={12} aria-hidden="true" />
+          </button>
         </div>
       </div>
     </section>

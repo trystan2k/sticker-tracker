@@ -1,7 +1,11 @@
 import { readAnalyticsConsent } from '@/services/analytics-consent';
 import { APP_VERSION } from '@/version';
 
-type AnalyticsEventName = 'share_preview_generated' | 'stickers_marked_collected';
+type AnalyticsEventName =
+  | 'share_preview_generated'
+  | 'stats_cta_clicked'
+  | 'stats_page_opened'
+  | 'stickers_marked_collected';
 
 type AnalyticsProperties = Readonly<Record<string, unknown>>;
 

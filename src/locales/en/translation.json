@@ -170,7 +170,8 @@
     "hero": {
       "ariaLabel": "Album progress",
       "complete": "complete",
-      "collected": "collected"
+      "collected": "collected",
+      "openStats": "See stats"
     },
     "groups": {
       "title": "Groups"
@@ -178,6 +179,64 @@
     "specials": {
       "title": "Special Pages",
       "openingTitle": "Opening Page"
+    }
+  },
+  "stats": {
+    "header": {
+      "title": "Stats",
+      "back": "Back"
+    },
+    "content": {
+      "regionLabel": "Stats content",
+      "skipLink": "Skip to featured teams"
+    },
+    "intro": {
+      "chip": "Overview panel",
+      "title": "Album x-ray",
+      "description": "Track your ranking progress by teams and groups."
+    },
+    "hero": {
+      "completedCount": "{{count}} completed",
+      "incompleteCount": "{{count}} open"
+    },
+    "sections": {
+      "spotlight": "Featured teams",
+      "panorama": "Group panorama",
+      "teams": "Team rankings",
+      "groups": "Group rankings",
+      "summary": "Group summary"
+    },
+    "spotlight": {
+      "mostStickers": "More stickers",
+      "lessStickers": "Less stickers",
+      "missingCount": "{{count}} missing",
+      "closestToFinish": "Group {{group}} · closest to the finish",
+      "largestDelay": "Group {{group}} · biggest delay",
+      "collectedLabel": "{{collected}} collected"
+    },
+    "panorama": {
+      "mostStickers": "More stickers",
+      "lessStickers": "Less stickers",
+      "closed": "Closed",
+      "open": "Open",
+      "groupsCount": "{{count}} groups",
+      "collectedCount": "{{collected}} collected"
+    },
+    "labels": {
+      "moreStickers": "More stickers",
+      "lessStickers": "Less stickers",
+      "group": "Group",
+      "topGroup": "Top group",
+      "bottomGroup": "Bottom group",
+      "completedGroups": "Completed groups",
+      "incompleteGroups": "Incomplete groups",
+      "allGroups": "All groups",
+      "teamsTracked": "Teams tracked",
+      "none": "None"
+    },
+    "empty": {
+      "title": "No ranking data yet",
+      "description": "Start collecting stickers to unlock this section."
     }
   },
   "scanner": {

@@ -7,10 +7,10 @@ import {
   decodeShareSelection,
   encodeShareSelection,
   parseShareRouteSearch,
-  sanitizeFromPath,
   type ShareRouteSearch
 } from '@/components/share/share-state';
 import type { PageId } from '@/data/album';
+import { sanitizeFromPath } from '@/lib/sanitize-from-path';
 import { AppStateContext } from '@/providers/AppStateProvider';
 
 export const Route = createFileRoute('/share/')({

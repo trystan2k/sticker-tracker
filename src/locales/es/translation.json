@@ -170,7 +170,8 @@
     "hero": {
       "ariaLabel": "Progreso del álbum",
       "complete": "completo",
-      "collected": "coleccionadas"
+      "collected": "coleccionadas",
+      "openStats": "Ver estadísticas"
     },
     "groups": {
       "title": "Grupos"
@@ -178,6 +179,64 @@
     "specials": {
       "title": "Páginas Especiales",
       "openingTitle": "Página de Apertura"
+    }
+  },
+  "stats": {
+    "header": {
+      "title": "Estadísticas",
+      "back": "Volver"
+    },
+    "content": {
+      "regionLabel": "Contenido de estadísticas",
+      "skipLink": "Saltar a selecciones destacadas"
+    },
+    "intro": {
+      "chip": "Panel general",
+      "title": "Radiograf\u00eda del \u00e1lbum",
+      "description": "Sigue tu progreso de ranking por equipos y grupos."
+    },
+    "hero": {
+      "completedCount": "{{count}} completos",
+      "incompleteCount": "{{count}} abiertos"
+    },
+    "sections": {
+      "spotlight": "Selecciones destacadas",
+      "panorama": "Panorama de grupos",
+      "teams": "Ranking de equipos",
+      "groups": "Ranking de grupos",
+      "summary": "Resumen de grupos"
+    },
+    "spotlight": {
+      "mostStickers": "Más figuritas",
+      "lessStickers": "Menos figuritas",
+      "missingCount": "Faltan {{count}}",
+      "closestToFinish": "Grupo {{group}} · más cerca del final",
+      "largestDelay": "Grupo {{group}} · mayor atraso",
+      "collectedLabel": "{{collected}} coleccionadas"
+    },
+    "panorama": {
+      "mostStickers": "Más figuritas",
+      "lessStickers": "Menos figuritas",
+      "closed": "Cerrados",
+      "open": "No cerrados",
+      "groupsCount": "{{count}} grupos",
+      "collectedCount": "{{collected}} coleccionadas"
+    },
+    "labels": {
+      "moreStickers": "Más figuritas",
+      "lessStickers": "Menos figuritas",
+      "group": "Grupo",
+      "topGroup": "Grupo superior",
+      "bottomGroup": "Grupo inferior",
+      "completedGroups": "Grupos completos",
+      "incompleteGroups": "Grupos incompletos",
+      "allGroups": "Todos los grupos",
+      "teamsTracked": "Equipos monitoreados",
+      "none": "Ninguno"
+    },
+    "empty": {
+      "title": "Aún no hay datos de ranking",
+      "description": "Empieza a coleccionar figuritas para desbloquear esta sección."
     }
   },
   "scanner": {

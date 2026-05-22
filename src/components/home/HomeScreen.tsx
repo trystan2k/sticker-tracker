@@ -8,6 +8,7 @@ import { MenuDrawer } from '@/components/MenuDrawer';
 import { ThemeSheet } from '@/components/ThemeSheet';
 import { buildInitialShareSelection, encodeShareSelection } from '@/components/share/share-state';
 import { AppStateContext } from '@/providers/AppStateProvider';
+import { trackAnalyticsEvent } from '@/services/analytics-service';
 
 import type { CollectionState } from '@/services/collection-service';
 import type { SupportedLocale } from '@/services/locale-service';
@@ -100,6 +101,21 @@ export function HomeScreen() {
     });
   }, [navigate]);
 
+  const handleOpenStats = useCallback(() => {
+    const sourcePath = typeof window === 'undefined' ? '/' : window.location.pathname;
+
+    void trackAnalyticsEvent('stats_cta_clicked', {
+      source_path: sourcePath
+    });
+
+    void navigate({
+      to: '/stat',
+      search: {
+        from: sourcePath
+      }
+    });
+  }, [navigate]);
+
   const handleCloseLocaleSwitcher = useCallback(() => {
     setIsLocaleSwitcherOpen(false);
   }, []);
@@ -175,6 +191,8 @@ export function HomeScreen() {
           totalFormatted={summary.totalFormatted}
           percentFormatted={summary.percentFormatted}
           ringAriaLabel={t('home.hero.ariaLabel')}
+          openStatsLabel={t('home.hero.openStats')}
+          onOpenStats={handleOpenStats}
         />
         {openingSpecialCards.length > 0 ? (
           <HomeSpecialCards

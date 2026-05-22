@@ -135,4 +135,23 @@ test.describe('home progress journeys', () => {
 
     expect(afterReload).toBe(beforeReload);
   });
+
+  test('home stats cta navigates to /stat and back returns home', async ({ page }) => {
+    await page.goto('/');
+    await waitForMainContent(page);
+
+    const statsCta = page.getByTestId('home-stats-cta');
+    await expect(statsCta).toBeVisible();
+    await statsCta.click();
+
+    await expect(page).toHaveURL(
+      (url) => url.pathname === '/stat' && url.searchParams.get('from') === '/'
+    );
+    await expect(
+      page.getByRole('heading', { name: /Stats|Estadísticas|Estatísticas/ })
+    ).toBeVisible();
+
+    await page.getByRole('button', { name: /Back|Volver|Voltar/ }).click();
+    await expect(page).toHaveURL('/');
+  });
 });

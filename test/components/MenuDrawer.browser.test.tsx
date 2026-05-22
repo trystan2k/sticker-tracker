@@ -347,34 +347,6 @@ describe('MenuDrawer', () => {
     }
   });
 
-  // oxlint-disable-next-line vitest/no-disabled-tests
-  it.skip('renders with closing animation when isOpen changes from true to false', async () => {
-    const onClose = vi.fn<() => void>();
-
-    const mounted = mount(
-      React.createElement(MenuDrawer, {
-        isOpen: true,
-        onClose,
-        onOpenLocaleSwitcher: () => {},
-        currentLocale: 'en'
-      })
-    );
-
-    try {
-      await waitFor(() => document.body.textContent?.includes('Share') ?? false);
-
-      // Trigger close
-      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
-      expect(onClose).toHaveBeenCalledTimes(1);
-
-      // Dialog should still be in DOM during closing animation
-      const dialog = document.body.querySelector('[role="dialog"]');
-      expect(dialog).not.toBeNull();
-    } finally {
-      cleanup(mounted);
-    }
-  });
-
   it('renders version footer', async () => {
     const mounted = mount(
       React.createElement(MenuDrawer, {
