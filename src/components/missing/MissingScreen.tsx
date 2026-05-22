@@ -154,7 +154,7 @@ export function MissingScreen({
 
     if (focusTarget.kind === 'sticker') {
       const target = screenRef.current?.querySelector<HTMLElement>(
-        `[data-missing-sticker-id="${focusTarget.stickerId}"] button`
+        `[data-testid="${focusTarget.stickerId}"]`
       );
 
       if (target) {

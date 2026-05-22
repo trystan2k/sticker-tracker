@@ -316,6 +316,41 @@ describe('MissingScreen', () => {
     }
   });
 
+  it('moves focus to next sticker in same block after removal', async () => {
+    const onToggleCollected = vi.fn<
+      () => Promise<{ state: 'ready'; value: ReturnType<typeof createCollectionState> }>
+    >(async () => ({ state: 'ready' as const, value: createCollectionState({}) }));
+
+    const mounted = mount(
+      <MissingScreen
+        collection={createCollectionState({ mex: ['MEX-1'] })}
+        onBack={() => {}}
+        onShare={() => {}}
+        onToggleCollected={onToggleCollected}
+      />
+    );
+
+    try {
+      await waitForCondition(
+        () => mounted.container.querySelector('[data-testid="MEX-2"]') !== null
+      );
+
+      const stickerButton = mounted.container.querySelector(
+        '[data-testid="MEX-2"]'
+      ) as HTMLButtonElement;
+      stickerButton.focus();
+      stickerButton.click();
+
+      await waitForCondition(
+        () => document.activeElement === mounted.container.querySelector('[data-testid="MEX-3"]')
+      );
+
+      expect(document.activeElement).toBe(mounted.container.querySelector('[data-testid="MEX-3"]'));
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
   it('calls onShare from header action when ready', async () => {
     const onShare = vi.fn<() => void>();
     const onToggleCollected = vi.fn<

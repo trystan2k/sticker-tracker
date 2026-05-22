@@ -242,14 +242,6 @@
   justify-content: center;
 }
 
-.stickerCellWrap {
-  opacity: 1;
-}
-
-.stickerCellWrap:has(button:disabled) {
-  opacity: 0;
-}
-
 .emptyState {
   flex: 1;
   min-height: 0;
