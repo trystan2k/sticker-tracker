@@ -608,35 +608,65 @@ describe('ReviewModal', () => {
   it('resets draftItems when modal reopens with different items', async () => {
     const firstItems = [{ id: 'scan-1', rawText: 'BRA 12', stickerNumber: 'BRA-12' }];
     const secondItems = [{ id: 'scan-2', rawText: 'MEX 1', stickerNumber: 'MEX-1' }];
+    const onCancel = () => {};
+    const onConfirm = () => {};
 
     const mounted = mount(
       React.createElement(ReviewModal, {
         isOpen: true,
         items: firstItems,
-        onConfirm: () => {},
-        onCancel: () => {}
+        onConfirm,
+        onCancel
       })
     );
 
     try {
       await waitFor(() => document.body.querySelector('[role="dialog"]') !== null);
 
-      let input = document.body.querySelector('input[type="text"]') as HTMLInputElement;
+      let dialog = document.body.querySelector('[role="dialog"]');
+      let input = dialog?.querySelector('input[type="text"]') as HTMLInputElement | null;
       expect(input?.value).toBe('BRA-12');
 
-      // Re-render with different items (simulates reopening)
+      input?.focus();
+      if (input) {
+        input.value = 'BRA-99';
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+
+      await waitFor(() => {
+        const currentDialog = document.body.querySelector('[role="dialog"]');
+        const currentInput = currentDialog?.querySelector('input[type="text"]') as HTMLInputElement | null;
+        return currentInput?.value === 'BRA-99';
+      });
+
+      mounted.root.render(
+        React.createElement(ReviewModal, {
+          isOpen: false,
+          items: secondItems,
+          onConfirm,
+          onCancel
+        })
+      );
+
+      await waitFor(() => document.body.querySelector('[role="dialog"]') === null);
+
       mounted.root.render(
         React.createElement(ReviewModal, {
           isOpen: true,
           items: secondItems,
-          onConfirm: () => {},
-          onCancel: () => {}
+          onConfirm,
+          onCancel
         })
       );
 
-      await new Promise((r) => requestAnimationFrame(r));
+      await waitFor(() => {
+        const currentDialog = document.body.querySelector('[role="dialog"]');
+        const currentInput = currentDialog?.querySelector('input[type="text"]') as HTMLInputElement | null;
+        return currentInput?.value === 'MEX-1';
+      });
 
-      input = document.body.querySelector('input[type="text"]') as HTMLInputElement;
+      dialog = document.body.querySelector('[role="dialog"]');
+      input = dialog?.querySelector('input[type="text"]') as HTMLInputElement | null;
       expect(input?.value).toBe('MEX-1');
     } finally {
       cleanup(mounted);
