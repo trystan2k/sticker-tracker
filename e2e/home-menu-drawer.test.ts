@@ -8,7 +8,7 @@ test('opens and closes left drawer on home', async ({ page }) => {
   await expect(page.getByRole('button', { name: /Language|Idioma/ })).toBeVisible();
   await expect(page.getByText(/Share|Compartir|Compartilhar/)).toBeVisible();
   await expect(
-    page.getByRole('button', { name: /Missing Stickers|Figurinhas faltantes|Figuritas faltantes/ })
+    page.getByRole('button', { name: /Missing Stickers|Figurinhas faltantes|Cromos faltantes/ })
   ).toBeVisible();
   await expect(page.getByRole('button', { name: /Theme|Tema/ })).toBeVisible();
   await expect(

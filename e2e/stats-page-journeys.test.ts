@@ -7,13 +7,13 @@ const featuredTeamsHeadingPattern = /Featured teams|Selecciones destacadas|Sele�
 const groupPanoramaHeadingPattern = /Group panorama|Panorama de grupos/i;
 const completedGroupsLabelPattern = /Completed groups|Grupos completos/i;
 const incompleteGroupsLabelPattern = /Incomplete groups|Grupos incompletos/i;
-const moreStickersPattern = /More stickers|Más figuritas|Mais figurinhas/i;
-const lessStickersPattern = /Less stickers|Menos figuritas|Menos figurinhas/i;
+const moreStickersPattern = /More stickers|Más cromos|Mais figurinhas/i;
+const lessStickersPattern = /Less stickers|Menos cromos|Menos figurinhas/i;
 const closedChipPattern = /Closed|Cerrados|Fechados/i;
 const openChipPattern = /^Open$|^No cerrados$|^Não fechados$/i;
 const allGroupsPattern = /All groups|Todos los grupos|Todos os grupos/i;
 const emptySpotlightDescriptionPattern =
-  /Start collecting stickers to unlock this section\.|Empieza a coleccionar figuritas para desbloquear esta sección\.|Comece a colecionar figurinhas para desbloquear esta seção\./i;
+  /Start collecting stickers to unlock this section\.|Empieza a coleccionar cromos para desbloquear esta sección\.|Comece a colecionar figurinhas para desbloquear esta seção\./i;
 
 async function waitForStatReady(page: Page): Promise<void> {
   await expect(page.getByRole('heading', { name: statsHeadingPattern })).toBeVisible();

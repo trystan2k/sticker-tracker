@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 import { openHomeMenu, waitForMainContent } from './utils/journey-helpers';
 
-const missingTitlePattern = /Missing Stickers|Figurinhas faltantes|Figuritas faltantes/i;
+const missingTitlePattern = /Missing Stickers|Figurinhas faltantes|Cromos faltantes/i;
 const shareTitlePattern = /Share Missing|Compartilhar Faltantes|Compartir Faltantes/i;
 
 test.describe('missing page journeys', () => {
@@ -12,7 +12,7 @@ test.describe('missing page journeys', () => {
 
     await openHomeMenu(page);
     await page
-      .getByRole('button', { name: /Missing Stickers|Figurinhas faltantes|Figuritas faltantes/i })
+      .getByRole('button', { name: /Missing Stickers|Figurinhas faltantes|Cromos faltantes/i })
       .click();
 
     await expect(page).toHaveURL('/missing');
@@ -28,7 +28,7 @@ test.describe('missing page journeys', () => {
 
     await page
       .getByRole('button', {
-        name: /Share missing stickers|Compartilhar figurinhas faltantes|Compartir figuritas faltantes/i
+        name: /Share missing stickers|Compartilhar figurinhas faltantes|Compartir cromos faltantes/i
       })
       .click();
 

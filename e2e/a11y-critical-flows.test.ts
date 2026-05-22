@@ -67,7 +67,7 @@ async function waitForStatReady(page: Page): Promise<void> {
 async function waitForMissingReady(page: Page): Promise<void> {
   await expect(
     page.getByRole('heading', {
-      name: /Missing Stickers|Figurinhas faltantes|Figuritas faltantes/i
+      name: /Missing Stickers|Figurinhas faltantes|Cromos faltantes/i
     })
   ).toBeVisible();
 }
@@ -190,7 +190,7 @@ test('a11y: /missing has no axe violations and keyboard flow works', async ({ pa
   await expectNoA11yViolations(page);
 
   const shareButton = page.getByRole('button', {
-    name: /Share missing stickers|Compartilhar figurinhas faltantes|Compartir figuritas faltantes/i
+    name: /Share missing stickers|Compartilhar figurinhas faltantes|Compartir cromos faltantes/i
   });
   await shareButton.focus();
   await page.keyboard.press('Enter');
