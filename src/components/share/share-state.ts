@@ -320,11 +320,3 @@ export function decodeShareSelection(raw: string | undefined | null): readonly P
 
   return CANONICAL_PAGE_IDS.filter((pageId) => selectedSet.has(pageId));
 }
-
-export function sanitizeFromPath(raw: string | undefined | null): string {
-  if (!raw || !raw.startsWith('/') || raw.startsWith('//') || raw.includes('\\')) {
-    return '/';
-  }
-
-  return raw;
-}

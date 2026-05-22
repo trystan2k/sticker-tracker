@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as StatRouteImport } from './routes/stat'
 import { Route as ShareRouteImport } from './routes/share'
 import { Route as ScannerRouteImport } from './routes/scanner'
 import { Route as AlbumRouteImport } from './routes/album'
@@ -19,6 +20,11 @@ import { Route as SharePreviewRouteImport } from './routes/share/preview'
 import { Route as AlbumPageIdRouteImport } from './routes/album/$pageId'
 import { Route as AlbumGroupPageIdRouteImport } from './routes/album/$group/$pageId'
 
+const StatRoute = StatRouteImport.update({
+  id: '/stat',
+  path: '/stat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShareRoute = ShareRouteImport.update({
   id: '/share',
   path: '/share',
@@ -70,6 +76,7 @@ export interface FileRoutesByFullPath {
   '/album': typeof AlbumRouteWithChildren
   '/scanner': typeof ScannerRoute
   '/share': typeof ShareRouteWithChildren
+  '/stat': typeof StatRoute
   '/album/$pageId': typeof AlbumPageIdRoute
   '/share/preview': typeof SharePreviewRoute
   '/album/': typeof AlbumIndexRoute
@@ -79,6 +86,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/scanner': typeof ScannerRoute
+  '/stat': typeof StatRoute
   '/album/$pageId': typeof AlbumPageIdRoute
   '/share/preview': typeof SharePreviewRoute
   '/album': typeof AlbumIndexRoute
@@ -91,6 +99,7 @@ export interface FileRoutesById {
   '/album': typeof AlbumRouteWithChildren
   '/scanner': typeof ScannerRoute
   '/share': typeof ShareRouteWithChildren
+  '/stat': typeof StatRoute
   '/album/$pageId': typeof AlbumPageIdRoute
   '/share/preview': typeof SharePreviewRoute
   '/album/': typeof AlbumIndexRoute
@@ -104,6 +113,7 @@ export interface FileRouteTypes {
     | '/album'
     | '/scanner'
     | '/share'
+    | '/stat'
     | '/album/$pageId'
     | '/share/preview'
     | '/album/'
@@ -113,6 +123,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/scanner'
+    | '/stat'
     | '/album/$pageId'
     | '/share/preview'
     | '/album'
@@ -124,6 +135,7 @@ export interface FileRouteTypes {
     | '/album'
     | '/scanner'
     | '/share'
+    | '/stat'
     | '/album/$pageId'
     | '/share/preview'
     | '/album/'
@@ -136,10 +148,18 @@ export interface RootRouteChildren {
   AlbumRoute: typeof AlbumRouteWithChildren
   ScannerRoute: typeof ScannerRoute
   ShareRoute: typeof ShareRouteWithChildren
+  StatRoute: typeof StatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/stat': {
+      id: '/stat'
+      path: '/stat'
+      fullPath: '/stat'
+      preLoaderRoute: typeof StatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/share': {
       id: '/share'
       path: '/share'
@@ -237,6 +257,7 @@ const rootRouteChildren: RootRouteChildren = {
   AlbumRoute: AlbumRouteWithChildren,
   ScannerRoute: ScannerRoute,
   ShareRoute: ShareRouteWithChildren,
+  StatRoute: StatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

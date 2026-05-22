@@ -66,3 +66,36 @@
   font-weight: var(--typography-weight-medium);
   line-height: var(--typography-line-height-snug);
 }
+
+.openStatsButton {
+  margin-top: 0;
+  width: var(--size-icon-md);
+  height: var(--size-icon-md);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-brand-primary);
+  color: var(--color-text-on-brand);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    transform 120ms ease,
+    filter 120ms ease;
+}
+
+.openStatsButton:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.openStatsButton:active {
+  transform: translateY(0);
+  filter: brightness(0.96);
+}
+
+.openStatsButton:focus-visible {
+  outline: var(--border-width-strong) solid var(--color-brand-primary);
+  outline-offset: var(--border-width-strong);
+}

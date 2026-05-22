@@ -2,12 +2,14 @@ import { describe, expect, it } from 'vitest';
 
 import React from 'react';
 import { createRoot, type Root } from 'react-dom/client';
+import userEvent from '@testing-library/user-event';
 
 // oxlint-disable-next-line import/no-unassigned-import
 import '@/i18n/config';
 
 import { HomeHeroProgress } from '@/components/home/HomeHeroProgress';
 import type { HomeSummary } from '@/components/home/home-state';
+import { waitForCondition } from '../../helpers/async';
 
 function mount(child: React.ReactNode): { container: HTMLDivElement; root: Root } {
   const container = document.createElement('div');
@@ -22,32 +24,6 @@ function cleanup({ container, root }: { container: HTMLDivElement; root: Root })
   container.remove();
 }
 
-function waitFor(predicate: () => boolean, timeoutMs = 4000): Promise<void> {
-  return new Promise<void>((resolve, reject) => {
-    const start = Date.now();
-
-    function check() {
-      try {
-        if (predicate()) {
-          resolve();
-          return;
-        }
-      } catch {
-        // keep polling
-      }
-
-      if (Date.now() - start > timeoutMs) {
-        reject(new Error('waitFor timeout'));
-        return;
-      }
-
-      requestAnimationFrame(check);
-    }
-
-    check();
-  });
-}
-
 const baseSummary: HomeSummary = {
   collectedTotal: 10,
   albumTotal: 100,
@@ -55,29 +31,10 @@ const baseSummary: HomeSummary = {
 };
 
 describe('HomeHeroProgress', () => {
-  it('uses default aria label when ringAriaLabel is undefined', async () => {
-    const mounted = mount(
-      React.createElement(HomeHeroProgress, {
-        summary: baseSummary,
-        completeLabel: 'complete',
-        collectedFormatted: '10',
-        totalFormatted: '100',
-        percentFormatted: '10%'
-        // ringAriaLabel omitted — should fall back to "Home progress"
-      })
-    );
+  it('renders stats cta and forwards click', async () => {
+    const user = userEvent.setup();
+    let clicked = 0;
 
-    try {
-      await waitFor(() => mounted.container.querySelector('section') !== null);
-
-      const section = mounted.container.querySelector('section');
-      expect(section?.getAttribute('aria-label')).toBe('Home progress');
-    } finally {
-      cleanup(mounted);
-    }
-  });
-
-  it('uses provided ringAriaLabel when given', async () => {
     const mounted = mount(
       React.createElement(HomeHeroProgress, {
         summary: baseSummary,
@@ -85,12 +42,48 @@ describe('HomeHeroProgress', () => {
         collectedFormatted: '10',
         totalFormatted: '100',
         percentFormatted: '10%',
-        ringAriaLabel: 'Album progress'
+        ringAriaLabel: 'Album progress',
+        openStatsLabel: 'See stats',
+        onOpenStats: () => {
+          clicked += 1;
+        }
       })
     );
 
     try {
-      await waitFor(() => mounted.container.querySelector('section') !== null);
+      await waitForCondition(
+        () => mounted.container.querySelector('[data-testid="home-stats-cta"]') !== null
+      );
+
+      const button = mounted.container.querySelector(
+        '[data-testid="home-stats-cta"]'
+      ) as HTMLButtonElement;
+      expect(button.getAttribute('aria-label')).toBe('See stats');
+      expect(button.textContent?.trim()).toBe('');
+
+      await user.click(button);
+      expect(clicked).toBe(1);
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('applies provided ringAriaLabel to section landmark', async () => {
+    const mounted = mount(
+      React.createElement(HomeHeroProgress, {
+        summary: baseSummary,
+        completeLabel: 'complete',
+        collectedFormatted: '10',
+        totalFormatted: '100',
+        percentFormatted: '10%',
+        ringAriaLabel: 'Album progress',
+        openStatsLabel: 'See stats',
+        onOpenStats: () => {}
+      })
+    );
+
+    try {
+      await waitForCondition(() => mounted.container.querySelector('section') !== null);
 
       const section = mounted.container.querySelector('section');
       expect(section?.getAttribute('aria-label')).toBe('Album progress');
@@ -107,12 +100,14 @@ describe('HomeHeroProgress', () => {
         collectedFormatted: '0',
         totalFormatted: '100',
         percentFormatted: '0%',
-        ringAriaLabel: 'test'
+        ringAriaLabel: 'test',
+        openStatsLabel: 'See stats',
+        onOpenStats: () => {}
       })
     );
 
     try {
-      await waitFor(() => mounted.container.querySelector('svg') !== null);
+      await waitForCondition(() => mounted.container.querySelector('svg') !== null);
       // Should render without errors - stroke-dashoffset computed from 0
       expect(mounted.container.querySelector('svg')).not.toBeNull();
     } finally {
@@ -128,12 +123,14 @@ describe('HomeHeroProgress', () => {
         collectedFormatted: '100',
         totalFormatted: '100',
         percentFormatted: '100%',
-        ringAriaLabel: 'test'
+        ringAriaLabel: 'test',
+        openStatsLabel: 'See stats',
+        onOpenStats: () => {}
       })
     );
 
     try {
-      await waitFor(() => mounted.container.querySelector('svg') !== null);
+      await waitForCondition(() => mounted.container.querySelector('svg') !== null);
       expect(mounted.container.querySelector('svg')).not.toBeNull();
     } finally {
       cleanup(mounted);

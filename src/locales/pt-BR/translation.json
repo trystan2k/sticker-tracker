@@ -170,7 +170,8 @@
     "hero": {
       "ariaLabel": "Progresso do álbum",
       "complete": "completo",
-      "collected": "coletadas"
+      "collected": "coletadas",
+      "openStats": "Ver estatísticas"
     },
     "groups": {
       "title": "Grupos"
@@ -178,6 +179,64 @@
     "specials": {
       "title": "Páginas Especiais",
       "openingTitle": "Página de Abertura"
+    }
+  },
+  "stats": {
+    "header": {
+      "title": "Estatísticas",
+      "back": "Voltar"
+    },
+    "content": {
+      "regionLabel": "Conteúdo de estatísticas",
+      "skipLink": "Pular para seleções em destaque"
+    },
+    "intro": {
+      "chip": "Painel geral",
+      "title": "Raio-x do album",
+      "description": "Acompanhe seu progresso de ranking por times e grupos."
+    },
+    "hero": {
+      "completedCount": "{{count}} completos",
+      "incompleteCount": "{{count}} abertos"
+    },
+    "sections": {
+      "spotlight": "Seleções em destaque",
+      "panorama": "Panorama de grupos",
+      "teams": "Ranking de times",
+      "groups": "Ranking de grupos",
+      "summary": "Resumo de grupos"
+    },
+    "spotlight": {
+      "mostStickers": "Mais figurinhas",
+      "lessStickers": "Menos figurinhas",
+      "missingCount": "Faltam {{count}}",
+      "closestToFinish": "Grupo {{group}} · mais próxima do fim",
+      "largestDelay": "Grupo {{group}} · maior atraso",
+      "collectedLabel": "{{collected}} coletadas"
+    },
+    "panorama": {
+      "mostStickers": "Mais figurinhas",
+      "lessStickers": "Menos figurinhas",
+      "closed": "Fechados",
+      "open": "Não fechados",
+      "groupsCount": "{{count}} grupos",
+      "collectedCount": "{{collected}} coletadas"
+    },
+    "labels": {
+      "moreStickers": "Mais figurinhas",
+      "lessStickers": "Menos figurinhas",
+      "group": "Grupo",
+      "topGroup": "Grupo superior",
+      "bottomGroup": "Grupo inferior",
+      "completedGroups": "Grupos completos",
+      "incompleteGroups": "Grupos incompletos",
+      "allGroups": "Todos os grupos",
+      "teamsTracked": "Times monitorados",
+      "none": "Nenhum"
+    },
+    "empty": {
+      "title": "Ainda não há dados de ranking",
+      "description": "Comece a colecionar figurinhas para desbloquear esta seção."
     }
   },
   "scanner": {

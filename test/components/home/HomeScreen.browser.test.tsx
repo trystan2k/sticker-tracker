@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import React from 'react';
 import { createRoot, type Root } from 'react-dom/client';
+import userEvent from '@testing-library/user-event';
 
 import { getI18nInstance } from '@/i18n/config';
 
@@ -14,8 +15,12 @@ import {
 
 import { HomeScreen } from '@/components/home/HomeScreen';
 import type { StickerIdentifier } from '@/data/album';
+import type { trackAnalyticsEvent } from '@/services/analytics-service';
 
-const navigateMock = vi.fn<() => void>();
+const { navigateMock, trackAnalyticsEventMock } = vi.hoisted(() => ({
+  navigateMock: vi.fn<() => void>(),
+  trackAnalyticsEventMock: vi.fn<typeof trackAnalyticsEvent>()
+}));
 
 vi.mock('@tanstack/react-router', async () => {
   const actual =
@@ -26,6 +31,10 @@ vi.mock('@tanstack/react-router', async () => {
     useNavigate: () => navigateMock
   };
 });
+
+vi.mock('@/services/analytics-service', () => ({
+  trackAnalyticsEvent: trackAnalyticsEventMock
+}));
 
 function waitFor(predicate: () => boolean, timeoutMs = 8000): Promise<void> {
   return new Promise<void>((resolve, reject) => {
@@ -95,6 +104,7 @@ describe('HomeScreen', () => {
   beforeEach(async () => {
     await getI18nInstance().changeLanguage('en');
     navigateMock.mockClear();
+    trackAnalyticsEventMock.mockClear();
   });
 
   it('returns null when appState is null', async () => {
@@ -520,6 +530,42 @@ describe('HomeScreen', () => {
       expect(confirmSpy).toHaveBeenCalledTimes(1);
     } finally {
       confirmSpy.mockRestore();
+      cleanup(mounted);
+    }
+  });
+
+  it('tracks click and navigates to /stat from home hero cta', async () => {
+    await resetStorage();
+
+    const mounted = mount(
+      React.createElement(AppStateProvider, null, React.createElement(HomeScreen))
+    );
+
+    try {
+      await waitFor(
+        () => mounted.container.querySelector('[data-testid="home-stats-cta"]') !== null
+      );
+
+      const statsCta = mounted.container.querySelector(
+        '[data-testid="home-stats-cta"]'
+      ) as HTMLButtonElement;
+
+      const user = userEvent.setup();
+      await user.click(statsCta);
+
+      await waitFor(() => trackAnalyticsEventMock.mock.calls.length > 0);
+      await waitFor(() => navigateMock.mock.calls.length > 0);
+
+      expect(trackAnalyticsEventMock).toHaveBeenCalledWith('stats_cta_clicked', {
+        source_path: '/'
+      });
+      expect(navigateMock).toHaveBeenCalledWith({
+        to: '/stat',
+        search: {
+          from: '/'
+        }
+      });
+    } finally {
       cleanup(mounted);
     }
   });
