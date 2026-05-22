@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.21.0](https://github.com/trystan2k/sticker-tracker/compare/v1.20.0...v1.21.0) (2026-05-22)
+
+
+### Features
+
+* add stats page and home entry CTA ([af0e309](https://github.com/trystan2k/sticker-tracker/commit/af0e309f7036f8eada81d0e65ce1905e0de6eb68))
+* **deps:** bump ws from 8.18.0 to 8.20.1 ([173c137](https://github.com/trystan2k/sticker-tracker/commit/173c13753d223384f3a937eef3c9325a337b3deb))
+
 ## [1.20.0](https://github.com/trystan2k/sticker-tracker/compare/v1.19.0...v1.20.0) (2026-05-21)
 
 
