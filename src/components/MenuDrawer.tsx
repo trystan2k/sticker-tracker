@@ -1,4 +1,14 @@
-import { Camera, ChevronRight, Download, Menu, Palette, Share2, Trash2, X } from 'lucide-react';
+import {
+  Camera,
+  ChevronRight,
+  Download,
+  ListMinus,
+  Menu,
+  Palette,
+  Share2,
+  Trash2,
+  X
+} from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
@@ -16,6 +26,7 @@ interface MenuDrawerProps {
   onOpenThemeSwitcher?: () => void;
   onOpenDeleteConfirm?: () => void;
   onOpenShare?: (() => void) | undefined;
+  onOpenMissing?: (() => void) | undefined;
   onOpenBackupRestore?: (() => void) | undefined;
   onOpenScanner?: (() => void) | undefined;
   currentLocale: string;
@@ -34,6 +45,7 @@ export function MenuDrawer({
   onOpenThemeSwitcher,
   onOpenDeleteConfirm,
   onOpenShare,
+  onOpenMissing,
   onOpenBackupRestore,
   onOpenScanner,
   currentLocale
@@ -150,6 +162,16 @@ export function MenuDrawer({
     onOpenShare();
   }, [onClose, onOpenShare]);
 
+  const handleOpenMissing = useCallback(() => {
+    if (!onOpenMissing) {
+      return;
+    }
+
+    triggerRef.current = null;
+    onClose();
+    onOpenMissing();
+  }, [onClose, onOpenMissing]);
+
   const handleOpenDeleteConfirm = useCallback(() => {
     if (!onOpenDeleteConfirm) {
       return;
@@ -249,6 +271,18 @@ export function MenuDrawer({
           >
             <Share2 size={22} aria-hidden="true" />
             <span className={styles.rowLabel}>{t('drawer.share')}</span>
+          </button>
+
+          <div className={styles.divider} aria-hidden="true" />
+
+          <button
+            type="button"
+            className={styles.row}
+            disabled={!onOpenMissing}
+            onClick={handleOpenMissing}
+          >
+            <ListMinus size={22} aria-hidden="true" />
+            <span className={styles.rowLabel}>{t('drawer.missing')}</span>
           </button>
 
           <div className={styles.divider} aria-hidden="true" />

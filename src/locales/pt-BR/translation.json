@@ -181,6 +181,36 @@
       "openingTitle": "Página de Abertura"
     }
   },
+  "missing": {
+    "header": {
+      "title": "Figurinhas Faltantes",
+      "back": "Voltar",
+      "share": "Compartilhar figurinhas faltantes"
+    },
+    "intro": {
+      "title": "Faltantes",
+      "description": "Só aparecem seleções e especiais que ainda têm figurinhas faltantes."
+    },
+    "summary": {
+      "ariaLabel": "Resumo de figurinhas faltantes",
+      "collected": "{{collected}} / {{total}} coletadas",
+      "totalMissing": "{{count}} faltando",
+      "progressAriaLabel": "Progresso de figurinhas coletadas"
+    },
+    "content": {
+      "ariaLabel": "Conteúdo de figurinhas faltantes"
+    },
+    "block": {
+      "missingCount": "{{count}} faltando",
+      "specialLabel": "Especial",
+      "fwcCode": "FWC"
+    },
+    "empty": {
+      "title": "Álbum completo",
+      "description": "Você colecionou todas as figurinhas.",
+      "backHome": "Ir para início"
+    }
+  },
   "stats": {
     "header": {
       "title": "Estatísticas",
@@ -351,6 +381,7 @@
   },
   "drawer": {
     "share": "Compartilhar Faltantes",
+    "missing": "Figurinhas faltantes",
     "language": "Idioma",
     "theme": "Tema",
     "backup_restore": "Backup e restauração",

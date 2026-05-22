@@ -181,6 +181,36 @@
       "openingTitle": "Opening Page"
     }
   },
+  "missing": {
+    "header": {
+      "title": "Missing Stickers",
+      "back": "Back",
+      "share": "Share missing stickers"
+    },
+    "intro": {
+      "title": "Missing",
+      "description": "Only teams and specials that still have missing stickers appear here."
+    },
+    "summary": {
+      "ariaLabel": "Missing stickers summary",
+      "collected": "{{collected}} / {{total}} collected",
+      "totalMissing": "{{count}} missing",
+      "progressAriaLabel": "Collected stickers progress"
+    },
+    "content": {
+      "ariaLabel": "Missing stickers content"
+    },
+    "block": {
+      "missingCount": "{{count}} missing",
+      "specialLabel": "Special",
+      "fwcCode": "FWC"
+    },
+    "empty": {
+      "title": "Album complete",
+      "description": "You collected all stickers.",
+      "backHome": "Go to home"
+    }
+  },
   "stats": {
     "header": {
       "title": "Stats",
@@ -351,6 +381,7 @@
   },
   "drawer": {
     "share": "Share Missing",
+    "missing": "Missing Stickers",
     "language": "Language",
     "theme": "Theme",
     "backup_restore": "Backup & Restore",

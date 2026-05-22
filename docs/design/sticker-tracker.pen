@@ -14957,7 +14957,7 @@
               "fill": "$text-primary",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "Faltantes",
+              "content": "Figurinhas Faltantes",
               "textAlign": "center",
               "fontFamily": "$font-heading",
               "fontSize": 20,
@@ -15071,7 +15071,7 @@
                   "type": "text",
                   "id": "wvf6R",
                   "fill": "$text-primary",
-                  "content": "Seleções com faltantes",
+                  "content": "Faltantes",
                   "fontFamily": "$font-heading",
                   "fontSize": 18,
                   "fontWeight": "800"
@@ -15167,6 +15167,15 @@
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "E20E7",
+                          "fill": "#4A6A4A",
+                          "content": "6/20",
+                          "fontFamily": "Barlow Condensed",
+                          "fontSize": 15,
+                          "fontWeight": "700"
                         }
                       ]
                     },
@@ -15366,6 +15375,15 @@
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "raDZm",
+                          "fill": "#4A6A4A",
+                          "content": "7/20",
+                          "fontFamily": "Barlow Condensed",
+                          "fontSize": 15,
+                          "fontWeight": "700"
                         }
                       ]
                     },
@@ -15577,6 +15595,15 @@
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "Vh5pW",
+                          "fill": "#4A6A4A",
+                          "content": "5/20",
+                          "fontFamily": "Barlow Condensed",
+                          "fontSize": 15,
+                          "fontWeight": "700"
                         }
                       ]
                     },
@@ -15769,6 +15796,15 @@
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "L2NvP",
+                          "fill": "#4A6A4A",
+                          "content": "4/20",
+                          "fontFamily": "Barlow Condensed",
+                          "fontSize": 15,
+                          "fontWeight": "700"
                         }
                       ]
                     },
@@ -15918,6 +15954,15 @@
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "VusZy",
+                          "fill": "#4A6A4A",
+                          "content": "4/9",
+                          "fontFamily": "Barlow Condensed",
+                          "fontSize": 15,
+                          "fontWeight": "700"
                         }
                       ]
                     },
@@ -16067,6 +16112,15 @@
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "PTzHN",
+                          "fill": "#4A6A4A",
+                          "content": "5/14",
+                          "fontFamily": "Barlow Condensed",
+                          "fontSize": 15,
+                          "fontWeight": "700"
                         }
                       ]
                     },
@@ -16267,7 +16321,7 @@
               "fill": "$text-primary",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "Faltantes",
+              "content": "Figurinhas Faltantes",
               "textAlign": "center",
               "fontFamily": "$font-heading",
               "fontSize": 20,
@@ -16381,7 +16435,7 @@
                   "type": "text",
                   "id": "x5CtHx",
                   "fill": "$text-primary",
-                  "content": "Seleções com faltantes",
+                  "content": "Faltantes",
                   "fontFamily": "$font-heading",
                   "fontSize": 18,
                   "fontWeight": "800"
@@ -16477,6 +16531,15 @@
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "b0F4sA",
+                          "fill": "#8AAA8A",
+                          "content": "6/20",
+                          "fontFamily": "Barlow Condensed",
+                          "fontSize": 15,
+                          "fontWeight": "700"
                         }
                       ]
                     },
@@ -16676,6 +16739,15 @@
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "EnqYP",
+                          "fill": "#8AAA8A",
+                          "content": "7/20",
+                          "fontFamily": "Barlow Condensed",
+                          "fontSize": 15,
+                          "fontWeight": "700"
                         }
                       ]
                     },
@@ -16887,6 +16959,15 @@
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "ET7GF",
+                          "fill": "#8AAA8A",
+                          "content": "5/20",
+                          "fontFamily": "Barlow Condensed",
+                          "fontSize": 15,
+                          "fontWeight": "700"
                         }
                       ]
                     },
@@ -17079,6 +17160,15 @@
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "MRroB",
+                          "fill": "#8AAA8A",
+                          "content": "4/20",
+                          "fontFamily": "Barlow Condensed",
+                          "fontSize": 15,
+                          "fontWeight": "700"
                         }
                       ]
                     },
@@ -17228,6 +17318,15 @@
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "kXQJH",
+                          "fill": "#8AAA8A",
+                          "content": "4/9",
+                          "fontFamily": "Barlow Condensed",
+                          "fontSize": 15,
+                          "fontWeight": "700"
                         }
                       ]
                     },
@@ -17377,6 +17476,15 @@
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "bul13",
+                          "fill": "#8AAA8A",
+                          "content": "5/14",
+                          "fontFamily": "Barlow Condensed",
+                          "fontSize": 15,
+                          "fontWeight": "700"
                         }
                       ]
                     },

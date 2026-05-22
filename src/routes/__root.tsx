@@ -1,7 +1,7 @@
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 import { TanStackDevtools } from '@tanstack/react-devtools';
-import { type ReactNode, useContext, useEffect } from 'react';
+import { type ReactNode, useContext, useEffect, useState } from 'react';
 
 import { AppStateContext, AppStateProvider } from '@/providers/AppStateProvider';
 import { PwaProvider } from '@/providers/PwaProvider';
@@ -57,6 +57,20 @@ interface RootDocumentProps {
 }
 
 function RootDocument({ children }: RootDocumentProps) {
+  const [showDevtools, setShowDevtools] = useState(false);
+
+  useEffect(() => {
+    if (!import.meta.env.DEV) {
+      return;
+    }
+
+    const searchParams = new URLSearchParams(window.location.search);
+    const hasQueryFlag = searchParams.get('devtools') === '1';
+    const hasStorageFlag = window.localStorage.getItem('sticker-tracker.devtools') === 'on';
+
+    setShowDevtools(hasQueryFlag || hasStorageFlag);
+  }, []);
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -68,19 +82,21 @@ function RootDocument({ children }: RootDocumentProps) {
             <RootLanguageSync />
             <AppShell>{children}</AppShell>
           </PwaProvider>
-          <TanStackDevtools
-            // oxlint-disable-next-line jsx-no-new-object-as-prop
-            config={{
-              position: 'bottom-right'
-            }}
-            // oxlint-disable-next-line jsx-no-new-array-as-prop
-            plugins={[
-              {
-                name: 'Tanstack Router',
-                render: <TanStackRouterDevtoolsPanel />
-              }
-            ]}
-          />
+          {showDevtools ? (
+            <TanStackDevtools
+              // oxlint-disable-next-line jsx-no-new-object-as-prop
+              config={{
+                position: 'bottom-right'
+              }}
+              // oxlint-disable-next-line jsx-no-new-array-as-prop
+              plugins={[
+                {
+                  name: 'Tanstack Router',
+                  render: <TanStackRouterDevtoolsPanel />
+                }
+              ]}
+            />
+          ) : null}
         </AppStateProvider>
         <Scripts />
       </body>

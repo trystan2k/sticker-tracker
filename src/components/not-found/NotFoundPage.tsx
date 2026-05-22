@@ -7,6 +7,7 @@ import { BackupRestoreSheet } from '@/components/BackupRestoreSheet';
 import { LocaleSwitcher } from '@/components/LocaleSwitcher';
 import { MenuDrawer } from '@/components/MenuDrawer';
 import { ThemeSheet } from '@/components/ThemeSheet';
+import { buildInitialShareSelection, encodeShareSelection } from '@/components/share/share-state';
 import { HomeHeader } from '@/components/home/HomeHeader';
 import { AppStateContext } from '@/providers/AppStateProvider';
 import type { CollectionState } from '@/services/collection-service';
@@ -110,6 +111,27 @@ export function NotFoundPage() {
     });
   }, [navigate]);
 
+  const handleOpenShare = useCallback(() => {
+    if (!appState || appState.renderState !== 'ready') {
+      return;
+    }
+
+    const pageIds = buildInitialShareSelection(appState.collection, { type: 'all-missing' });
+    const pages = encodeShareSelection(pageIds);
+
+    void navigate({
+      to: '/share',
+      search: {
+        ...(pages ? { pages } : {}),
+        from: '/'
+      }
+    });
+  }, [appState, navigate]);
+
+  const handleOpenMissing = useCallback(() => {
+    void navigate({ to: '/missing' });
+  }, [navigate]);
+
   return (
     <main className={styles.screen}>
       <HomeHeader onMenuClick={handleOpenMenuDrawer} />
@@ -136,6 +158,8 @@ export function NotFoundPage() {
         onOpenThemeSwitcher={handleOpenThemeSheet}
         onOpenBackupRestore={handleOpenBackupRestore}
         onOpenDeleteConfirm={handleOpenDeleteConfirm}
+        onOpenShare={handleOpenShare}
+        onOpenMissing={handleOpenMissing}
         onOpenScanner={handleOpenScanner}
         currentLocale={i18n.resolvedLanguage ?? i18n.language}
       />
