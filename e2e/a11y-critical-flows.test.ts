@@ -64,6 +64,14 @@ async function waitForStatReady(page: Page): Promise<void> {
   ).toBeVisible();
 }
 
+async function waitForMissingReady(page: Page): Promise<void> {
+  await expect(
+    page.getByRole('heading', {
+      name: /Missing Stickers|Figurinhas faltantes|Cromos faltantes/i
+    })
+  ).toBeVisible();
+}
+
 test('a11y: home page has no axe violations', async ({ page }) => {
   await page.goto('/');
   await waitForHomeReady(page);
@@ -175,6 +183,23 @@ test('a11y: /stat has no axe violations', async ({ page }) => {
   await expectNoA11yViolations(page);
 });
 
+test('a11y: /missing has no axe violations and keyboard flow works', async ({ page }) => {
+  await page.goto('/missing');
+  await waitForMissingReady(page);
+
+  await expectNoA11yViolations(page);
+
+  const shareButton = page.getByRole('button', {
+    name: /Share missing stickers|Compartilhar figurinhas faltantes|Compartir cromos faltantes/i
+  });
+  await shareButton.focus();
+  await page.keyboard.press('Enter');
+
+  await expect(page).toHaveURL(
+    (url) => url.pathname === '/share' && url.searchParams.get('from') === '/missing'
+  );
+});
+
 test('a11y: dark theme key pages have no axe violations', async ({ page }) => {
   // Store dark theme, reload so app reads it and applies data-theme="dark"
   await page.goto('/');
@@ -194,5 +219,9 @@ test('a11y: dark theme key pages have no axe violations', async ({ page }) => {
 
   await page.goto('/stat');
   await waitForStatReady(page);
+  await expectNoA11yViolations(page);
+
+  await page.goto('/missing');
+  await waitForMissingReady(page);
   await expectNoA11yViolations(page);
 });

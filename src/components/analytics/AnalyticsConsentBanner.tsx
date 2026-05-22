@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -12,8 +12,14 @@ import styles from './AnalyticsConsentBanner.module.css';
 
 export function AnalyticsConsentBanner() {
   const { t } = useTranslation();
+  const [hasMounted, setHasMounted] = useState(false);
   const [consent, setConsent] = useState<AnalyticsConsent>(() => readAnalyticsConsent());
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+    setConsent(readAnalyticsConsent());
+  }, []);
 
   const handleAccept = useCallback(() => {
     setIsSaving(true);
@@ -29,7 +35,7 @@ export function AnalyticsConsentBanner() {
     setConsent('denied');
   }, []);
 
-  if (consent !== 'unknown') {
+  if (!hasMounted || consent !== 'unknown') {
     return null;
   }
 

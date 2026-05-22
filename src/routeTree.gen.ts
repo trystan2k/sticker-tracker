@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as StatRouteImport } from './routes/stat'
 import { Route as ShareRouteImport } from './routes/share'
 import { Route as ScannerRouteImport } from './routes/scanner'
+import { Route as MissingRouteImport } from './routes/missing'
 import { Route as AlbumRouteImport } from './routes/album'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShareIndexRouteImport } from './routes/share/index'
@@ -33,6 +34,11 @@ const ShareRoute = ShareRouteImport.update({
 const ScannerRoute = ScannerRouteImport.update({
   id: '/scanner',
   path: '/scanner',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MissingRoute = MissingRouteImport.update({
+  id: '/missing',
+  path: '/missing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AlbumRoute = AlbumRouteImport.update({
@@ -74,6 +80,7 @@ const AlbumGroupPageIdRoute = AlbumGroupPageIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/album': typeof AlbumRouteWithChildren
+  '/missing': typeof MissingRoute
   '/scanner': typeof ScannerRoute
   '/share': typeof ShareRouteWithChildren
   '/stat': typeof StatRoute
@@ -85,6 +92,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/missing': typeof MissingRoute
   '/scanner': typeof ScannerRoute
   '/stat': typeof StatRoute
   '/album/$pageId': typeof AlbumPageIdRoute
@@ -97,6 +105,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/album': typeof AlbumRouteWithChildren
+  '/missing': typeof MissingRoute
   '/scanner': typeof ScannerRoute
   '/share': typeof ShareRouteWithChildren
   '/stat': typeof StatRoute
@@ -111,6 +120,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/album'
+    | '/missing'
     | '/scanner'
     | '/share'
     | '/stat'
@@ -122,6 +132,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/missing'
     | '/scanner'
     | '/stat'
     | '/album/$pageId'
@@ -133,6 +144,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/album'
+    | '/missing'
     | '/scanner'
     | '/share'
     | '/stat'
@@ -146,6 +158,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AlbumRoute: typeof AlbumRouteWithChildren
+  MissingRoute: typeof MissingRoute
   ScannerRoute: typeof ScannerRoute
   ShareRoute: typeof ShareRouteWithChildren
   StatRoute: typeof StatRoute
@@ -172,6 +185,13 @@ declare module '@tanstack/react-router' {
       path: '/scanner'
       fullPath: '/scanner'
       preLoaderRoute: typeof ScannerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/missing': {
+      id: '/missing'
+      path: '/missing'
+      fullPath: '/missing'
+      preLoaderRoute: typeof MissingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/album': {
@@ -255,6 +275,7 @@ const ShareRouteWithChildren = ShareRoute._addFileChildren(ShareRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AlbumRoute: AlbumRouteWithChildren,
+  MissingRoute: MissingRoute,
   ScannerRoute: ScannerRoute,
   ShareRoute: ShareRouteWithChildren,
   StatRoute: StatRoute,

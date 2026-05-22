@@ -90,6 +90,10 @@ export function HomeScreen() {
     });
   }, [appState, navigate]);
 
+  const handleOpenMissing = useCallback(() => {
+    void navigate({ to: '/missing' });
+  }, [navigate]);
+
   const handleOpenScanner = useCallback(() => {
     const originPathname = typeof window === 'undefined' ? '/' : window.location.pathname;
 
@@ -216,6 +220,7 @@ export function HomeScreen() {
         onOpenBackupRestore={handleOpenBackupRestore}
         onOpenDeleteConfirm={handleOpenDeleteConfirm}
         onOpenShare={handleOpenShare}
+        onOpenMissing={handleOpenMissing}
         onOpenScanner={handleOpenScanner}
         currentLocale={appState.locale}
       />

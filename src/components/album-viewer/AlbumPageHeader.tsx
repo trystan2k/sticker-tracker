@@ -86,6 +86,10 @@ export function AlbumPageHeader({
     });
   }, [navigate, originPathname]);
 
+  const handleOpenMissing = useCallback((): void => {
+    void navigate({ to: '/missing' });
+  }, [navigate]);
+
   const handleOpenDeleteConfirm = useCallback(async (): Promise<void> => {
     // oxlint-disable-next-line no-alert
     const isConfirmed = window.confirm(
@@ -181,6 +185,7 @@ export function AlbumPageHeader({
         onOpenBackupRestore={handleOpenBackupRestore}
         onOpenDeleteConfirm={handleOpenDeleteConfirm}
         onOpenShare={onOpenShare}
+        onOpenMissing={handleOpenMissing}
         onOpenScanner={handleNavigateToScanner}
         currentLocale={i18n.resolvedLanguage ?? i18n.language ?? 'en'}
       />

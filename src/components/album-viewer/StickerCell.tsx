@@ -12,6 +12,7 @@ type StickerCellProps = Readonly<{
   isCollected: boolean;
   onToggleSticker: (stickerId: StickerIdentifier) => void;
   disabled?: boolean;
+  dataTestId?: StickerIdentifier;
 }>;
 
 function getStickerCodeAndNumber(
@@ -43,7 +44,8 @@ export function StickerCell({
   stickerId,
   isCollected,
   onToggleSticker,
-  disabled = false
+  disabled = false,
+  dataTestId
 }: StickerCellProps) {
   const { t } = useTranslation();
   const { code, number } = getStickerCodeAndNumber(page, stickerId);
@@ -63,6 +65,7 @@ export function StickerCell({
       })}
       onClick={handleClick}
       disabled={disabled}
+      data-testid={dataTestId}
     >
       <span className={styles.code}>{code}</span>
       <span className={styles.number}>{number}</span>

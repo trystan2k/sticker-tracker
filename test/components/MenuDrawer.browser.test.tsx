@@ -58,7 +58,7 @@ describe('MenuDrawer', () => {
     await getI18nInstance().changeLanguage('en');
   });
 
-  it('renders share and language rows when open', async () => {
+  it('renders share, missing and language rows when open', async () => {
     const mounted = mount(
       React.createElement(MenuDrawer, {
         isOpen: true,
@@ -71,6 +71,7 @@ describe('MenuDrawer', () => {
     try {
       await waitFor(() => document.body.textContent?.includes('Share') ?? false);
       expect(document.body.textContent).toContain('Share');
+      expect(document.body.textContent).toContain('Missing Stickers');
       expect(document.body.textContent).toContain('Language');
     } finally {
       cleanup(mounted);
@@ -274,7 +275,58 @@ describe('MenuDrawer', () => {
     }
   });
 
-  it('renders scanner entry as second row after share', async () => {
+  it('renders missing button as disabled when onOpenMissing missing', async () => {
+    const mounted = mount(
+      React.createElement(MenuDrawer, {
+        isOpen: true,
+        onClose: () => {},
+        onOpenLocaleSwitcher: () => {},
+        currentLocale: 'en'
+      })
+    );
+
+    try {
+      await waitFor(() => document.body.textContent?.includes('Missing Stickers') ?? false);
+
+      const missingButton = Array.from(document.body.querySelectorAll('button')).find(
+        (button) => button.textContent?.includes('Missing Stickers') ?? false
+      );
+
+      expect(missingButton).toBeDefined();
+      expect(missingButton?.hasAttribute('disabled')).toBe(true);
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('calls onOpenMissing when missing row is clicked', async () => {
+    const onOpenMissing = vi.fn<() => void>();
+
+    const mounted = mount(
+      React.createElement(MenuDrawer, {
+        isOpen: true,
+        onClose: () => {},
+        onOpenLocaleSwitcher: () => {},
+        onOpenMissing,
+        currentLocale: 'en'
+      })
+    );
+
+    try {
+      await waitFor(() => document.body.textContent?.includes('Missing Stickers') ?? false);
+
+      const missingButton = Array.from(document.body.querySelectorAll('button')).find(
+        (button) => button.textContent?.includes('Missing Stickers') ?? false
+      );
+
+      missingButton?.click();
+      expect(onOpenMissing).toHaveBeenCalledTimes(1);
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('renders scanner entry after missing row', async () => {
     const mounted = mount(
       React.createElement(MenuDrawer, {
         isOpen: true,
@@ -292,11 +344,13 @@ describe('MenuDrawer', () => {
         (node) => node.textContent?.trim()
       );
 
-      const shareIndex = rowLabels.findIndex((label) => label?.includes('Share') ?? false);
+      const missingIndex = rowLabels.findIndex(
+        (label) => label?.includes('Missing Stickers') ?? false
+      );
       const scannerIndex = rowLabels.findIndex((label) => label === 'Scanner');
 
-      expect(shareIndex).toBeGreaterThanOrEqual(0);
-      expect(scannerIndex).toBe(shareIndex + 1);
+      expect(missingIndex).toBeGreaterThanOrEqual(0);
+      expect(scannerIndex).toBe(missingIndex + 1);
     } finally {
       cleanup(mounted);
     }
