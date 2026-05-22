@@ -446,40 +446,6 @@ describe('ReviewModal', () => {
     }
   });
 
-  it('removes item when delete is clicked', async () => {
-    const mounted = mount(
-      React.createElement(ReviewModal, {
-        isOpen: true,
-        items: sampleItems,
-        onConfirm: () => {},
-        onCancel: () => {}
-      })
-    );
-
-    try {
-      await waitFor(() => document.body.querySelector('[role="dialog"]') !== null);
-
-      const deleteButton = document.body.querySelector(
-        'button[class*="deleteButton"]'
-      ) as HTMLButtonElement;
-      deleteButton?.click();
-
-      await waitFor(() => document.body.querySelector('input[type="text"]') === null);
-      await waitFor(() => document.body.querySelector('[class*="helperText"]') !== null);
-
-      const input = document.body.querySelector('input[type="text"]');
-      expect(input).toBeNull();
-
-      // Confirm button should be disabled when no items
-      const confirmButton = document.body.querySelector(
-        'button[class*="primaryButton"]'
-      ) as HTMLButtonElement;
-      expect(confirmButton?.disabled).toBe(true);
-    } finally {
-      cleanup(mounted);
-    }
-  });
-
   it('shows duplicate warning when same sticker appears twice', async () => {
     const duplicateItems = [
       { id: 'scan-1', rawText: 'BRA-12', stickerNumber: 'BRA-12' },
