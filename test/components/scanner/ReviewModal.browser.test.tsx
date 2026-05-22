@@ -635,7 +635,9 @@ describe('ReviewModal', () => {
 
       await waitFor(() => {
         const currentDialog = document.body.querySelector('[role="dialog"]');
-        const currentInput = currentDialog?.querySelector('input[type="text"]') as HTMLInputElement | null;
+        const currentInput = currentDialog?.querySelector(
+          'input[type="text"]'
+        ) as HTMLInputElement | null;
         return currentInput?.value === 'BRA-99';
       });
 
@@ -661,7 +663,9 @@ describe('ReviewModal', () => {
 
       await waitFor(() => {
         const currentDialog = document.body.querySelector('[role="dialog"]');
-        const currentInput = currentDialog?.querySelector('input[type="text"]') as HTMLInputElement | null;
+        const currentInput = currentDialog?.querySelector(
+          'input[type="text"]'
+        ) as HTMLInputElement | null;
         return currentInput?.value === 'MEX-1';
       });
 
