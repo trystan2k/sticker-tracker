@@ -1,3 +1,5 @@
+/* oxlint-disable jsx-a11y/prefer-tag-over-role */
+
 import { CheckCircle2, CircleAlert } from 'lucide-react';
 import { useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';

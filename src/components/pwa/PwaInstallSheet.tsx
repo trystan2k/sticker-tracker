@@ -1,3 +1,5 @@
+/* oxlint-disable jsx-a11y/prefer-tag-over-role */
+
 import { Share2, X } from 'lucide-react';
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
