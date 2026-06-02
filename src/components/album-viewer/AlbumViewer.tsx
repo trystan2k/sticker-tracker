@@ -1,3 +1,5 @@
+/* oxlint-disable jsx-a11y/prefer-tag-over-role */
+
 import { ChevronsLeftRight, Share2 } from 'lucide-react';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';

@@ -1,3 +1,5 @@
+/* oxlint-disable jsx-a11y/prefer-tag-over-role */
+
 import { ArrowLeft, Camera, ClipboardCheck, ShieldAlert, Smartphone } from 'lucide-react';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';

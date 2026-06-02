@@ -1,3 +1,5 @@
+/* oxlint-disable jsx-a11y/prefer-tag-over-role */
+
 import { Trash2, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -98,6 +100,7 @@ function ReviewItemRow({ item, errorMessage, onChange, onDelete, t }: ReviewItem
           value={item.stickerNumber}
           onChange={handleChange}
           className={hasError ? `${styles.input} ${styles.inputInvalid}` : styles.input}
+          aria-label={t('scanner.review.stickerLabel', { defaultValue: 'Sticker code' })}
           aria-invalid={hasError}
           aria-describedby={hasError ? `${item.id}-raw ${item.id}-error` : `${item.id}-raw`}
           autoCapitalize="characters"

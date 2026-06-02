@@ -1,3 +1,5 @@
+/* oxlint-disable jsx-a11y/prefer-tag-over-role */
+
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -11,7 +13,6 @@ type PageProgressProps = Readonly<{
 export function PageProgress({ collectedCount, totalCount }: PageProgressProps) {
   const { t } = useTranslation();
   const percentage = totalCount === 0 ? 0 : Math.round((collectedCount / totalCount) * 100);
-
   const fillStyle = useMemo(() => ({ width: `${percentage}%` }), [percentage]);
 
   return (

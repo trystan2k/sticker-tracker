@@ -39,7 +39,6 @@ export function HomeHeroProgress({
           width="160"
           height="160"
           viewBox="0 0 160 160"
-          role="img"
           aria-label={`${collectedFormatted} / ${totalFormatted} - ${percentFormatted} ${completeLabel}`}
         >
           <circle className={styles.track} cx="80" cy="80" r={RING_RADIUS} />

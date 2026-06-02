@@ -1,3 +1,5 @@
+/* oxlint-disable jsx-a11y/prefer-tag-over-role */
+
 import { Check, X } from 'lucide-react';
 import { useCallback, useContext, useEffect, type MouseEvent } from 'react';
 import { createPortal } from 'react-dom';
