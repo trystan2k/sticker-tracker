@@ -12,8 +12,9 @@ import type { SharePreviewPayload } from '@/components/share/share-state';
 import styles from './SharePreviewScreen.module.css';
 
 const SHARE_RENDER_OPTIONS = {
-  preferredScale: 3,
-  maxPixelWidth: 6144
+  preferredScale: 6,
+  maxPixelWidth: 8192,
+  fallbackToJpegIfPngExceedsBytes: 24 * 1024 * 1024
 } as const;
 
 type SharePreviewScreenProps = Readonly<{
@@ -107,7 +108,7 @@ export function SharePreviewScreen({ payload, onBack, mode = 'missing' }: ShareP
 
     try {
       const asset = await getShareAsset();
-      const file = new File([asset.blob], asset.fileName, { type: 'image/png' });
+      const file = new File([asset.blob], asset.fileName, { type: asset.mimeType });
 
       if (navigator.canShare?.({ files: [file] })) {
         await navigator.share({ files: [file], title: t('share.brandName') });

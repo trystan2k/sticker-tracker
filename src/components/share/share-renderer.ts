@@ -5,11 +5,13 @@ type RenderSharePngOptions = {
   preferredScale?: number;
   maxPixelWidth?: number;
   maxPixelHeight?: number;
+  fallbackToJpegIfPngExceedsBytes?: number;
 };
 
 type RenderedSharePng = {
   blob: Blob;
   fileName: string;
+  mimeType: string;
   width: number;
   height: number;
   scale: number;
@@ -345,17 +347,27 @@ function computeScale(
   return scale;
 }
 
-function toPngBlob(canvas: HTMLCanvasElement): Promise<Blob> {
-  return new Promise((resolve, reject) => {
-    canvas.toBlob((blob) => {
-      if (!blob) {
-        reject(new Error('Unable to render PNG blob.'));
-        return;
-      }
+function toCanvasBlob(canvas: HTMLCanvasElement, type: string, quality?: number): Promise<Blob> {
+  const formatLabel = type === 'image/png' ? 'PNG' : type === 'image/jpeg' ? 'JPEG' : type;
 
-      resolve(blob);
-    }, 'image/png');
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) {
+          reject(new Error(`Unable to render ${formatLabel} blob.`));
+          return;
+        }
+
+        resolve(blob);
+      },
+      type,
+      quality
+    );
   });
+}
+
+function replaceFileExtension(fileName: string, extension: string): string {
+  return fileName.replace(/\.[^.]+$/u, extension);
 }
 
 export async function renderSharePng(
@@ -500,11 +512,24 @@ export async function renderSharePng(
     logicalWidth - CARD_PADDING_X * 2
   );
 
-  const blob = await toPngBlob(canvas);
+  const baseFileName = t(`${translationKeyPrefix}.fileName`);
+  let blob = await toCanvasBlob(canvas, 'image/png');
+  let fileName = baseFileName;
+  let mimeType = 'image/png';
+
+  if (
+    typeof options?.fallbackToJpegIfPngExceedsBytes === 'number' &&
+    blob.size > options.fallbackToJpegIfPngExceedsBytes
+  ) {
+    blob = await toCanvasBlob(canvas, 'image/jpeg', 1);
+    fileName = replaceFileExtension(baseFileName, '.jpg');
+    mimeType = 'image/jpeg';
+  }
 
   return {
     blob,
-    fileName: t(`${translationKeyPrefix}.fileName`),
+    fileName,
+    mimeType,
     width: canvas.width,
     height: canvas.height,
     scale
