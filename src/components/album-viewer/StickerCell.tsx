@@ -164,6 +164,7 @@ export function StickerCell({
 
         if (pendingQuantity !== null) {
           commitQuantity(getNextStickerQuantityForSingleTap(pendingQuantity));
+          return;
         }
 
         commitQuantity(getNextStickerQuantityForSingleTap(latestQuantityRef.current));

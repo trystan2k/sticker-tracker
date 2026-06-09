@@ -136,6 +136,41 @@ describe('StickerCell keyboard and pending interactions', () => {
     }
   });
 
+  it('flushes pending click once when keyboard activation happens inside double tap window', async () => {
+    const updates: number[] = [];
+    const mounted = mount(
+      <StickerCell
+        page={teamPage}
+        stickerId={teamPage.stickerIds[0]!}
+        quantity={1}
+        onSetStickerQuantity={(_, quantity) => {
+          updates.push(quantity);
+        }}
+      />
+    );
+
+    try {
+      await waitForCondition(() => mounted.container.querySelector('button') !== null);
+
+      const button = mounted.container.querySelector('button') as HTMLButtonElement;
+      const user = userEvent.setup();
+
+      button.click();
+      button.focus();
+      await user.keyboard('{Enter}');
+
+      expect(updates).toEqual([2]);
+
+      await new Promise((resolve) => {
+        window.setTimeout(resolve, STICKER_CELL_DOUBLE_TAP_THRESHOLD_MS + 30);
+      });
+
+      expect(updates).toEqual([2]);
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
   it('decrements owned sticker on Backspace for keyboard-only users', async () => {
     const updates: number[] = [];
     const mounted = mount(
