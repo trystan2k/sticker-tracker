@@ -11,7 +11,11 @@ import {
 } from '@/data/album';
 import { computeGroupStatsFromTeamStats, computeTeamStats } from '@/data/album-stats';
 import { getAlbumPath } from '@/components/album-viewer/viewer-state';
-import type { CollectionState } from '@/services/collection-service';
+import {
+  countUniqueCollectedStickers,
+  derivePageCollectedStickerIds,
+  type CollectionState
+} from '@/services/collection-service';
 
 export interface HomeSummary {
   collectedTotal: number;
@@ -85,9 +89,7 @@ function getSpecialTotalByKey(page: SpecialPage): number {
 }
 
 export function computeHomeSummary(collection: CollectionState): HomeSummary {
-  const collectedTotal = Object.values(collection).reduce((total, stickers) => {
-    return total + stickers.size;
-  }, 0);
+  const collectedTotal = countUniqueCollectedStickers(collection);
   const albumTotal = ALBUM_TOTAL;
   const percentage = clampPercentage((collectedTotal / albumTotal) * 100);
 
@@ -147,7 +149,7 @@ export function computeSpecialPagesData(collection: CollectionState): SpecialCar
   const specialPages = albumPages.filter((page): page is SpecialPage => page.type === 'special');
 
   return specialPages.map((page) => {
-    const collected = collection[page.pageId]?.size ?? 0;
+    const collected = derivePageCollectedStickerIds(collection, page.pageId).size;
     const total = getSpecialTotalByKey(page);
     const percentage = clampPercentage(total === 0 ? 0 : (collected / total) * 100);
 

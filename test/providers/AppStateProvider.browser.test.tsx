@@ -7,6 +7,7 @@ import { AppStateContext, AppStateProvider } from '@/providers/AppStateProvider'
 import type { PageId, StickerIdentifier } from '@/data/album';
 import {
   initializeStorage,
+  write,
   resetStorageStateForTests,
   setDatabaseNameForTests,
   setStorageDriverForTests
@@ -20,6 +21,23 @@ function asPageId(value: string): PageId {
 function asStickerId(value: string): StickerIdentifier {
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion
   return value as StickerIdentifier;
+}
+
+function createScannerLookup() {
+  return {
+    version: 1,
+    entries: {
+      'BRA-1': {
+        stickerId: asStickerId('BRA-1'),
+        pageId: asPageId('bra'),
+        pageType: 'team' as const,
+        translationKey: 'team.bra',
+        albumCode: 'BRA',
+        group: 'C',
+        flagCode: 'br'
+      }
+    }
+  };
 }
 
 function waitFor(predicate: () => boolean, timeoutMs = 8000): Promise<void> {
@@ -79,6 +97,64 @@ async function resetStorage() {
   setDatabaseNameForTests(`test-provider-${testCounter}`);
 }
 
+function createMemoryStorageDriver(options?: {
+  delayFirstCollectionWrite?: boolean;
+  failNormalizationWriteBack?: boolean;
+  initialCollection?: unknown;
+}) {
+  const store = new Map<string, unknown>();
+
+  if (options?.initialCollection !== undefined) {
+    store.set('collection', options.initialCollection);
+  }
+
+  let collectionWriteCount = 0;
+  let releaseFirstCollectionWrite: (() => void) | null = null;
+  const firstCollectionWriteReleased = new Promise<void>((resolve) => {
+    releaseFirstCollectionWrite = resolve;
+  });
+
+  const database = {
+    get: async (_storeName: string, key: string) => {
+      if (!store.has(key)) {
+        return undefined;
+      }
+
+      return {
+        key,
+        value: store.get(key)
+      };
+    },
+    put: async (_storeName: string, entry: { key: string; value: unknown }) => {
+      if (entry.key === 'collection') {
+        collectionWriteCount += 1;
+
+        if (options?.failNormalizationWriteBack && collectionWriteCount === 1) {
+          throw new Error('writeback failed');
+        }
+
+        if (options?.delayFirstCollectionWrite && collectionWriteCount === 1) {
+          await firstCollectionWriteReleased;
+        }
+      }
+
+      store.set(entry.key, entry.value);
+    },
+    clear: async () => {
+      store.clear();
+    },
+    close: () => {}
+  };
+
+  return {
+    store,
+    releaseFirstCollectionWrite: () => releaseFirstCollectionWrite?.(),
+    driver: {
+      openDatabase: async () => database as never
+    }
+  };
+}
+
 describe('AppStateProvider', () => {
   describe('bootstrap happy path', () => {
     it('transitions from loading to ready with real storage', async () => {
@@ -119,6 +195,54 @@ describe('AppStateProvider', () => {
 
         const child = mounted.container.querySelector('[data-testid="ready-child"]');
         expect(child).not.toBeNull();
+      } finally {
+        cleanup(mounted);
+      }
+    });
+
+    it('soft-fails malformed saved collection data during bootstrap', async () => {
+      await resetStorage();
+      await initializeStorage();
+      await write('collection', { mex: { 'BAD-1': 4, 'MEX-1': 0 } } as never);
+
+      let capturedContext:
+        | (typeof AppStateContext extends React.Context<infer T> ? T : never)
+        | null = null;
+
+      function ContextReader() {
+        capturedContext = React.useContext(AppStateContext);
+        return React.createElement('div', { 'data-testid': 'context-captured' });
+      }
+
+      const mounted = mountProvider(React.createElement(ContextReader));
+
+      try {
+        await waitFor(() => capturedContext !== null && capturedContext.renderState === 'ready');
+
+        expect(capturedContext!.collection).toEqual({});
+      } finally {
+        cleanup(mounted);
+      }
+    });
+
+    it('keeps bootstrap ready when normalization writeback fails during bootstrap', async () => {
+      resetStorageStateForTests();
+
+      const memoryStorage = createMemoryStorageDriver({
+        failNormalizationWriteBack: true,
+        initialCollection: { mex: ['MEX-1'] }
+      });
+
+      setStorageDriverForTests(memoryStorage.driver as never);
+
+      const mounted = mountProvider();
+
+      try {
+        await waitFor(
+          () => mounted.container.querySelector('[data-testid="ready-child"]') !== null
+        );
+
+        expect(mounted.container.querySelector('[role="alert"]')).toBeNull();
       } finally {
         cleanup(mounted);
       }
@@ -305,7 +429,6 @@ describe('AppStateProvider', () => {
         await waitFor(() => capturedContext !== null && capturedContext.renderState === 'ready');
 
         const toggleResult = await capturedContext!.toggleCollected(
-          {},
           asPageId('mex'),
           asStickerId('MEX-1')
         );
@@ -313,8 +436,347 @@ describe('AppStateProvider', () => {
         expect(toggleResult.state).toBe('ready');
         // oxlint-disable-next-line typescript/no-unsafe-type-assertion
         expect((toggleResult as { state: 'ready'; value: unknown }).value).toEqual({
-          [asPageId('mex')]: new Set([asStickerId('MEX-1')])
+          [asPageId('mex')]: {
+            [asStickerId('MEX-1')]: 1
+          }
         });
+      } finally {
+        cleanup(mounted);
+      }
+    });
+
+    it('setStickerQuantity updates collection through context', async () => {
+      await resetStorage();
+
+      let capturedContext:
+        | (typeof AppStateContext extends React.Context<infer T> ? T : never)
+        | null = null;
+
+      function ContextReader() {
+        capturedContext = React.useContext(AppStateContext);
+        return React.createElement('div', { 'data-testid': 'context-captured' });
+      }
+
+      const mounted = mountProvider(React.createElement(ContextReader));
+
+      try {
+        await waitFor(() => capturedContext !== null && capturedContext.renderState === 'ready');
+
+        const updateResult = await capturedContext!.setStickerQuantity(
+          asPageId('mex'),
+          asStickerId('MEX-1'),
+          3
+        );
+
+        expect(updateResult.state).toBe('ready');
+        expect((updateResult as { state: 'ready'; value: unknown }).value).toEqual({
+          [asPageId('mex')]: {
+            [asStickerId('MEX-1')]: 3
+          }
+        });
+      } finally {
+        cleanup(mounted);
+      }
+    });
+
+    it('serializes overlapping collection writes so quick updates do not clobber each other', async () => {
+      resetStorageStateForTests();
+
+      const memoryStorage = createMemoryStorageDriver({
+        delayFirstCollectionWrite: true
+      });
+
+      setStorageDriverForTests(memoryStorage.driver as never);
+
+      let capturedContext:
+        | (typeof AppStateContext extends React.Context<infer T> ? T : never)
+        | null = null;
+
+      function ContextReader() {
+        capturedContext = React.useContext(AppStateContext);
+        return React.createElement('div', { 'data-testid': 'context-captured' });
+      }
+
+      const mounted = mountProvider(React.createElement(ContextReader));
+
+      try {
+        await waitFor(() => capturedContext !== null && capturedContext.renderState === 'ready');
+
+        const firstUpdate = capturedContext!.setStickerQuantity(
+          asPageId('mex'),
+          asStickerId('MEX-1'),
+          1
+        );
+        const secondUpdate = capturedContext!.setStickerQuantity(
+          asPageId('mex'),
+          asStickerId('MEX-2'),
+          1
+        );
+
+        await new Promise((resolve) => window.setTimeout(resolve, 25));
+
+        expect(capturedContext!.collection).toEqual({});
+
+        memoryStorage.releaseFirstCollectionWrite();
+
+        await Promise.all([firstUpdate, secondUpdate]);
+
+        await waitFor(() => {
+          return (
+            capturedContext?.collection[asPageId('mex')]?.[asStickerId('MEX-1')] === 1 &&
+            capturedContext?.collection[asPageId('mex')]?.[asStickerId('MEX-2')] === 1
+          );
+        });
+
+        expect(capturedContext!.collection).toEqual({
+          [asPageId('mex')]: {
+            [asStickerId('MEX-1')]: 1,
+            [asStickerId('MEX-2')]: 1
+          }
+        });
+        expect(memoryStorage.store.get('collection')).toEqual({
+          [asPageId('mex')]: {
+            [asStickerId('MEX-1')]: 1,
+            [asStickerId('MEX-2')]: 1
+          }
+        });
+      } finally {
+        cleanup(mounted);
+      }
+    });
+
+    it('serializes manual updates and scanner confirmations through one queue', async () => {
+      resetStorageStateForTests();
+
+      const memoryStorage = createMemoryStorageDriver({
+        delayFirstCollectionWrite: true
+      });
+
+      memoryStorage.store.set('scannerLookup', createScannerLookup());
+      setStorageDriverForTests(memoryStorage.driver as never);
+
+      let capturedContext:
+        | (typeof AppStateContext extends React.Context<infer T> ? T : never)
+        | null = null;
+
+      function ContextReader() {
+        capturedContext = React.useContext(AppStateContext);
+        return React.createElement('div', { 'data-testid': 'context-captured' });
+      }
+
+      const mounted = mountProvider(React.createElement(ContextReader));
+
+      try {
+        await waitFor(() => capturedContext !== null && capturedContext.renderState === 'ready');
+
+        const manualUpdate = capturedContext!.setStickerQuantity(
+          asPageId('mex'),
+          asStickerId('MEX-1'),
+          1
+        );
+        const scannerUpdate = capturedContext!.markScannedStickersAsHave(['BRA-1']);
+
+        await new Promise((resolve) => window.setTimeout(resolve, 25));
+
+        expect(capturedContext!.collection).toEqual({});
+
+        memoryStorage.releaseFirstCollectionWrite();
+
+        const [, scannerResult] = await Promise.all([manualUpdate, scannerUpdate]);
+
+        expect(scannerResult).toEqual({
+          state: 'ready',
+          value: {
+            [asPageId('mex')]: {
+              [asStickerId('MEX-1')]: 1
+            },
+            [asPageId('bra')]: {
+              [asStickerId('BRA-1')]: 1
+            }
+          },
+          updatedStickerIds: [asStickerId('BRA-1')]
+        });
+
+        await waitFor(() => {
+          return (
+            capturedContext?.collection[asPageId('mex')]?.[asStickerId('MEX-1')] === 1 &&
+            capturedContext?.collection[asPageId('bra')]?.[asStickerId('BRA-1')] === 1
+          );
+        });
+      } finally {
+        cleanup(mounted);
+      }
+    });
+
+    it('applies restore after queued manual updates without stale overwrite', async () => {
+      resetStorageStateForTests();
+
+      const memoryStorage = createMemoryStorageDriver({
+        delayFirstCollectionWrite: true
+      });
+
+      setStorageDriverForTests(memoryStorage.driver as never);
+
+      let capturedContext:
+        | (typeof AppStateContext extends React.Context<infer T> ? T : never)
+        | null = null;
+
+      function ContextReader() {
+        capturedContext = React.useContext(AppStateContext);
+        return React.createElement('div', { 'data-testid': 'context-captured' });
+      }
+
+      const mounted = mountProvider(React.createElement(ContextReader));
+
+      try {
+        await waitFor(() => capturedContext !== null && capturedContext.renderState === 'ready');
+
+        const manualUpdate = capturedContext!.setStickerQuantity(
+          asPageId('mex'),
+          asStickerId('MEX-1'),
+          1
+        );
+        const restore = capturedContext!.restoreCollection({
+          [asPageId('bra')]: {
+            [asStickerId('BRA-1')]: 2
+          }
+        });
+
+        await new Promise((resolve) => window.setTimeout(resolve, 25));
+
+        expect(capturedContext!.collection).toEqual({});
+
+        memoryStorage.releaseFirstCollectionWrite();
+
+        await Promise.all([manualUpdate, restore]);
+
+        await waitFor(() => {
+          return capturedContext?.collection[asPageId('bra')]?.[asStickerId('BRA-1')] === 2;
+        });
+
+        expect(capturedContext!.collection).toEqual({
+          [asPageId('bra')]: {
+            [asStickerId('BRA-1')]: 2
+          }
+        });
+        expect(memoryStorage.store.get('collection')).toEqual({
+          [asPageId('bra')]: {
+            [asStickerId('BRA-1')]: 2
+          }
+        });
+      } finally {
+        cleanup(mounted);
+      }
+    });
+
+    it('applies restore after queued scanner confirmations without stale overwrite', async () => {
+      resetStorageStateForTests();
+
+      const memoryStorage = createMemoryStorageDriver({
+        delayFirstCollectionWrite: true
+      });
+
+      memoryStorage.store.set('scannerLookup', createScannerLookup());
+      setStorageDriverForTests(memoryStorage.driver as never);
+
+      let capturedContext:
+        | (typeof AppStateContext extends React.Context<infer T> ? T : never)
+        | null = null;
+
+      function ContextReader() {
+        capturedContext = React.useContext(AppStateContext);
+        return React.createElement('div', { 'data-testid': 'context-captured' });
+      }
+
+      const mounted = mountProvider(React.createElement(ContextReader));
+
+      try {
+        await waitFor(() => capturedContext !== null && capturedContext.renderState === 'ready');
+
+        const scannerUpdate = capturedContext!.markScannedStickersAsHave(['BRA-1']);
+        const restore = capturedContext!.restoreCollection({
+          [asPageId('mex')]: {
+            [asStickerId('MEX-1')]: 4
+          }
+        });
+
+        await new Promise((resolve) => window.setTimeout(resolve, 25));
+
+        expect(capturedContext!.collection).toEqual({});
+
+        memoryStorage.releaseFirstCollectionWrite();
+
+        await Promise.all([scannerUpdate, restore]);
+
+        await waitFor(() => {
+          return capturedContext?.collection[asPageId('mex')]?.[asStickerId('MEX-1')] === 4;
+        });
+
+        expect(capturedContext!.collection).toEqual({
+          [asPageId('mex')]: {
+            [asStickerId('MEX-1')]: 4
+          }
+        });
+        expect(memoryStorage.store.get('collection')).toEqual({
+          [asPageId('mex')]: {
+            [asStickerId('MEX-1')]: 4
+          }
+        });
+      } finally {
+        cleanup(mounted);
+      }
+    });
+
+    it('waits for queued writes before reset and keeps cleared collection after rebootstrap', async () => {
+      resetStorageStateForTests();
+
+      const memoryStorage = createMemoryStorageDriver({
+        delayFirstCollectionWrite: true
+      });
+
+      setStorageDriverForTests(memoryStorage.driver as never);
+
+      let capturedContext:
+        | (typeof AppStateContext extends React.Context<infer T> ? T : never)
+        | null = null;
+
+      function ContextReader() {
+        capturedContext = React.useContext(AppStateContext);
+        return React.createElement('div', { 'data-testid': 'context-captured' });
+      }
+
+      const mounted = mountProvider(React.createElement(ContextReader));
+
+      try {
+        await waitFor(() => capturedContext !== null && capturedContext.renderState === 'ready');
+
+        const pendingUpdate = capturedContext!.setStickerQuantity(
+          asPageId('mex'),
+          asStickerId('MEX-1'),
+          1
+        );
+
+        await new Promise((resolve) => window.setTimeout(resolve, 25));
+
+        const resetPromise = capturedContext!.resetAppData();
+
+        await new Promise((resolve) => window.setTimeout(resolve, 25));
+
+        expect(capturedContext!.collection).toEqual({});
+
+        memoryStorage.releaseFirstCollectionWrite();
+
+        await Promise.all([pendingUpdate, resetPromise]);
+
+        await waitFor(() => {
+          return (
+            capturedContext?.renderState === 'ready' &&
+            Object.keys(capturedContext.collection).length === 0
+          );
+        });
+
+        expect(capturedContext!.collection).toEqual({});
+        expect(memoryStorage.store.get('collection')).toBeUndefined();
       } finally {
         cleanup(mounted);
       }
@@ -366,7 +828,6 @@ describe('AppStateProvider', () => {
 
         // Normal toggle should succeed
         const result = await capturedContext!.toggleCollected(
-          {},
           asPageId('mex'),
           asStickerId('MEX-1')
         );

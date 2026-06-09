@@ -30,7 +30,7 @@ function ShareSelectionRoute() {
     () =>
       sections
         .flatMap((section) => section.rows)
-        .filter((row) => row.missingCount > 0)
+        .filter((row) => row.stickerCount > 0)
         .map((row) => row.pageId),
     [sections]
   );

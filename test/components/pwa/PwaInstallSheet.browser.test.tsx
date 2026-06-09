@@ -57,7 +57,7 @@ function cleanup({ container, root }: { container: HTMLDivElement; root: Root })
 }
 
 describe('PwaInstallSheet', () => {
-  it('renders nothing when sheet closed', () => {
+  it('renders nothing when sheet closed', async () => {
     usePwaMock.mockReturnValue({
       isInstallSheetOpen: false,
       closeInstallSheet: vi.fn<() => void>()
@@ -66,6 +66,8 @@ describe('PwaInstallSheet', () => {
     const mounted = mount(React.createElement(PwaInstallSheet));
 
     try {
+      await waitFor(() => usePwaMock.mock.calls.length === 1);
+
       expect(mounted.container.textContent).toBe('');
     } finally {
       cleanup(mounted);
@@ -92,6 +94,29 @@ describe('PwaInstallSheet', () => {
       );
       closeButton?.click();
 
+      expect(closeInstallSheet).toHaveBeenCalledTimes(1);
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('closes from Escape key only when sheet open', async () => {
+    const closeInstallSheet = vi.fn<() => void>();
+
+    usePwaMock.mockReturnValue({
+      isInstallSheetOpen: true,
+      closeInstallSheet
+    });
+
+    const mounted = mount(React.createElement(PwaInstallSheet));
+
+    try {
+      await waitFor(() => document.body.textContent?.includes('Add to Home Screen') ?? false);
+
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+      expect(closeInstallSheet).not.toHaveBeenCalled();
+
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
       expect(closeInstallSheet).toHaveBeenCalledTimes(1);
     } finally {
       cleanup(mounted);

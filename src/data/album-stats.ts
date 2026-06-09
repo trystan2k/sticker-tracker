@@ -1,5 +1,5 @@
 import { GROUP_LIST, albumPages, type Group, type PageId, type TeamPage } from '@/data/album';
-import type { CollectionState } from '@/services/collection-service';
+import { derivePageCollectedStickerIds, type CollectionState } from '@/services/collection-service';
 
 export interface TeamStats {
   pageId: PageId;
@@ -62,7 +62,7 @@ function compareByGroupOrder(left: GroupStats, right: GroupStats): number {
 
 export function computeTeamStats(collection: CollectionState): TeamStats[] {
   return TEAM_PAGES.map((page) => {
-    const rawCollected = collection[page.pageId]?.size ?? 0;
+    const rawCollected = derivePageCollectedStickerIds(collection, page.pageId).size;
     const total = page.stickerIds.length;
     const collected = clampCollectedCount(rawCollected, total);
     const percentage = clampPercentage(total === 0 ? 0 : (collected / total) * 100);

@@ -19,7 +19,9 @@ function createCollection(): CollectionState {
   }
 
   return {
-    [firstPage.pageId]: new Set([firstSticker])
+    [firstPage.pageId]: {
+      [firstSticker]: 1
+    }
   };
 }
 

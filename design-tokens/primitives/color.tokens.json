@@ -10,6 +10,7 @@
         "500": { "$type": "color", "$value": "#F5A623" }
       },
       "red": {
+        "500": { "$type": "color", "$value": "#990000" },
         "600": { "$type": "color", "$value": "#CC0000" }
       },
       "cream": {

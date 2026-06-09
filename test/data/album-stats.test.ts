@@ -12,12 +12,22 @@ import {
 } from '@/data/album-stats';
 import type { CollectionState } from '@/services/collection-service';
 
-function makeCollection(entries: Record<string, string[]>): CollectionState {
-  const result: Record<string, ReadonlySet<StickerIdentifier>> = {};
+function makeCollection(
+  entries: Record<string, string[] | Record<string, number>>
+): CollectionState {
+  const result: Record<string, Record<StickerIdentifier, number>> = {};
 
-  for (const [pageId, stickerIds] of Object.entries(entries)) {
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-    result[pageId] = new Set(stickerIds) as unknown as ReadonlySet<StickerIdentifier>;
+  for (const [pageId, stickerState] of Object.entries(entries)) {
+    result[pageId] = Array.isArray(stickerState)
+      ? Object.fromEntries(
+          stickerState.map((stickerId) => [stickerId as StickerIdentifier, 1] as const)
+        )
+      : Object.fromEntries(
+          Object.entries(stickerState).map(([stickerId, quantity]) => [
+            stickerId as StickerIdentifier,
+            quantity
+          ])
+        );
   }
 
   return result as unknown as CollectionState;
@@ -102,7 +112,9 @@ describe('album-stats', () => {
   it('clamps corrupted collected counts above team total', () => {
     const stats = computeTeamStats(
       makeCollection({
-        mex: Array.from({ length: 25 }, (_, index) => `MEX-X-${index + 1}`)
+        mex: Object.fromEntries(
+          Array.from({ length: 25 }, (_, index) => [`MEX-${(index % 20) + 1}`, 2] as const)
+        )
       })
     );
 

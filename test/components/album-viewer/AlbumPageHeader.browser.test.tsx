@@ -401,6 +401,29 @@ describe('AlbumPageHeader', () => {
     }
   });
 
+  it('shows repeated row in drawer', async () => {
+    const mounted = mountWithRouter(
+      React.createElement(AlbumPageHeader, {
+        page: teamPage,
+        onOpenQuickNavigation: () => {},
+        onOpenShare: () => {}
+      })
+    );
+
+    try {
+      await waitFor(() => mounted.container.querySelector('header') !== null);
+
+      const menuBtn = mounted.container.querySelector('[class*="menuButton"]');
+      menuBtn?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+      await waitFor(() => document.body.textContent?.includes('Repeated Stickers') ?? false);
+
+      expect(document.body.textContent).toContain('Repeated Stickers');
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
   it('opens theme sheet from drawer theme row', async () => {
     const mounted = mountWithRouter(
       React.createElement(AlbumPageHeader, {

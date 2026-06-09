@@ -38,19 +38,54 @@ test.describe('team page journeys', () => {
     expect(after).toBeGreaterThan(before);
   });
 
-  test('unmark sticker decrements progress', async ({ page }) => {
+  test('single tap on collected sticker adds repeated copy without changing progress', async ({
+    page
+  }) => {
     await page.goto('/album/A/mex');
 
     const stickerCells = await waitForStickerGrid(page);
+    const firstSticker = stickerCells.first();
+    const repeatedBadge = firstSticker.locator('span[aria-hidden="true"]');
     const progressbar = page.getByRole('progressbar');
 
-    await stickerCells.first().click();
-    await expect(stickerCells.first()).toHaveAttribute('aria-pressed', 'true');
+    await firstSticker.click();
+    await expect(firstSticker).toHaveAttribute('aria-pressed', 'true');
 
     const collectedValue = getProgressValue(await progressbar.getAttribute('aria-valuenow'));
 
-    await stickerCells.first().click();
-    await expect(stickerCells.first()).toHaveAttribute('aria-pressed', 'false');
+    await firstSticker.click();
+    await expect(firstSticker).toHaveAttribute('aria-pressed', 'true');
+    await expect(repeatedBadge).toHaveText('1');
+
+    const repeatedValue = getProgressValue(await progressbar.getAttribute('aria-valuenow'));
+    expect(repeatedValue).toBe(collectedValue);
+  });
+
+  test('double click path decrements repeated copy and can unmark sticker', async ({ page }) => {
+    await page.goto('/album/A/mex');
+
+    const stickerCells = await waitForStickerGrid(page);
+    const firstSticker = stickerCells.first();
+    const repeatedBadge = firstSticker.locator('span[aria-hidden="true"]');
+    const progressbar = page.getByRole('progressbar');
+
+    await firstSticker.click();
+    await expect(firstSticker).toHaveAttribute('aria-pressed', 'true');
+
+    const collectedValue = getProgressValue(await progressbar.getAttribute('aria-valuenow'));
+
+    await firstSticker.click();
+    await expect(repeatedBadge).toHaveText('1');
+
+    await firstSticker.dblclick();
+    await expect(firstSticker).toHaveAttribute('aria-pressed', 'true');
+    await expect(repeatedBadge).toHaveCount(0);
+
+    const decrementedValue = getProgressValue(await progressbar.getAttribute('aria-valuenow'));
+    expect(decrementedValue).toBe(collectedValue);
+
+    await firstSticker.dblclick();
+    await expect(firstSticker).toHaveAttribute('aria-pressed', 'false');
 
     const uncollectedValue = getProgressValue(await progressbar.getAttribute('aria-valuenow'));
     expect(uncollectedValue).toBeLessThan(collectedValue);

@@ -68,6 +68,7 @@ function makeReadyState(collection: CollectionState = createCollectionState({}))
     locale: 'en' as const,
     storageState: 'ready' as const,
     toggleCollected: async () => ({ state: 'ready' as const, value: collection }),
+    setStickerQuantity: async () => ({ state: 'ready' as const, value: collection }),
     setLocale: async () => 'ready' as const,
     retryBootstrap: async () => {}
   };

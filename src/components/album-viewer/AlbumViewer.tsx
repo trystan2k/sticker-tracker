@@ -16,24 +16,26 @@ type AlbumViewerProps = Readonly<{
   page: AlbumPage;
   renderState: 'loading' | 'ready';
   collectedStickerIds: ReadonlySet<StickerIdentifier>;
+  stickerQuantities: Readonly<Partial<Record<StickerIdentifier, number>>>;
   activeFilter: ViewerFilter;
   onChangeFilter: (filter: ViewerFilter) => void;
   onOpenQuickNavigation: () => void;
   onOpenShare?: () => void;
   onOpenCurrentPageShare?: () => void;
-  onToggleSticker: (stickerId: StickerIdentifier) => void;
+  onSetStickerQuantity: (stickerId: StickerIdentifier, quantity: number) => void;
 }>;
 
 export function AlbumViewer({
   page,
   renderState,
   collectedStickerIds,
+  stickerQuantities,
   activeFilter,
   onChangeFilter,
   onOpenQuickNavigation,
   onOpenShare,
   onOpenCurrentPageShare,
-  onToggleSticker
+  onSetStickerQuantity
 }: AlbumViewerProps) {
   const { t } = useTranslation();
   const isLoading = renderState === 'loading';
@@ -114,7 +116,8 @@ export function AlbumViewer({
             page={page}
             visibleStickerIds={visibleStickerIds}
             collectedStickerIds={collectedStickerIds}
-            onToggleSticker={onToggleSticker}
+            stickerQuantities={stickerQuantities}
+            onSetStickerQuantity={onSetStickerQuantity}
             disabled={isLoading}
           />
         ) : (

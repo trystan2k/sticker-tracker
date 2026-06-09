@@ -4,6 +4,7 @@ import { ArrowLeft, Download, Share2 } from 'lucide-react';
 import { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { getShareModeKeyPrefix, type ShareMode } from '@/components/share/share-mode';
 import { SharePreviewCard } from '@/components/share/SharePreviewCard';
 import { renderSharePng } from '@/components/share/share-renderer';
 import type { SharePreviewPayload } from '@/components/share/share-state';
@@ -18,10 +19,12 @@ const SHARE_RENDER_OPTIONS = {
 type SharePreviewScreenProps = Readonly<{
   payload: SharePreviewPayload;
   onBack: () => void;
+  mode?: ShareMode;
 }>;
 
-export function SharePreviewScreen({ payload, onBack }: SharePreviewScreenProps) {
+export function SharePreviewScreen({ payload, onBack, mode = 'missing' }: SharePreviewScreenProps) {
   const { t } = useTranslation();
+  const translationKeyPrefix = getShareModeKeyPrefix(mode);
   const [isBusy, setIsBusy] = useState(false);
   const [status, setStatus] = useState('');
   const prevPayloadRef = useRef(payload);
@@ -40,20 +43,22 @@ export function SharePreviewScreen({ payload, onBack }: SharePreviewScreenProps)
 
   const getDownloadAsset = useCallback(() => {
     if (!downloadRenderPromiseRef.current) {
-      downloadRenderPromiseRef.current = renderSharePng(payload, t).catch((err) => {
-        downloadRenderPromiseRef.current = null;
-        throw err;
-      });
+      downloadRenderPromiseRef.current = renderSharePng(payload, t, undefined, mode).catch(
+        (err) => {
+          downloadRenderPromiseRef.current = null;
+          throw err;
+        }
+      );
     }
 
     return downloadRenderPromiseRef.current;
-  }, [payload, t]);
+  }, [mode, payload, t]);
 
   const getShareAsset = useCallback(() => {
     if (!shareRenderPromiseRef.current) {
       // Messaging apps often recompress images shared through Web Share.
       // Render a larger source PNG so text stays sharper after that step.
-      shareRenderPromiseRef.current = renderSharePng(payload, t, SHARE_RENDER_OPTIONS).catch(
+      shareRenderPromiseRef.current = renderSharePng(payload, t, SHARE_RENDER_OPTIONS, mode).catch(
         (err) => {
           shareRenderPromiseRef.current = null;
           throw err;
@@ -62,7 +67,7 @@ export function SharePreviewScreen({ payload, onBack }: SharePreviewScreenProps)
     }
 
     return shareRenderPromiseRef.current;
-  }, [payload, t]);
+  }, [mode, payload, t]);
 
   const downloadAsset = useCallback(
     async (withStatus: boolean) => {
@@ -134,16 +139,16 @@ export function SharePreviewScreen({ payload, onBack }: SharePreviewScreenProps)
           type="button"
           className={styles.iconButton}
           onClick={onBack}
-          aria-label={t('share.preview.back')}
+          aria-label={t(`${translationKeyPrefix}.preview.back`)}
         >
           <ArrowLeft size={22} aria-hidden="true" />
         </button>
-        <h1 className={styles.title}>{t('share.preview.title')}</h1>
+        <h1 className={styles.title}>{t(`${translationKeyPrefix}.preview.title`)}</h1>
         <span className={styles.headerSpacer} aria-hidden="true" />
       </header>
 
       <section className={styles.previewArea}>
-        <SharePreviewCard payload={payload} t={t} />
+        <SharePreviewCard payload={payload} t={t} mode={mode} />
       </section>
 
       {status ? (

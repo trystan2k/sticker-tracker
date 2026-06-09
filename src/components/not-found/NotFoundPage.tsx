@@ -132,6 +132,10 @@ export function NotFoundPage() {
     void navigate({ to: '/missing' });
   }, [navigate]);
 
+  const handleOpenRepeated = useCallback(() => {
+    void navigate({ to: '/repeated' });
+  }, [navigate]);
+
   return (
     <main className={styles.screen}>
       <HomeHeader onMenuClick={handleOpenMenuDrawer} />
@@ -160,6 +164,7 @@ export function NotFoundPage() {
         onOpenDeleteConfirm={handleOpenDeleteConfirm}
         onOpenShare={handleOpenShare}
         onOpenMissing={handleOpenMissing}
+        onOpenRepeated={handleOpenRepeated}
         onOpenScanner={handleOpenScanner}
         currentLocale={i18n.resolvedLanguage ?? i18n.language}
       />

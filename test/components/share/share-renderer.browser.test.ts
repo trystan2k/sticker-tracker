@@ -8,7 +8,7 @@ function createPayload(): SharePreviewPayload {
   return {
     selectedPageIds: ['mex' as PageId],
     selectedPageCount: 1,
-    totalMissingStickerCount: 5,
+    totalStickerCount: 5,
     sections: [
       {
         sectionId: 'group-a',
@@ -20,14 +20,14 @@ function createPayload(): SharePreviewPayload {
             flagCode: 'mx',
             group: 'A',
             pageType: 'team',
-            missingStickerIds: [
+            stickerIds: [
               'MEX-1',
               'MEX-2',
               'MEX-3',
               'MEX-5',
               'MEX-10'
             ] as unknown as readonly StickerIdentifier[],
-            compressedMissingText: '1-3, 5, 10'
+            compressedStickerText: '1-3, 5, 10'
           }
         ]
       }
@@ -39,11 +39,10 @@ function t(key: string): string {
   const map: Record<string, string> = {
     'team.mex': 'México',
     'share.preview.subtitle': 'Missing Stickers',
-    'share.preview.missingPrefix': 'Missing',
     'share.preview.emptyTitle': 'No missing stickers',
     'share.preview.emptyDescription': 'Everything complete.',
     'share.brandName': 'COPA 26',
-    'share.brandDomain': 'copa26.app',
+    'share.brandDomain': 'https://sticker-tracker.pages.dev',
     'share.fileName': 'copa26-missing-stickers.png'
   };
 
@@ -87,7 +86,7 @@ describe('renderSharePng', () => {
     const emptyPayload: SharePreviewPayload = {
       selectedPageIds: [],
       selectedPageCount: 0,
-      totalMissingStickerCount: 0,
+      totalStickerCount: 0,
       sections: []
     };
 
@@ -103,7 +102,7 @@ describe('renderSharePng', () => {
     const payload: SharePreviewPayload = {
       selectedPageIds: ['special-1' as PageId],
       selectedPageCount: 1,
-      totalMissingStickerCount: 2,
+      totalStickerCount: 2,
       sections: [
         {
           sectionId: 'specials',
@@ -113,8 +112,8 @@ describe('renderSharePng', () => {
               pageId: 'special-1' as PageId,
               title: 'share.preview.emptyTitle',
               pageType: 'special',
-              missingStickerIds: ['S-1', 'S-2'] as unknown as readonly StickerIdentifier[],
-              compressedMissingText: '1-2'
+              stickerIds: ['S-1', 'S-2'] as unknown as readonly StickerIdentifier[],
+              compressedStickerText: '1-2'
             }
           ]
         }
@@ -129,7 +128,7 @@ describe('renderSharePng', () => {
     const payload: SharePreviewPayload = {
       selectedPageIds: ['mex' as PageId, 'arg' as PageId],
       selectedPageCount: 2,
-      totalMissingStickerCount: 6,
+      totalStickerCount: 6,
       sections: [
         {
           sectionId: 'group-a',
@@ -141,12 +140,8 @@ describe('renderSharePng', () => {
               flagCode: 'mx',
               group: 'A',
               pageType: 'team',
-              missingStickerIds: [
-                'MEX-1',
-                'MEX-2',
-                'MEX-3'
-              ] as unknown as readonly StickerIdentifier[],
-              compressedMissingText: '1-3'
+              stickerIds: ['MEX-1', 'MEX-2', 'MEX-3'] as unknown as readonly StickerIdentifier[],
+              compressedStickerText: '1-3'
             },
             {
               pageId: 'arg' as PageId,
@@ -154,12 +149,8 @@ describe('renderSharePng', () => {
               flagCode: 'ar',
               group: 'A',
               pageType: 'team',
-              missingStickerIds: [
-                'ARG-1',
-                'ARG-2',
-                'ARG-3'
-              ] as unknown as readonly StickerIdentifier[],
-              compressedMissingText: '1-3'
+              stickerIds: ['ARG-1', 'ARG-2', 'ARG-3'] as unknown as readonly StickerIdentifier[],
+              compressedStickerText: '1-3'
             }
           ]
         }
@@ -185,7 +176,7 @@ describe('renderSharePng', () => {
     const payload: SharePreviewPayload = {
       selectedPageIds: ['coca-cola' as PageId],
       selectedPageCount: 1,
-      totalMissingStickerCount: 2,
+      totalStickerCount: 2,
       sections: [
         {
           sectionId: 'special',
@@ -196,8 +187,8 @@ describe('renderSharePng', () => {
               title: 'share.preview.emptyTitle',
               pageType: 'special',
               specialKey: 'coca-cola',
-              missingStickerIds: ['CC1', 'CC2'] as unknown as readonly StickerIdentifier[],
-              compressedMissingText: 'CC1-CC2'
+              stickerIds: ['CC1', 'CC2'] as unknown as readonly StickerIdentifier[],
+              compressedStickerText: 'CC1-CC2'
             }
           ]
         }
@@ -219,5 +210,102 @@ describe('renderSharePng', () => {
     await expect(renderSharePng(createPayload(), t)).rejects.toThrow('Unable to render PNG blob.');
 
     toBlobSpy.mockRestore();
+  });
+
+  it('uses repeated mode file name and labels', async () => {
+    const payload: SharePreviewPayload = {
+      selectedPageIds: ['bra' as PageId],
+      selectedPageCount: 1,
+      totalStickerCount: 2,
+      sections: [
+        {
+          sectionId: 'group-c',
+          sectionLabel: 'Group C',
+          pages: [
+            {
+              pageId: 'bra' as PageId,
+              title: 'team.bra',
+              flagCode: 'br',
+              group: 'C',
+              pageType: 'team',
+              stickerIds: ['BRA-10'] as unknown as readonly StickerIdentifier[],
+              compressedStickerText: 'BRA 10 (x2)'
+            }
+          ]
+        }
+      ]
+    };
+
+    const repeatedT = (key: string): string => {
+      const map: Record<string, string> = {
+        'team.bra': 'Brazil',
+        'share.repeated.preview.subtitle': 'Repeated Stickers',
+        'share.repeated.preview.emptyTitle': 'No repeated stickers',
+        'share.repeated.preview.emptyDescription': 'No repeated stickers selected.',
+        'share.brandName': 'COPA 26',
+        'share.brandDomain': 'https://sticker-tracker.pages.dev',
+        'share.repeated.fileName': 'copa26-repeated-stickers.png'
+      };
+
+      return map[key] ?? key;
+    };
+
+    const result = await renderSharePng(payload, repeatedT, { preferredScale: 1 }, 'repeated');
+
+    expect(result.fileName).toBe('copa26-repeated-stickers.png');
+    expect(result.blob).toBeInstanceOf(Blob);
+  });
+
+  it('expands repeated-share block height for long wrapped sticker lines', async () => {
+    const payload: SharePreviewPayload = {
+      selectedPageIds: ['bra' as PageId],
+      selectedPageCount: 1,
+      totalStickerCount: 14,
+      sections: [
+        {
+          sectionId: 'group-c',
+          sectionLabel: 'Group C',
+          pages: [
+            {
+              pageId: 'bra' as PageId,
+              title: 'team.bra',
+              flagCode: 'br',
+              group: 'C',
+              pageType: 'team',
+              stickerIds: [
+                'BRA-1',
+                'BRA-2',
+                'BRA-3',
+                'BRA-4',
+                'BRA-5',
+                'BRA-6',
+                'BRA-7'
+              ] as unknown as readonly StickerIdentifier[],
+              compressedStickerText:
+                'BRA 1 (x2), BRA 2 (x2), BRA 3 (x2), BRA 4 (x2), BRA 5 (x2), BRA 6 (x2), BRA 7 (x2)'
+            }
+          ]
+        }
+      ]
+    };
+
+    const repeatedT = (key: string): string => {
+      const map: Record<string, string> = {
+        'team.bra': 'Brazil',
+        'share.repeated.preview.subtitle': 'Repeated Stickers',
+        'share.repeated.preview.emptyTitle': 'No repeated stickers',
+        'share.repeated.preview.emptyDescription': 'No repeated stickers selected.',
+        'share.brandName': 'COPA 26',
+        'share.brandDomain': 'https://sticker-tracker.pages.dev',
+        'share.repeated.fileName': 'copa26-repeated-stickers.png'
+      };
+
+      return map[key] ?? key;
+    };
+
+    const result = await renderSharePng(payload, repeatedT, { preferredScale: 1 }, 'repeated');
+
+    expect(result.blob).toBeInstanceOf(Blob);
+    expect(result.height).toBeGreaterThan(195);
   });
 });

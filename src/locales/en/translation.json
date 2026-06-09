@@ -150,8 +150,13 @@
     },
     "sticker": {
       "ariaLabel": "Sticker {{id}} - {{state}}",
+      "ariaLabelWithRepeated": "Sticker {{id}} - {{state}} - {{repeatedCount}}",
       "collected": "collected",
-      "missing": "missing"
+      "missing": "missing",
+      "keyboardHintCollected": "Press Enter or Space to add a copy. Press Backspace or Delete to remove a copy.",
+      "keyboardHintMissing": "Press Enter or Space to collect this sticker.",
+      "repeatedCopies_one": "{{count}} repeated copy",
+      "repeatedCopies_other": "{{count}} repeated copies"
     },
     "pageHeader": {
       "ariaLabel": "Album page header"
@@ -208,6 +213,36 @@
     "empty": {
       "title": "Album complete",
       "description": "You collected all stickers.",
+      "backHome": "Go to home"
+    }
+  },
+  "repeated": {
+    "header": {
+      "title": "Repeated Stickers",
+      "back": "Back",
+      "share": "Share repeated stickers"
+    },
+    "summary": {
+      "ariaLabel": "Repeated stickers summary",
+      "totalRepeated_one": "{{count}} repeated sticker",
+      "totalRepeated_other": "{{count}} repeated stickers"
+    },
+    "content": {
+      "ariaLabel": "Repeated stickers content"
+    },
+    "intro": {
+      "title": "Repeated",
+      "description": "Only teams and specials that still have repeated stickers appear here."
+    },
+    "block": {
+      "repeatedCount_one": "{{count}} repeated",
+      "repeatedCount_other": "{{count}} repeated",
+      "specialLabel": "Special",
+      "fwcCode": "FWC"
+    },
+    "empty": {
+      "title": "No repeated stickers",
+      "description": "You have no repeated stickers left.",
       "backHome": "Go to home"
     }
   },
@@ -325,7 +360,7 @@
   },
   "share": {
     "brandName": "COPA 26",
-    "brandDomain": "copa26.app",
+    "brandDomain": "https://sticker-tracker.pages.dev",
     "fileName": "copa26-missing-stickers.png",
     "selection": {
       "title": "Share Missing",
@@ -343,7 +378,6 @@
       "back": "Back",
       "ariaLabel": "Share preview card",
       "subtitle": "Missing Stickers",
-      "missingPrefix": "Missing",
       "emptyTitle": "No missing stickers",
       "emptyDescription": "Everything complete.",
       "share": "Share",
@@ -352,6 +386,28 @@
       "downloading": "Downloading...",
       "error": "Something went wrong",
       "shareUnsupported": "Share not available, file downloaded instead"
+    },
+    "repeated": {
+      "fileName": "copa26-repeated-stickers.png",
+      "selection": {
+        "title": "Share Repeated",
+        "back": "Back",
+        "selectAll": "Select all",
+        "clear": "Clear",
+        "generate": "Generate Image",
+        "selected": "{{count}} selected",
+        "selected_one": "{{count}} selected",
+        "selected_other": "{{count}} selected",
+        "empty": "No repeated stickers to share"
+      },
+      "preview": {
+        "title": "Preview",
+        "back": "Back",
+        "ariaLabel": "Repeated share preview card",
+        "subtitle": "Repeated Stickers",
+        "emptyTitle": "No repeated stickers",
+        "emptyDescription": "No repeated stickers selected."
+      }
     }
   },
   "pwa": {
@@ -382,6 +438,7 @@
   "drawer": {
     "share": "Share Missing",
     "missing": "Missing Stickers",
+    "repeated": "Repeated Stickers",
     "language": "Language",
     "theme": "Theme",
     "backup_restore": "Backup & Restore",

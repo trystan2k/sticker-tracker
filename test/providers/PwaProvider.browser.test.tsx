@@ -61,6 +61,28 @@ function cleanup({ container, root }: { container: HTMLDivElement; root: Root })
   container.remove();
 }
 
+type CapturedWindowListeners = Partial<
+  Record<'beforeinstallprompt' | 'appinstalled', (event: Event) => void>
+>;
+
+function captureWindowListeners(): CapturedWindowListeners {
+  const listeners: CapturedWindowListeners = {};
+
+  vi.spyOn(window, 'addEventListener').mockImplementation(((
+    type: string,
+    listener: EventListenerOrEventListenerObject
+  ) => {
+    if (
+      (type === 'beforeinstallprompt' || type === 'appinstalled') &&
+      typeof listener === 'function'
+    ) {
+      listeners[type] = listener;
+    }
+  }) as typeof window.addEventListener);
+
+  return listeners;
+}
+
 describe('PwaProvider', () => {
   afterEach(() => {
     vi.restoreAllMocks();
@@ -92,6 +114,7 @@ describe('PwaProvider', () => {
 
   describe('install prompt events', () => {
     it('beforeinstallprompt sets install banner visible and platform to chromium', async () => {
+      const listeners = captureWindowListeners();
       let capturedContext: ReturnType<typeof usePwa> | null = null;
 
       function ContextReader() {
@@ -102,18 +125,21 @@ describe('PwaProvider', () => {
       const mounted = mountProvider(React.createElement(ContextReader));
 
       try {
-        await waitFor(() => capturedContext !== null);
+        await waitFor(
+          () => capturedContext !== null && listeners.beforeinstallprompt !== undefined
+        );
 
-        const promptEvent = new Event('beforeinstallprompt', { cancelable: true });
-        Object.assign(promptEvent, {
+        const promptEvent = {
+          preventDefault: vi.fn<() => void>(),
           prompt: vi.fn<() => Promise<void>>().mockResolvedValue(),
           userChoice: Promise.resolve({ outcome: 'accepted' as const, platform: 'web' })
-        });
+        } as unknown as Event;
 
-        window.dispatchEvent(promptEvent);
+        listeners.beforeinstallprompt!(promptEvent);
 
         await waitFor(() => capturedContext!.isInstallBannerVisible);
 
+        expect(promptEvent.preventDefault).toHaveBeenCalledTimes(1);
         expect(capturedContext!.isInstallBannerVisible).toBe(true);
         expect(capturedContext!.canPromptInstall).toBe(true);
         expect(capturedContext!.installPlatform).toBe('chromium');
@@ -123,6 +149,7 @@ describe('PwaProvider', () => {
     });
 
     it('appinstalled clears install banner state', async () => {
+      const listeners = captureWindowListeners();
       let capturedContext: ReturnType<typeof usePwa> | null = null;
 
       function ContextReader() {
@@ -133,23 +160,28 @@ describe('PwaProvider', () => {
       const mounted = mountProvider(React.createElement(ContextReader));
 
       try {
-        await waitFor(() => capturedContext !== null);
+        await waitFor(
+          () =>
+            capturedContext !== null &&
+            listeners.beforeinstallprompt !== undefined &&
+            listeners.appinstalled !== undefined
+        );
 
-        // First trigger beforeinstallprompt to set banner visible
-        const promptEvent = new Event('beforeinstallprompt', { cancelable: true });
-        Object.assign(promptEvent, {
+        const promptEvent = {
+          preventDefault: vi.fn<() => void>(),
           prompt: vi.fn<() => Promise<void>>().mockResolvedValue(),
           userChoice: Promise.resolve({ outcome: 'accepted' as const, platform: 'web' })
-        });
-        window.dispatchEvent(promptEvent);
+        } as unknown as Event;
+
+        listeners.beforeinstallprompt!(promptEvent);
 
         await waitFor(() => capturedContext!.isInstallBannerVisible);
 
-        // Then trigger appinstalled
-        window.dispatchEvent(new Event('appinstalled'));
+        listeners.appinstalled!(new Event('appinstalled'));
 
         await waitFor(() => !capturedContext!.isInstallBannerVisible);
 
+        expect(promptEvent.preventDefault).toHaveBeenCalledTimes(1);
         expect(capturedContext!.isInstallBannerVisible).toBe(false);
         expect(capturedContext!.canPromptInstall).toBe(false);
       } finally {

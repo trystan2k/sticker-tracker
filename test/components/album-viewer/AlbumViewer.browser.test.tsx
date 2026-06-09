@@ -154,10 +154,11 @@ describe('AlbumViewer', () => {
             page: teamPage,
             renderState: 'loading',
             collectedStickerIds: new Set<StickerIdentifier>(),
+            stickerQuantities: {},
             activeFilter: 'all',
             onChangeFilter: () => {},
             onOpenQuickNavigation: () => {},
-            onToggleSticker: () => {}
+            onSetStickerQuantity: () => {}
           })
         )
       );
@@ -196,10 +197,11 @@ describe('AlbumViewer', () => {
             page: teamPage,
             renderState: 'ready',
             collectedStickerIds: new Set<StickerIdentifier>(),
+            stickerQuantities: {},
             activeFilter: 'all',
             onChangeFilter: () => {},
             onOpenQuickNavigation: () => {},
-            onToggleSticker: () => {}
+            onSetStickerQuantity: () => {}
           })
         )
       );
@@ -250,10 +252,11 @@ describe('AlbumViewer', () => {
             page: specialPage,
             renderState: 'ready',
             collectedStickerIds: new Set<StickerIdentifier>(),
+            stickerQuantities: {},
             activeFilter: 'all',
             onChangeFilter: () => {},
             onOpenQuickNavigation: () => {},
-            onToggleSticker: () => {}
+            onSetStickerQuantity: () => {}
           })
         )
       );
@@ -297,10 +300,11 @@ describe('AlbumViewer', () => {
             page,
             renderState: 'ready',
             collectedStickerIds: new Set<StickerIdentifier>(),
+            stickerQuantities: {},
             activeFilter: 'collected',
             onChangeFilter,
             onOpenQuickNavigation: () => {},
-            onToggleSticker: () => {}
+            onSetStickerQuantity: () => {}
           })
         )
       );
@@ -345,11 +349,12 @@ describe('AlbumViewer', () => {
             page,
             renderState: 'ready',
             collectedStickerIds: new Set<StickerIdentifier>(),
+            stickerQuantities: {},
             activeFilter: 'all',
             onChangeFilter: () => {},
             onOpenQuickNavigation: () => {},
             onOpenCurrentPageShare,
-            onToggleSticker: () => {}
+            onSetStickerQuantity: () => {}
           })
         )
       );
@@ -389,10 +394,11 @@ describe('AlbumViewer', () => {
             page,
             renderState: 'ready',
             collectedStickerIds,
+            stickerQuantities: {},
             activeFilter: 'collected',
             onChangeFilter: () => {},
             onOpenQuickNavigation: () => {},
-            onToggleSticker: () => {}
+            onSetStickerQuantity: () => {}
           })
         )
       );
@@ -422,10 +428,11 @@ describe('AlbumViewer', () => {
             page,
             renderState: 'ready',
             collectedStickerIds,
+            stickerQuantities: {},
             activeFilter: 'missing',
             onChangeFilter: () => {},
             onOpenQuickNavigation: () => {},
-            onToggleSticker: () => {}
+            onSetStickerQuantity: () => {}
           })
         )
       );
@@ -453,10 +460,11 @@ describe('AlbumViewer', () => {
             page,
             renderState: 'ready',
             collectedStickerIds: new Set<StickerIdentifier>(),
+            stickerQuantities: {},
             activeFilter: 'collected',
             onChangeFilter: () => {},
             onOpenQuickNavigation: () => {},
-            onToggleSticker: () => {}
+            onSetStickerQuantity: () => {}
           })
         )
       );
@@ -493,10 +501,11 @@ describe('AlbumViewer', () => {
             page,
             renderState: 'ready',
             collectedStickerIds: new Set<StickerIdentifier>(),
+            stickerQuantities: {},
             activeFilter: 'all',
             onChangeFilter: () => {},
             onOpenQuickNavigation: () => {},
-            onToggleSticker: () => {}
+            onSetStickerQuantity: () => {}
           })
         )
       );
@@ -530,10 +539,11 @@ describe('AlbumViewer', () => {
             page: teamPage,
             renderState: 'ready',
             collectedStickerIds: new Set<StickerIdentifier>(),
+            stickerQuantities: {},
             activeFilter: 'all',
             onChangeFilter: () => {},
             onOpenQuickNavigation: () => {},
-            onToggleSticker: () => {}
+            onSetStickerQuantity: () => {}
           })
         )
       );

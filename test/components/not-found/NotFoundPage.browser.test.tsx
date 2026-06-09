@@ -364,6 +364,30 @@ describe('NotFoundPage', () => {
     }
   });
 
+  it('shows repeated row in menu drawer', async () => {
+    await resetStorage();
+
+    const mounted = mount(
+      React.createElement(AppStateProvider, null, React.createElement(NotFoundPage))
+    );
+
+    try {
+      await waitFor(() => {
+        const header = document.body.querySelector('header');
+        return header !== null;
+      });
+
+      const menuButton = document.body.querySelector('header button') as HTMLButtonElement;
+      menuButton?.click();
+
+      await waitFor(() => document.body.textContent?.includes('Repeated Stickers') ?? false);
+
+      expect(document.body.textContent).toContain('Repeated Stickers');
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
   it('shows delete data row in menu drawer', async () => {
     await resetStorage();
 

@@ -12,12 +12,16 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as StatRouteImport } from './routes/stat'
 import { Route as ShareRouteImport } from './routes/share'
 import { Route as ScannerRouteImport } from './routes/scanner'
+import { Route as RepeatedShareRouteImport } from './routes/repeated-share'
+import { Route as RepeatedRouteImport } from './routes/repeated'
 import { Route as MissingRouteImport } from './routes/missing'
 import { Route as AlbumRouteImport } from './routes/album'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShareIndexRouteImport } from './routes/share/index'
+import { Route as RepeatedShareIndexRouteImport } from './routes/repeated-share/index'
 import { Route as AlbumIndexRouteImport } from './routes/album/index'
 import { Route as SharePreviewRouteImport } from './routes/share/preview'
+import { Route as RepeatedSharePreviewRouteImport } from './routes/repeated-share/preview'
 import { Route as AlbumPageIdRouteImport } from './routes/album/$pageId'
 import { Route as AlbumGroupPageIdRouteImport } from './routes/album/$group/$pageId'
 
@@ -34,6 +38,16 @@ const ShareRoute = ShareRouteImport.update({
 const ScannerRoute = ScannerRouteImport.update({
   id: '/scanner',
   path: '/scanner',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RepeatedShareRoute = RepeatedShareRouteImport.update({
+  id: '/repeated-share',
+  path: '/repeated-share',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RepeatedRoute = RepeatedRouteImport.update({
+  id: '/repeated',
+  path: '/repeated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MissingRoute = MissingRouteImport.update({
@@ -56,6 +70,11 @@ const ShareIndexRoute = ShareIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ShareRoute,
 } as any)
+const RepeatedShareIndexRoute = RepeatedShareIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => RepeatedShareRoute,
+} as any)
 const AlbumIndexRoute = AlbumIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -65,6 +84,11 @@ const SharePreviewRoute = SharePreviewRouteImport.update({
   id: '/preview',
   path: '/preview',
   getParentRoute: () => ShareRoute,
+} as any)
+const RepeatedSharePreviewRoute = RepeatedSharePreviewRouteImport.update({
+  id: '/preview',
+  path: '/preview',
+  getParentRoute: () => RepeatedShareRoute,
 } as any)
 const AlbumPageIdRoute = AlbumPageIdRouteImport.update({
   id: '/$pageId',
@@ -81,23 +105,30 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/album': typeof AlbumRouteWithChildren
   '/missing': typeof MissingRoute
+  '/repeated': typeof RepeatedRoute
+  '/repeated-share': typeof RepeatedShareRouteWithChildren
   '/scanner': typeof ScannerRoute
   '/share': typeof ShareRouteWithChildren
   '/stat': typeof StatRoute
   '/album/$pageId': typeof AlbumPageIdRoute
+  '/repeated-share/preview': typeof RepeatedSharePreviewRoute
   '/share/preview': typeof SharePreviewRoute
   '/album/': typeof AlbumIndexRoute
+  '/repeated-share/': typeof RepeatedShareIndexRoute
   '/share/': typeof ShareIndexRoute
   '/album/$group/$pageId': typeof AlbumGroupPageIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/missing': typeof MissingRoute
+  '/repeated': typeof RepeatedRoute
   '/scanner': typeof ScannerRoute
   '/stat': typeof StatRoute
   '/album/$pageId': typeof AlbumPageIdRoute
+  '/repeated-share/preview': typeof RepeatedSharePreviewRoute
   '/share/preview': typeof SharePreviewRoute
   '/album': typeof AlbumIndexRoute
+  '/repeated-share': typeof RepeatedShareIndexRoute
   '/share': typeof ShareIndexRoute
   '/album/$group/$pageId': typeof AlbumGroupPageIdRoute
 }
@@ -106,12 +137,16 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/album': typeof AlbumRouteWithChildren
   '/missing': typeof MissingRoute
+  '/repeated': typeof RepeatedRoute
+  '/repeated-share': typeof RepeatedShareRouteWithChildren
   '/scanner': typeof ScannerRoute
   '/share': typeof ShareRouteWithChildren
   '/stat': typeof StatRoute
   '/album/$pageId': typeof AlbumPageIdRoute
+  '/repeated-share/preview': typeof RepeatedSharePreviewRoute
   '/share/preview': typeof SharePreviewRoute
   '/album/': typeof AlbumIndexRoute
+  '/repeated-share/': typeof RepeatedShareIndexRoute
   '/share/': typeof ShareIndexRoute
   '/album/$group/$pageId': typeof AlbumGroupPageIdRoute
 }
@@ -121,23 +156,30 @@ export interface FileRouteTypes {
     | '/'
     | '/album'
     | '/missing'
+    | '/repeated'
+    | '/repeated-share'
     | '/scanner'
     | '/share'
     | '/stat'
     | '/album/$pageId'
+    | '/repeated-share/preview'
     | '/share/preview'
     | '/album/'
+    | '/repeated-share/'
     | '/share/'
     | '/album/$group/$pageId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/missing'
+    | '/repeated'
     | '/scanner'
     | '/stat'
     | '/album/$pageId'
+    | '/repeated-share/preview'
     | '/share/preview'
     | '/album'
+    | '/repeated-share'
     | '/share'
     | '/album/$group/$pageId'
   id:
@@ -145,12 +187,16 @@ export interface FileRouteTypes {
     | '/'
     | '/album'
     | '/missing'
+    | '/repeated'
+    | '/repeated-share'
     | '/scanner'
     | '/share'
     | '/stat'
     | '/album/$pageId'
+    | '/repeated-share/preview'
     | '/share/preview'
     | '/album/'
+    | '/repeated-share/'
     | '/share/'
     | '/album/$group/$pageId'
   fileRoutesById: FileRoutesById
@@ -159,6 +205,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AlbumRoute: typeof AlbumRouteWithChildren
   MissingRoute: typeof MissingRoute
+  RepeatedRoute: typeof RepeatedRoute
+  RepeatedShareRoute: typeof RepeatedShareRouteWithChildren
   ScannerRoute: typeof ScannerRoute
   ShareRoute: typeof ShareRouteWithChildren
   StatRoute: typeof StatRoute
@@ -185,6 +233,20 @@ declare module '@tanstack/react-router' {
       path: '/scanner'
       fullPath: '/scanner'
       preLoaderRoute: typeof ScannerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/repeated-share': {
+      id: '/repeated-share'
+      path: '/repeated-share'
+      fullPath: '/repeated-share'
+      preLoaderRoute: typeof RepeatedShareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/repeated': {
+      id: '/repeated'
+      path: '/repeated'
+      fullPath: '/repeated'
+      preLoaderRoute: typeof RepeatedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/missing': {
@@ -215,6 +277,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShareIndexRouteImport
       parentRoute: typeof ShareRoute
     }
+    '/repeated-share/': {
+      id: '/repeated-share/'
+      path: '/'
+      fullPath: '/repeated-share/'
+      preLoaderRoute: typeof RepeatedShareIndexRouteImport
+      parentRoute: typeof RepeatedShareRoute
+    }
     '/album/': {
       id: '/album/'
       path: '/'
@@ -228,6 +297,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/share/preview'
       preLoaderRoute: typeof SharePreviewRouteImport
       parentRoute: typeof ShareRoute
+    }
+    '/repeated-share/preview': {
+      id: '/repeated-share/preview'
+      path: '/preview'
+      fullPath: '/repeated-share/preview'
+      preLoaderRoute: typeof RepeatedSharePreviewRouteImport
+      parentRoute: typeof RepeatedShareRoute
     }
     '/album/$pageId': {
       id: '/album/$pageId'
@@ -260,6 +336,20 @@ const AlbumRouteChildren: AlbumRouteChildren = {
 
 const AlbumRouteWithChildren = AlbumRoute._addFileChildren(AlbumRouteChildren)
 
+interface RepeatedShareRouteChildren {
+  RepeatedSharePreviewRoute: typeof RepeatedSharePreviewRoute
+  RepeatedShareIndexRoute: typeof RepeatedShareIndexRoute
+}
+
+const RepeatedShareRouteChildren: RepeatedShareRouteChildren = {
+  RepeatedSharePreviewRoute: RepeatedSharePreviewRoute,
+  RepeatedShareIndexRoute: RepeatedShareIndexRoute,
+}
+
+const RepeatedShareRouteWithChildren = RepeatedShareRoute._addFileChildren(
+  RepeatedShareRouteChildren,
+)
+
 interface ShareRouteChildren {
   SharePreviewRoute: typeof SharePreviewRoute
   ShareIndexRoute: typeof ShareIndexRoute
@@ -276,6 +366,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AlbumRoute: AlbumRouteWithChildren,
   MissingRoute: MissingRoute,
+  RepeatedRoute: RepeatedRoute,
+  RepeatedShareRoute: RepeatedShareRouteWithChildren,
   ScannerRoute: ScannerRoute,
   ShareRoute: ShareRouteWithChildren,
   StatRoute: StatRoute,

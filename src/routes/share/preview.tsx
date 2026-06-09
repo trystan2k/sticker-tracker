@@ -22,6 +22,7 @@ function SharePreviewRoute() {
   const search = Route.useSearch();
   const navigate = useNavigate();
   const lastTrackedPayloadKeyRef = useRef<string | null>(null);
+  const isAppReady = appState !== null && appState.renderState === 'ready';
 
   const collection = appState?.collection;
   const selectedPageIds = useMemo(() => decodeShareSelection(search.pages), [search.pages]);
@@ -31,6 +32,10 @@ function SharePreviewRoute() {
   );
 
   useEffect(() => {
+    if (!isAppReady) {
+      return;
+    }
+
     if (payload.selectedPageCount > 0) {
       return;
     }
@@ -43,14 +48,18 @@ function SharePreviewRoute() {
       },
       replace: true
     });
-  }, [navigate, payload.selectedPageCount, search.from, search.pages]);
+  }, [isAppReady, navigate, payload.selectedPageCount, search.from, search.pages]);
 
   useEffect(() => {
+    if (!isAppReady) {
+      return;
+    }
+
     if (payload.selectedPageCount === 0) {
       return;
     }
 
-    const trackingKey = `${payload.selectedPageIds.join(',')}:${payload.totalMissingStickerCount}`;
+    const trackingKey = `${payload.selectedPageIds.join(',')}:${payload.totalStickerCount}`;
 
     if (lastTrackedPayloadKeyRef.current === trackingKey) {
       return;
@@ -59,14 +68,16 @@ function SharePreviewRoute() {
     lastTrackedPayloadKeyRef.current = trackingKey;
 
     void trackAnalyticsEvent('share_preview_generated', {
+      share_mode: 'missing',
       selected_page_count: payload.selectedPageCount,
       selection_source_path: sanitizeFromPath(search.from),
-      total_missing_sticker_count: payload.totalMissingStickerCount
+      total_missing_sticker_count: payload.totalStickerCount
     });
   }, [
+    isAppReady,
     payload.selectedPageCount,
     payload.selectedPageIds,
-    payload.totalMissingStickerCount,
+    payload.totalStickerCount,
     search.from
   ]);
 
@@ -80,7 +91,7 @@ function SharePreviewRoute() {
     });
   }, [navigate, search.from, search.pages]);
 
-  if (appState === null || appState.renderState !== 'ready') {
+  if (!isAppReady) {
     return null;
   }
 

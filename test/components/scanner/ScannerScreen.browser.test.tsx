@@ -36,6 +36,9 @@ const mockAppState = {
   toggleCollected: vi
     .fn<() => Promise<ToggleStickerResult>>()
     .mockResolvedValue({ state: 'ready', value: {} }),
+  setStickerQuantity: vi
+    .fn<() => Promise<ToggleStickerResult>>()
+    .mockResolvedValue({ state: 'ready', value: {} }),
   restoreCollection: vi
     .fn<() => Promise<{ state: 'ready'; value: CollectionState } | { state: 'unavailable' }>>()
     .mockResolvedValue({ state: 'ready', value: {} }),

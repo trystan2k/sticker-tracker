@@ -1,5 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const E2E_PORT = 4173;
+const E2E_BASE_URL = `http://127.0.0.1:${E2E_PORT}`;
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: false,
@@ -12,7 +15,7 @@ export default defineConfig({
   ],
   outputDir: 'playwright-report/test-results',
   use: {
-    baseURL: 'http://localhost:4000',
+    baseURL: E2E_BASE_URL,
     trace: 'on-first-retry',
     screenshot: 'off',
     video: 'retain-on-failure'
@@ -28,11 +31,9 @@ export default defineConfig({
     }
   ],
   webServer: {
-    command: process.env.PWA_E2E
-      ? 'pnpm build && pnpm exec vite preview --strictPort --port 4000'
-      : 'pnpm dev',
-    url: 'http://localhost:4000',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000
+    command: 'pnpm preview:e2e',
+    url: E2E_BASE_URL,
+    reuseExistingServer: false,
+    timeout: 180 * 1000
   }
 });

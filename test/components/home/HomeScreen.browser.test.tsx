@@ -87,7 +87,7 @@ async function resetStorage() {
 }
 
 function makeMockAppState(
-  collection: Record<string, ReadonlySet<StickerIdentifier>> = {}
+  collection: Record<string, Record<StickerIdentifier, number>> = {}
 ): NonNullable<React.ContextType<typeof AppStateContext>> {
   return {
     collection,
@@ -95,6 +95,7 @@ function makeMockAppState(
     locale: 'en' as const,
     storageState: 'ready' as const,
     toggleCollected: async () => ({ state: 'ready' as const, value: collection }),
+    setStickerQuantity: async () => ({ state: 'ready' as const, value: collection }),
     setLocale: async () => 'ready' as const,
     retryBootstrap: async () => {}
   } as unknown as NonNullable<React.ContextType<typeof AppStateContext>>;
@@ -168,8 +169,11 @@ describe('HomeScreen', () => {
 
   it('renders team tile collected counters on home groups section', async () => {
     const collection = {
-      mex: new Set(
-        Array.from({ length: 20 }, (_, index) => `MEX-${index + 1}` as StickerIdentifier)
+      mex: Object.fromEntries(
+        Array.from(
+          { length: 20 },
+          (_, index) => [`MEX-${index + 1}` as StickerIdentifier, 1] as const
+        )
       )
     };
 
@@ -260,6 +264,39 @@ describe('HomeScreen', () => {
         search: {
           origin: '/'
         }
+      });
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('navigates to repeated from drawer repeated row', async () => {
+    await resetStorage();
+
+    const mounted = mount(
+      React.createElement(AppStateProvider, null, React.createElement(HomeScreen))
+    );
+
+    try {
+      await waitFor(() => {
+        const headerButtons = mounted.container.querySelectorAll('header button');
+        return headerButtons.length >= 2;
+      });
+
+      const menuButton = mounted.container.querySelectorAll(
+        'header button'
+      )[0] as HTMLButtonElement;
+      menuButton.click();
+
+      await waitFor(() => document.body.textContent?.includes('Repeated Stickers') ?? false);
+
+      const repeatedButton = Array.from(document.body.querySelectorAll('button')).find(
+        (button) => button.textContent?.trim() === 'Repeated Stickers'
+      );
+      repeatedButton?.click();
+
+      expect(navigateMock).toHaveBeenCalledWith({
+        to: '/repeated'
       });
     } finally {
       cleanup(mounted);

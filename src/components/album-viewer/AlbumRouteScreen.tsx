@@ -1,9 +1,10 @@
-import { useCallback, useContext, useRef } from 'react';
+import { useCallback, useContext, type ContextType } from 'react';
 import { useLocation, useNavigate } from '@tanstack/react-router';
 
 import { buildInitialShareSelection, encodeShareSelection } from '@/components/share/share-state';
 import { type AlbumPage, type StickerIdentifier } from '@/data/album';
 import { AppStateContext } from '@/providers/AppStateProvider';
+import { derivePageCollectedStickerIds, getStickerQuantity } from '@/services/collection-service';
 
 import { AlbumViewer } from './AlbumViewer';
 import { SwipeNavigator } from './SwipeNavigator';
@@ -15,6 +16,8 @@ type AlbumRouteScreenProps = Readonly<{
   onChangeFilter: (filter: ViewerFilter) => void;
 }>;
 
+const EMPTY_PAGE_STICKER_QUANTITIES = {} as const;
+
 export function AlbumRouteScreen({
   activePage,
   activeFilter,
@@ -23,11 +26,6 @@ export function AlbumRouteScreen({
   const appState = useContext(AppStateContext);
   const navigate = useNavigate();
   const location = useLocation();
-
-  const collectionRef = useRef(appState?.collection);
-  if (appState) {
-    collectionRef.current = appState.collection;
-  }
 
   const openGlobalShare = useCallback(() => {
     const collection = appState?.collection ?? {};
@@ -60,24 +58,36 @@ export function AlbumRouteScreen({
     });
   }, [activePage.pageId, appState, location.pathname, navigate]);
 
+  const renderSwipeScreen = useCallback(
+    ({
+      activePage: visiblePage,
+      openQuickNavigation
+    }: {
+      activePage: AlbumPage;
+      openQuickNavigation: () => void;
+    }) => {
+      return (
+        <AlbumViewerContent
+          activePage={visiblePage}
+          openQuickNavigation={openQuickNavigation}
+          activeFilter={activeFilter}
+          onChangeFilter={onChangeFilter}
+          appState={appState!}
+          onOpenGlobalShare={openGlobalShare}
+          onOpenCurrentPageShare={openCurrentPageShare}
+        />
+      );
+    },
+    [activeFilter, appState, onChangeFilter, openCurrentPageShare, openGlobalShare]
+  );
+
   if (appState === null) {
     return null;
   }
 
   return (
     <SwipeNavigator key={activePage.pageId} activePageId={activePage.pageId}>
-      {({ activePage: visiblePage, openQuickNavigation }) => (
-        <AlbumViewerContent
-          activePage={visiblePage}
-          openQuickNavigation={openQuickNavigation}
-          activeFilter={activeFilter}
-          onChangeFilter={onChangeFilter}
-          appState={appState}
-          collectionRef={collectionRef}
-          onOpenGlobalShare={openGlobalShare}
-          onOpenCurrentPageShare={openCurrentPageShare}
-        />
-      )}
+      {renderSwipeScreen}
     </SwipeNavigator>
   );
 }
@@ -88,7 +98,6 @@ function AlbumViewerContent({
   activeFilter,
   onChangeFilter,
   appState,
-  collectionRef,
   onOpenGlobalShare,
   onOpenCurrentPageShare
 }: {
@@ -96,23 +105,25 @@ function AlbumViewerContent({
   openQuickNavigation: () => void;
   activeFilter: ViewerFilter;
   onChangeFilter: (filter: ViewerFilter) => void;
-  appState: NonNullable<React.ContextType<typeof AppStateContext>>;
-  collectionRef: React.RefObject<
-    Readonly<Record<string, ReadonlySet<StickerIdentifier>>> | undefined
-  >;
+  appState: NonNullable<ContextType<typeof AppStateContext>>;
   onOpenGlobalShare: () => void;
   onOpenCurrentPageShare: () => void;
 }) {
-  const pageCollection =
-    appState.collection[activePage.pageId] ??
-    (new Set<StickerIdentifier>() as ReadonlySet<StickerIdentifier>);
+  const pageCollection = derivePageCollectedStickerIds(appState.collection, activePage.pageId);
+  const pageStickerQuantities =
+    appState.collection[activePage.pageId] ?? EMPTY_PAGE_STICKER_QUANTITIES;
 
-  const handleToggleSticker = useCallback(
-    (stickerId: StickerIdentifier): void => {
-      if (!collectionRef.current) return;
-      void appState.toggleCollected(collectionRef.current, activePage.pageId, stickerId);
+  const handleSetStickerQuantity = useCallback(
+    (stickerId: StickerIdentifier, quantity: number): void => {
+      const currentQuantity = getStickerQuantity(appState.collection, activePage.pageId, stickerId);
+
+      if (currentQuantity === quantity) {
+        return;
+      }
+
+      void appState.setStickerQuantity(activePage.pageId, stickerId, quantity);
     },
-    [activePage.pageId, appState, collectionRef]
+    [activePage.pageId, appState]
   );
 
   return (
@@ -120,11 +131,12 @@ function AlbumViewerContent({
       page={activePage}
       renderState={appState.renderState === 'loading' ? 'loading' : 'ready'}
       collectedStickerIds={pageCollection}
+      stickerQuantities={pageStickerQuantities}
       activeFilter={activeFilter}
       onChangeFilter={onChangeFilter}
       onOpenQuickNavigation={openQuickNavigation}
       onOpenCurrentPageShare={onOpenCurrentPageShare}
-      onToggleSticker={handleToggleSticker}
+      onSetStickerQuantity={handleSetStickerQuantity}
       onOpenShare={onOpenGlobalShare}
     />
   );

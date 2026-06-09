@@ -209,8 +209,10 @@ describe('HomeSpecialCards', () => {
 
   it('shows complete styling for complete special pages', async () => {
     // Collect all fwc-opening stickers
-    const collection: Record<string, ReadonlySet<string>> = {
-      'fwc-opening': new Set(['00', '1', '2', '3', '4', '5', '6', '7', '8'])
+    const collection: Record<string, Record<string, number>> = {
+      'fwc-opening': Object.fromEntries(
+        ['00', '1', '2', '3', '4', '5', '6', '7', '8'].map((stickerId) => [stickerId, 1])
+      )
     };
 
     const cards = computeSpecialPagesData(collection as any);

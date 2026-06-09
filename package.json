@@ -38,7 +38,7 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
-    "preview:e2e": "pnpm build && pnpm exec vite preview --strictPort --port 4000",
+    "preview:e2e": "pnpm build && pnpm exec vite preview --host 127.0.0.1 --strictPort --port 4173",
     "complete-check": "pnpm knip:fix && pnpm typecheck && pnpm lint:fix && pnpm format && pnpm test && pnpm test:e2e && pnpm build",
     "knip": "knip",
     "knip:fix": "pnpm knip --fix"

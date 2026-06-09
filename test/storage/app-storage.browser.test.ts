@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import type { PageId, StickerIdentifier } from '@/data/album';
 import {
   initializeStorage,
   read,
@@ -21,11 +20,12 @@ describe('app-storage browser adapter', () => {
       const initResult = await initializeStorage();
       expect(initResult).toEqual({ state: 'ready' });
 
-      const collection: Record<PageId, readonly StickerIdentifier[]> = {
-        // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-        mex: ['MEX-1', 'MEX-2'].map((item) => item as StickerIdentifier)
-        // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-      } as Record<PageId, readonly StickerIdentifier[]>;
+      const collection = {
+        mex: {
+          'MEX-1': 2,
+          'MEX-2': 1
+        }
+      } as const;
 
       const writeResult = await write('collection', collection);
       expect(writeResult).toEqual({ state: 'ready' });

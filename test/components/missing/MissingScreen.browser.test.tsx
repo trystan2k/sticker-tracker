@@ -6,9 +6,10 @@ import { createRoot, type Root } from 'react-dom/client';
 // oxlint-disable-next-line import/no-unassigned-import
 import '@/i18n/config';
 
+import { getStickerInteractionKey } from '@/components/album-viewer/sticker-cell-interactions';
 import { MissingScreen } from '@/components/missing/MissingScreen';
 import { buildMissingState } from '@/components/missing/missing-state';
-import { albumPages } from '@/data/album';
+import { albumPages, type PageId, type StickerIdentifier } from '@/data/album';
 import { createCollectionState } from '../../helpers/typed-factories';
 import { waitForCondition } from '../../helpers/async';
 
@@ -48,6 +49,10 @@ function createCollectionWithOnlyMissing(stickerIdsByPage: Record<string, readon
   return createCollectionState(fullCollectedEntries);
 }
 
+function getStickerButtonSelector(pageId: PageId, stickerId: StickerIdentifier): string {
+  return `[data-testid="${getStickerInteractionKey(pageId, stickerId)}"]`;
+}
+
 describe('MissingScreen', () => {
   it('renders blocks and optimistically removes sticker on collect', async () => {
     const onToggleCollected = vi.fn<
@@ -71,13 +76,15 @@ describe('MissingScreen', () => {
         `${expectedTotalMissing.totalMissingCount} missing`
       );
 
-      const target = mounted.container.querySelector('[data-testid="MEX-2"]') as HTMLButtonElement;
+      const stickerSelector = getStickerButtonSelector(
+        'mex' as PageId,
+        'MEX-2' as StickerIdentifier
+      );
+      const target = mounted.container.querySelector(stickerSelector) as HTMLButtonElement;
       target.focus();
       target.click();
 
-      await waitForCondition(
-        () => mounted.container.querySelector('[data-testid="MEX-2"]') === null
-      );
+      await waitForCondition(() => mounted.container.querySelector(stickerSelector) === null);
       expect(onToggleCollected).toHaveBeenCalledTimes(1);
       expect(mounted.container.textContent).toContain('Stickers marked as collected successfully.');
     } finally {
@@ -104,13 +111,14 @@ describe('MissingScreen', () => {
     );
 
     try {
-      await waitForCondition(
-        () => mounted.container.querySelector('[data-testid="MEX-20"]') !== null
+      const stickerSelector = getStickerButtonSelector(
+        'mex' as PageId,
+        'MEX-20' as StickerIdentifier
       );
 
-      const stickerButton = mounted.container.querySelector(
-        '[data-testid="MEX-20"]'
-      ) as HTMLButtonElement;
+      await waitForCondition(() => mounted.container.querySelector(stickerSelector) !== null);
+
+      const stickerButton = mounted.container.querySelector(stickerSelector) as HTMLButtonElement;
       stickerButton.focus();
       stickerButton.click();
 
@@ -156,14 +164,12 @@ describe('MissingScreen', () => {
     );
 
     try {
-      const targetStickerId = String(lastStickerId);
-      await waitForCondition(
-        () => mounted.container.querySelector(`[data-testid="${targetStickerId}"]`) !== null
-      );
+      const targetStickerId = String(lastStickerId) as StickerIdentifier;
+      const stickerSelector = getStickerButtonSelector(lastPage.pageId, targetStickerId);
 
-      const stickerButton = mounted.container.querySelector(
-        `[data-testid="${targetStickerId}"]`
-      ) as HTMLButtonElement;
+      await waitForCondition(() => mounted.container.querySelector(stickerSelector) !== null);
+
+      const stickerButton = mounted.container.querySelector(stickerSelector) as HTMLButtonElement;
       stickerButton.focus();
       stickerButton.click();
 
@@ -267,18 +273,17 @@ describe('MissingScreen', () => {
     );
 
     try {
-      await waitForCondition(
-        () => mounted.container.querySelector('[data-testid="MEX-2"]') !== null
+      const stickerSelector = getStickerButtonSelector(
+        'mex' as PageId,
+        'MEX-2' as StickerIdentifier
       );
 
-      const stickerButton = mounted.container.querySelector(
-        '[data-testid="MEX-2"]'
-      ) as HTMLButtonElement;
+      await waitForCondition(() => mounted.container.querySelector(stickerSelector) !== null);
+
+      const stickerButton = mounted.container.querySelector(stickerSelector) as HTMLButtonElement;
       stickerButton.click();
 
-      await waitForCondition(
-        () => mounted.container.querySelector('[data-testid="MEX-2"]') !== null
-      );
+      await waitForCondition(() => mounted.container.querySelector(stickerSelector) !== null);
       expect(onToggleCollected).toHaveBeenCalledTimes(1);
       expect(
         mounted.container.textContent?.includes('Stickers marked as collected successfully.')
@@ -331,21 +336,30 @@ describe('MissingScreen', () => {
     );
 
     try {
+      const currentStickerSelector = getStickerButtonSelector(
+        'mex' as PageId,
+        'MEX-2' as StickerIdentifier
+      );
+      const nextStickerSelector = getStickerButtonSelector(
+        'mex' as PageId,
+        'MEX-3' as StickerIdentifier
+      );
+
       await waitForCondition(
-        () => mounted.container.querySelector('[data-testid="MEX-2"]') !== null
+        () => mounted.container.querySelector(currentStickerSelector) !== null
       );
 
       const stickerButton = mounted.container.querySelector(
-        '[data-testid="MEX-2"]'
+        currentStickerSelector
       ) as HTMLButtonElement;
       stickerButton.focus();
       stickerButton.click();
 
       await waitForCondition(
-        () => document.activeElement === mounted.container.querySelector('[data-testid="MEX-3"]')
+        () => document.activeElement === mounted.container.querySelector(nextStickerSelector)
       );
 
-      expect(document.activeElement).toBe(mounted.container.querySelector('[data-testid="MEX-3"]'));
+      expect(document.activeElement).toBe(mounted.container.querySelector(nextStickerSelector));
     } finally {
       cleanup(mounted);
     }
@@ -402,13 +416,14 @@ describe('MissingScreen', () => {
     );
 
     try {
-      await waitForCondition(
-        () => mounted.container.querySelector('[data-testid="MEX-2"]') !== null
+      const stickerSelector = getStickerButtonSelector(
+        'mex' as PageId,
+        'MEX-2' as StickerIdentifier
       );
 
-      const stickerButton = mounted.container.querySelector(
-        '[data-testid="MEX-2"]'
-      ) as HTMLButtonElement;
+      await waitForCondition(() => mounted.container.querySelector(stickerSelector) !== null);
+
+      const stickerButton = mounted.container.querySelector(stickerSelector) as HTMLButtonElement;
       stickerButton.click();
       stickerButton.click();
 

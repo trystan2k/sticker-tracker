@@ -9,13 +9,9 @@ import type { PageId, StickerIdentifier } from '@/data/album';
 
 const DEFAULT_DATABASE_NAME = 'sticker-tracker-app-storage';
 let databaseName = DEFAULT_DATABASE_NAME;
-export const APP_STORAGE_DATABASE_VERSION = 1;
-export const APP_STORAGE_STORE_NAME = 'app-storage';
+const APP_STORAGE_DATABASE_VERSION = 1;
+const APP_STORAGE_STORE_NAME = 'app-storage';
 const UNRECOVERABLE_FAILURE_THRESHOLD = 2;
-
-export function getDatabaseNameForStorage(): string {
-  return databaseName;
-}
 
 export type PersistedScannerLookupEntry = {
   stickerId: StickerIdentifier;
@@ -45,7 +41,11 @@ type StorageDriver = {
   deleteDatabase?: (name: string, callbacks?: { blocked?: () => void }) => Promise<void>;
 };
 
-export type PersistedCollection = Readonly<Record<PageId, readonly StickerIdentifier[]>>;
+export type PersistedCollectionPage =
+  | readonly StickerIdentifier[]
+  | Readonly<Record<StickerIdentifier, number>>;
+
+export type PersistedCollection = Readonly<Record<PageId, PersistedCollectionPage>>;
 
 type AppStorageValueByKey = {
   collection: PersistedCollection;

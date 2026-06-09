@@ -7,7 +7,8 @@ type StickerGridProps = Readonly<{
   page: AlbumPage;
   visibleStickerIds?: readonly StickerIdentifier[];
   collectedStickerIds: ReadonlySet<StickerIdentifier>;
-  onToggleSticker: (stickerId: StickerIdentifier) => void;
+  stickerQuantities: Readonly<Partial<Record<StickerIdentifier, number>>>;
+  onSetStickerQuantity: (stickerId: StickerIdentifier, quantity: number) => void;
   disabled?: boolean;
 }>;
 
@@ -15,7 +16,8 @@ export function StickerGrid({
   page,
   visibleStickerIds,
   collectedStickerIds,
-  onToggleSticker,
+  stickerQuantities,
+  onSetStickerQuantity,
   disabled = false
 }: StickerGridProps) {
   const stickerIds = visibleStickerIds ?? page.stickerIds;
@@ -28,8 +30,8 @@ export function StickerGrid({
             key={stickerId}
             page={page}
             stickerId={stickerId}
-            isCollected={collectedStickerIds.has(stickerId)}
-            onToggleSticker={onToggleSticker}
+            quantity={stickerQuantities[stickerId] ?? (collectedStickerIds.has(stickerId) ? 1 : 0)}
+            onSetStickerQuantity={onSetStickerQuantity}
             disabled={disabled}
           />
         ))}

@@ -40,7 +40,7 @@ function makePayload(): SharePreviewPayload {
   return {
     selectedPageIds: ['mex' as PageId],
     selectedPageCount: 1,
-    totalMissingStickerCount: 20,
+    totalStickerCount: 20,
     sections: [
       {
         sectionId: 'special',
@@ -51,8 +51,8 @@ function makePayload(): SharePreviewPayload {
             title: 'mex',
             pageType: 'special',
             specialKey: 'fwc-opening',
-            missingStickerIds: ['1', '2'] as unknown as readonly StickerIdentifier[],
-            compressedMissingText: '1-2'
+            stickerIds: ['1', '2'] as unknown as readonly StickerIdentifier[],
+            compressedStickerText: '1-2'
           }
         ]
       }
