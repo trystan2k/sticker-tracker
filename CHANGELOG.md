@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.24.0](https://github.com/trystan2k/sticker-tracker/compare/v1.23.0...v1.24.0) (2026-06-09)
+
+
+### Features
+
+* add repeated stickers tracking and repeated-only share flow ([#52](https://github.com/trystan2k/sticker-tracker/issues/52)) ([2631563](https://github.com/trystan2k/sticker-tracker/commit/263156316044cd41849c392e7e03ba501d3f2f37))
+
 ## [1.23.0](https://github.com/trystan2k/sticker-tracker/compare/v1.22.0...v1.23.0) (2026-06-05)
 
 
