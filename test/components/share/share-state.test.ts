@@ -133,11 +133,26 @@ describe('share-state', () => {
   it('buildSharePreviewPayload returns data for single page selection', () => {
     const collection = makeCollection({});
     const payload = buildSharePreviewPayload(collection, ['mex' as PageId]);
+    const firstPage = payload.sections[0]?.pages[0];
 
     expect(payload.selectedPageIds).toContain('mex');
     expect(payload.selectedPageCount).toBe(1);
     expect(payload.totalStickerCount).toBeGreaterThan(0);
     expect(payload.sections.length).toBeGreaterThan(0);
+    expect(firstPage?.compressedStickerText).toBe(
+      'MEX 1, MEX 2, MEX 3, MEX 4, MEX 5, MEX 6, MEX 7, MEX 8, MEX 9, MEX 10, MEX 11, MEX 12, MEX 13, MEX 14, MEX 15, MEX 16, MEX 17, MEX 18, MEX 19, MEX 20'
+    );
+  });
+
+  it('buildSharePreviewPayload formats special missing stickers with sticker code prefixes', () => {
+    const collection = makeCollection({
+      'fwc-opening': ['1', '2', '3', '4', '6', '7', '8']
+    });
+
+    const payload = buildSharePreviewPayload(collection, ['fwc-opening' as PageId]);
+    const firstPage = payload.sections[0]?.pages[0];
+
+    expect(firstPage?.compressedStickerText).toBe('FWC 00, FWC 5');
   });
 
   it('treats repeated copies as collected for share filtering', () => {

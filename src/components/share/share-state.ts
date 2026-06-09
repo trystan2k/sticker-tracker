@@ -116,7 +116,9 @@ function createPreviewPageBlock(
     title: page.translationKey,
     pageType: page.type,
     stickerIds,
-    compressedStickerText: compressMissingStickerIds(stickerIds)
+    compressedStickerText: stickerIds
+      .map((stickerId) => formatMissingShareEntry(page, stickerId))
+      .join(', ')
   } as const;
 
   if (page.type === 'team') {
@@ -260,6 +262,36 @@ export function compressMissingStickerIds(stickerIds: readonly StickerIdentifier
   }
 
   return parts.join(', ');
+}
+
+function getMissingDisplayCode(page: AlbumPage, stickerId: StickerIdentifier): string {
+  if (page.type === 'team') {
+    return page.albumCode;
+  }
+
+  if (String(stickerId).startsWith('CC')) {
+    return 'CC';
+  }
+
+  return 'FWC';
+}
+
+function getMissingDisplayNumber(stickerId: StickerIdentifier): string {
+  const value = String(stickerId);
+
+  if (/^[A-Z]{3}-\d+$/.test(value)) {
+    return value.split('-')[1] ?? value;
+  }
+
+  if (/^CC\d+$/.test(value)) {
+    return value.slice(2);
+  }
+
+  return value;
+}
+
+function formatMissingShareEntry(page: AlbumPage, stickerId: StickerIdentifier): string {
+  return `${getMissingDisplayCode(page, stickerId)} ${getMissingDisplayNumber(stickerId)}`;
 }
 
 export function buildSharePreviewPayload(

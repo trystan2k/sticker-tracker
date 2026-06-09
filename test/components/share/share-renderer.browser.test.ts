@@ -27,7 +27,7 @@ function createPayload(): SharePreviewPayload {
               'MEX-5',
               'MEX-10'
             ] as unknown as readonly StickerIdentifier[],
-            compressedStickerText: '1-3, 5, 10'
+            compressedStickerText: 'MEX 1, MEX 2, MEX 3, MEX 5, MEX 10'
           }
         ]
       }
@@ -113,7 +113,7 @@ describe('renderSharePng', () => {
               title: 'share.preview.emptyTitle',
               pageType: 'special',
               stickerIds: ['S-1', 'S-2'] as unknown as readonly StickerIdentifier[],
-              compressedStickerText: '1-2'
+              compressedStickerText: 'FWC 1, FWC 2'
             }
           ]
         }
@@ -141,7 +141,7 @@ describe('renderSharePng', () => {
               group: 'A',
               pageType: 'team',
               stickerIds: ['MEX-1', 'MEX-2', 'MEX-3'] as unknown as readonly StickerIdentifier[],
-              compressedStickerText: '1-3'
+              compressedStickerText: 'MEX 1, MEX 2, MEX 3'
             },
             {
               pageId: 'arg' as PageId,
@@ -150,7 +150,7 @@ describe('renderSharePng', () => {
               group: 'A',
               pageType: 'team',
               stickerIds: ['ARG-1', 'ARG-2', 'ARG-3'] as unknown as readonly StickerIdentifier[],
-              compressedStickerText: '1-3'
+              compressedStickerText: 'ARG 1, ARG 2, ARG 3'
             }
           ]
         }
@@ -188,7 +188,7 @@ describe('renderSharePng', () => {
               pageType: 'special',
               specialKey: 'coca-cola',
               stickerIds: ['CC1', 'CC2'] as unknown as readonly StickerIdentifier[],
-              compressedStickerText: 'CC1-CC2'
+              compressedStickerText: 'CC 1, CC 2'
             }
           ]
         }
