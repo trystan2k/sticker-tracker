@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.23.0](https://github.com/trystan2k/sticker-tracker/compare/v1.22.0...v1.23.0) (2026-06-05)
+
+
+### Features
+
+* **deps:** bump the prod-dependencies group with 6 updates ([16fa5eb](https://github.com/trystan2k/sticker-tracker/commit/16fa5eb0baa3920ea82d3ee272f42e5f38e0c92e))
+
+
+### Bug Fixes
+
+* **components:** address a11y issues and clean up code ([5ae534e](https://github.com/trystan2k/sticker-tracker/commit/5ae534e2b6cbee2a62a8a120423f64e240136d5a))
+
 ## [1.22.0](https://github.com/trystan2k/sticker-tracker/compare/v1.21.0...v1.22.0) (2026-05-22)
 
 
