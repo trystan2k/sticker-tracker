@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.25.0](https://github.com/trystan2k/sticker-tracker/compare/v1.24.0...v1.25.0) (2026-06-09)
+
+
+### Features
+
+* **share:** add jpeg fallback for large previews ([9e801d6](https://github.com/trystan2k/sticker-tracker/commit/9e801d644a7626ff43c7a1f222916b5771f8e130))
+
+
+### Bug Fixes
+
+* **share:** show missing stickers with code labels ([e45389a](https://github.com/trystan2k/sticker-tracker/commit/e45389aae754490bf1dd891eec43d3e0357b074f))
+
 ## [1.24.0](https://github.com/trystan2k/sticker-tracker/compare/v1.23.0...v1.24.0) (2026-06-09)
 
 
