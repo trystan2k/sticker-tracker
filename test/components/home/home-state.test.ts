@@ -16,11 +16,21 @@ import {
   computeSpecialPagesData
 } from '@/components/home/home-state';
 
-function makeCollection(entries: Record<string, string[]>): CollectionState {
-  const result: Record<string, ReadonlySet<StickerIdentifier>> = {};
-  for (const [pageId, stickerIds] of Object.entries(entries)) {
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-    result[pageId] = new Set(stickerIds) as unknown as ReadonlySet<StickerIdentifier>;
+function makeCollection(
+  entries: Record<string, string[] | Record<string, number>>
+): CollectionState {
+  const result: Record<string, Record<StickerIdentifier, number>> = {};
+  for (const [pageId, stickerState] of Object.entries(entries)) {
+    result[pageId] = Array.isArray(stickerState)
+      ? Object.fromEntries(
+          stickerState.map((stickerId) => [stickerId as StickerIdentifier, 1] as const)
+        )
+      : Object.fromEntries(
+          Object.entries(stickerState).map(([stickerId, quantity]) => [
+            stickerId as StickerIdentifier,
+            quantity
+          ])
+        );
   }
   return result as unknown as CollectionState;
 }
@@ -44,16 +54,28 @@ describe('home-state', () => {
       expect(summary.percentage).toBeLessThan(100);
     });
 
+    it('ignores repeated copies in summary progress', () => {
+      const collection = makeCollection({
+        mex: {
+          'MEX-1': 3,
+          'MEX-2': 2
+        }
+      });
+
+      const summary = computeHomeSummary(collection);
+
+      expect(summary.collectedTotal).toBe(2);
+    });
+
     it('computes full collection as 100%', () => {
       // Create entries that sum to more than ALBUM_TOTAL
-      const oversized: Record<string, ReadonlySet<StickerIdentifier>> = {};
+      const oversized: Record<string, Record<StickerIdentifier, number>> = {};
       // Create entries that sum to more than ALBUM_TOTAL
       for (let i = 0; i < ALBUM_TOTAL + 100; i++) {
         const pageId = `page-${i % 51}` as PageId;
-        if (!oversized[pageId]) {
-          oversized[pageId] = new Set<StickerIdentifier>();
-        }
-        (oversized[pageId] as Set<StickerIdentifier>).add(`sticker-${i}` as StickerIdentifier);
+        const pageCollection = oversized[pageId] ?? {};
+        pageCollection[`sticker-${i}` as StickerIdentifier] = 1;
+        oversized[pageId] = pageCollection;
       }
       const summary = computeHomeSummary(oversized as unknown as CollectionState);
       expect(summary.percentage).toBe(100);
@@ -198,6 +220,21 @@ describe('home-state', () => {
       expect(opening.isComplete).toBe(false);
     });
 
+    it('ignores repeated copies for special page completion math', () => {
+      const collection = makeCollection({
+        'fwc-opening': {
+          '00': 4,
+          '1': 2,
+          '2': 1
+        }
+      });
+
+      const special = computeSpecialPagesData(collection);
+      const opening = special.find((s) => s.key === 'fwc-opening')!;
+
+      expect(opening.collected).toBe(3);
+    });
+
     it('marks special page as complete when all collected', () => {
       const collection = makeCollection({
         'fwc-opening': ['00', '1', '2', '3', '4', '5', '6', '7', '8']
@@ -209,16 +246,16 @@ describe('home-state', () => {
       expect(opening.isComplete).toBe(true);
     });
 
-    it('preserves raw special-page collected count above total', () => {
+    it('drops malformed special-page sticker ids from collected count', () => {
       const collection = makeCollection({
         'fwc-opening': Array.from({ length: 20 }, (_, index) => `X-${index + 1}`)
       });
       const special = computeSpecialPagesData(collection);
       const opening = special.find((s) => s.key === 'fwc-opening')!;
 
-      expect(opening.collected).toBe(20);
-      expect(opening.percentage).toBe(100);
-      expect(opening.isComplete).toBe(true);
+      expect(opening.collected).toBe(0);
+      expect(opening.percentage).toBe(0);
+      expect(opening.isComplete).toBe(false);
     });
 
     it('handles missing page IDs in collection gracefully', () => {

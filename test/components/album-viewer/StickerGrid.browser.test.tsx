@@ -13,6 +13,7 @@ import {
 import { albumPages, type StickerIdentifier } from '@/data/album';
 import { StickerGrid } from '@/components/album-viewer/StickerGrid';
 import { AppStateProvider } from '@/providers/AppStateProvider';
+import { STICKER_CELL_DOUBLE_TAP_THRESHOLD_MS } from '@/components/album-viewer/sticker-cell-interactions';
 
 function waitFor(predicate: () => boolean, timeoutMs = 8000): Promise<void> {
   return new Promise<void>((resolve, reject) => {
@@ -78,7 +79,8 @@ describe('StickerGrid', () => {
           React.createElement(StickerGrid, {
             page: teamPage,
             collectedStickerIds: new Set<StickerIdentifier>(),
-            onToggleSticker: () => {}
+            stickerQuantities: {},
+            onSetStickerQuantity: () => {}
           })
         )
       );
@@ -112,7 +114,8 @@ describe('StickerGrid', () => {
           React.createElement(StickerGrid, {
             page: cocaColaPage,
             collectedStickerIds: new Set<StickerIdentifier>(),
-            onToggleSticker: () => {}
+            stickerQuantities: {},
+            onSetStickerQuantity: () => {}
           })
         )
       );
@@ -145,7 +148,8 @@ describe('StickerGrid', () => {
           React.createElement(StickerGrid, {
             page: fwcOpeningPage,
             collectedStickerIds: new Set<StickerIdentifier>(),
-            onToggleSticker: () => {}
+            stickerQuantities: {},
+            onSetStickerQuantity: () => {}
           })
         )
       );
@@ -178,7 +182,8 @@ describe('StickerGrid', () => {
           React.createElement(StickerGrid, {
             page,
             collectedStickerIds: new Set<StickerIdentifier>(),
-            onToggleSticker: () => {}
+            stickerQuantities: {},
+            onSetStickerQuantity: () => {}
           })
         )
       );
@@ -201,11 +206,11 @@ describe('StickerGrid', () => {
       }
     });
 
-    it('calls onToggleSticker when sticker cell clicked', async () => {
+    it('increments missing sticker to qty 1 on single click', async () => {
       await resetStorage();
 
       const page = albumPages[0]!;
-      const toggledStickers: StickerIdentifier[] = [];
+      const quantityUpdates: Array<{ stickerId: StickerIdentifier; quantity: number }> = [];
 
       const mounted = mount(
         React.createElement(
@@ -214,8 +219,9 @@ describe('StickerGrid', () => {
           React.createElement(StickerGrid, {
             page,
             collectedStickerIds: new Set<StickerIdentifier>(),
-            onToggleSticker: (id: StickerIdentifier) => {
-              toggledStickers.push(id);
+            stickerQuantities: {},
+            onSetStickerQuantity: (stickerId: StickerIdentifier, quantity: number) => {
+              quantityUpdates.push({ stickerId, quantity });
             }
           })
         )
@@ -232,8 +238,12 @@ describe('StickerGrid', () => {
 
         firstButton.click();
 
-        expect(toggledStickers.length).toBe(1);
-        expect(toggledStickers[0]).toBe(page.stickerIds[0]);
+        expect(quantityUpdates).toEqual([
+          {
+            stickerId: page.stickerIds[0]!,
+            quantity: 1
+          }
+        ]);
       } finally {
         cleanup(mounted);
       }
@@ -253,7 +263,8 @@ describe('StickerGrid', () => {
           React.createElement(StickerGrid, {
             page,
             collectedStickerIds: collectedSet,
-            onToggleSticker: () => {}
+            stickerQuantities: {},
+            onSetStickerQuantity: () => {}
           })
         )
       );
@@ -284,7 +295,7 @@ describe('StickerGrid', () => {
       await resetStorage();
 
       const page = albumPages[0]!;
-      const toggledStickers: StickerIdentifier[] = [];
+      const quantityUpdates: Array<{ stickerId: StickerIdentifier; quantity: number }> = [];
 
       const mounted = mount(
         React.createElement(
@@ -293,8 +304,9 @@ describe('StickerGrid', () => {
           React.createElement(StickerGrid, {
             page,
             collectedStickerIds: new Set<StickerIdentifier>(),
-            onToggleSticker: (id: StickerIdentifier) => {
-              toggledStickers.push(id);
+            stickerQuantities: {},
+            onSetStickerQuantity: (stickerId: StickerIdentifier, quantity: number) => {
+              quantityUpdates.push({ stickerId, quantity });
             }
           })
         )
@@ -315,8 +327,12 @@ describe('StickerGrid', () => {
         firstButton.focus();
         await user.keyboard('{Enter}');
 
-        expect(toggledStickers.length).toBe(1);
-        expect(toggledStickers[0]).toBe(page.stickerIds[0]);
+        expect(quantityUpdates).toEqual([
+          {
+            stickerId: page.stickerIds[0]!,
+            quantity: 1
+          }
+        ]);
       } finally {
         cleanup(mounted);
       }
@@ -326,7 +342,7 @@ describe('StickerGrid', () => {
       await resetStorage();
 
       const page = albumPages[0]!;
-      const toggledStickers: StickerIdentifier[] = [];
+      const quantityUpdates: Array<{ stickerId: StickerIdentifier; quantity: number }> = [];
 
       const mounted = mount(
         React.createElement(
@@ -335,8 +351,9 @@ describe('StickerGrid', () => {
           React.createElement(StickerGrid, {
             page,
             collectedStickerIds: new Set<StickerIdentifier>(),
-            onToggleSticker: (id: StickerIdentifier) => {
-              toggledStickers.push(id);
+            stickerQuantities: {},
+            onSetStickerQuantity: (stickerId: StickerIdentifier, quantity: number) => {
+              quantityUpdates.push({ stickerId, quantity });
             }
           })
         )
@@ -357,7 +374,294 @@ describe('StickerGrid', () => {
         firstButton.focus();
         await user.keyboard(' ');
 
-        expect(toggledStickers.length).toBe(1);
+        expect(quantityUpdates).toEqual([
+          {
+            stickerId: page.stickerIds[0]!,
+            quantity: 1
+          }
+        ]);
+      } finally {
+        cleanup(mounted);
+      }
+    });
+
+    it('decrements owned sticker via Backspace key on sticker cell', async () => {
+      await resetStorage();
+
+      const page = albumPages[0]!;
+      const stickerId = page.stickerIds[0]!;
+      const quantityUpdates: Array<{ stickerId: StickerIdentifier; quantity: number }> = [];
+
+      const mounted = mount(
+        React.createElement(
+          AppStateProvider,
+          null,
+          React.createElement(StickerGrid, {
+            page,
+            collectedStickerIds: new Set<StickerIdentifier>([stickerId]),
+            stickerQuantities: {
+              [stickerId]: 2
+            },
+            onSetStickerQuantity: (nextStickerId: StickerIdentifier, quantity: number) => {
+              quantityUpdates.push({ stickerId: nextStickerId, quantity });
+            }
+          })
+        )
+      );
+
+      try {
+        await waitFor(
+          () => mounted.container.querySelector('button[aria-pressed="true"]') !== null
+        );
+
+        const firstButton = mounted.container.querySelector(
+          'button[aria-pressed="true"]'
+        ) as HTMLButtonElement;
+        expect(firstButton).not.toBeNull();
+
+        const user = userEvent.setup();
+        firstButton.focus();
+        await user.keyboard('{Backspace}');
+
+        expect(quantityUpdates).toEqual([
+          {
+            stickerId,
+            quantity: 1
+          }
+        ]);
+      } finally {
+        cleanup(mounted);
+      }
+    });
+  });
+
+  describe('quantity interactions', () => {
+    it('defers owned single click increment until double-tap threshold expires', async () => {
+      await resetStorage();
+
+      const page = albumPages[0]!;
+      const stickerId = page.stickerIds[0]!;
+      const quantityUpdates: Array<{ stickerId: StickerIdentifier; quantity: number }> = [];
+
+      const mounted = mount(
+        React.createElement(
+          AppStateProvider,
+          null,
+          React.createElement(StickerGrid, {
+            page,
+            collectedStickerIds: new Set<StickerIdentifier>([stickerId]),
+            stickerQuantities: {
+              [stickerId]: 1
+            },
+            onSetStickerQuantity: (nextStickerId: StickerIdentifier, quantity: number) => {
+              quantityUpdates.push({ stickerId: nextStickerId, quantity });
+            }
+          })
+        )
+      );
+
+      try {
+        await waitFor(
+          () => mounted.container.querySelector('button[aria-pressed="true"]') !== null
+        );
+
+        const firstButton = mounted.container.querySelector(
+          'button[aria-pressed="true"]'
+        ) as HTMLElement;
+
+        firstButton.click();
+        expect(quantityUpdates).toEqual([]);
+
+        await new Promise((resolve) => {
+          window.setTimeout(resolve, STICKER_CELL_DOUBLE_TAP_THRESHOLD_MS - 10);
+        });
+        expect(quantityUpdates).toEqual([]);
+
+        await new Promise((resolve) => {
+          window.setTimeout(resolve, 20);
+        });
+        expect(quantityUpdates).toEqual([
+          {
+            stickerId,
+            quantity: 2
+          }
+        ]);
+      } finally {
+        cleanup(mounted);
+      }
+    });
+
+    it('lets double tap win over two quick single taps for qty 1', async () => {
+      await resetStorage();
+
+      const page = albumPages[0]!;
+      const stickerId = page.stickerIds[0]!;
+      const quantityUpdates: Array<{ stickerId: StickerIdentifier; quantity: number }> = [];
+
+      const mounted = mount(
+        React.createElement(
+          AppStateProvider,
+          null,
+          React.createElement(StickerGrid, {
+            page,
+            collectedStickerIds: new Set<StickerIdentifier>([stickerId]),
+            stickerQuantities: {
+              [stickerId]: 1
+            },
+            onSetStickerQuantity: (nextStickerId: StickerIdentifier, quantity: number) => {
+              quantityUpdates.push({ stickerId: nextStickerId, quantity });
+            }
+          })
+        )
+      );
+
+      try {
+        await waitFor(
+          () => mounted.container.querySelector('button[aria-pressed="true"]') !== null
+        );
+
+        const firstButton = mounted.container.querySelector(
+          'button[aria-pressed="true"]'
+        ) as HTMLElement;
+
+        firstButton.click();
+        await new Promise((resolve) => {
+          window.setTimeout(resolve, Math.floor(STICKER_CELL_DOUBLE_TAP_THRESHOLD_MS / 2));
+        });
+        firstButton.click();
+
+        await new Promise((resolve) => {
+          window.setTimeout(resolve, 20);
+        });
+
+        expect(quantityUpdates).toEqual([
+          {
+            stickerId,
+            quantity: 0
+          }
+        ]);
+      } finally {
+        cleanup(mounted);
+      }
+    });
+
+    it('decrements owned sticker quantity on double tap when qty is 3', async () => {
+      await resetStorage();
+
+      const page = albumPages[0]!;
+      const stickerId = page.stickerIds[0]!;
+      const quantityUpdates: Array<{ stickerId: StickerIdentifier; quantity: number }> = [];
+
+      const mounted = mount(
+        React.createElement(
+          AppStateProvider,
+          null,
+          React.createElement(StickerGrid, {
+            page,
+            collectedStickerIds: new Set<StickerIdentifier>([stickerId]),
+            stickerQuantities: {
+              [stickerId]: 3
+            },
+            onSetStickerQuantity: (nextStickerId: StickerIdentifier, quantity: number) => {
+              quantityUpdates.push({ stickerId: nextStickerId, quantity });
+            }
+          })
+        )
+      );
+
+      try {
+        await waitFor(
+          () => mounted.container.querySelector('button[aria-pressed="true"]') !== null
+        );
+
+        const firstButton = mounted.container.querySelector(
+          'button[aria-pressed="true"]'
+        ) as HTMLElement;
+
+        firstButton.click();
+        await new Promise((resolve) => {
+          window.setTimeout(resolve, Math.floor(STICKER_CELL_DOUBLE_TAP_THRESHOLD_MS / 2));
+        });
+        firstButton.click();
+
+        await new Promise((resolve) => {
+          window.setTimeout(resolve, 20);
+        });
+
+        expect(quantityUpdates).toEqual([
+          {
+            stickerId,
+            quantity: 2
+          }
+        ]);
+      } finally {
+        cleanup(mounted);
+      }
+    });
+
+    it('shows repeated badge and announces repeated count to screen readers', async () => {
+      await resetStorage();
+
+      const page = albumPages[0]!;
+      const stickerId = page.stickerIds[0]!;
+
+      const mounted = mount(
+        React.createElement(
+          AppStateProvider,
+          null,
+          React.createElement(StickerGrid, {
+            page,
+            collectedStickerIds: new Set<StickerIdentifier>([stickerId]),
+            stickerQuantities: {
+              [stickerId]: 3
+            },
+            onSetStickerQuantity: () => {}
+          })
+        )
+      );
+
+      try {
+        await waitFor(
+          () => mounted.container.querySelector('button[aria-pressed="true"]') !== null
+        );
+
+        const firstButton = mounted.container.querySelector('button[aria-pressed="true"]');
+        const badge = mounted.container.querySelector('[class*="badge"]');
+
+        expect(badge?.textContent).toBe('2');
+        expect(firstButton?.getAttribute('aria-label')).toContain('2 repeated copies');
+      } finally {
+        cleanup(mounted);
+      }
+    });
+
+    it('hides repeated badge when repeated count is 0', async () => {
+      await resetStorage();
+
+      const page = albumPages[0]!;
+      const stickerId = page.stickerIds[0]!;
+
+      const mounted = mount(
+        React.createElement(
+          AppStateProvider,
+          null,
+          React.createElement(StickerGrid, {
+            page,
+            collectedStickerIds: new Set<StickerIdentifier>([stickerId]),
+            stickerQuantities: {
+              [stickerId]: 1
+            },
+            onSetStickerQuantity: () => {}
+          })
+        )
+      );
+
+      try {
+        await waitFor(
+          () => mounted.container.querySelector('button[aria-pressed="true"]') !== null
+        );
+
+        expect(mounted.container.querySelector('[class*="badge"]')).toBeNull();
       } finally {
         cleanup(mounted);
       }
@@ -379,7 +683,8 @@ describe('StickerGrid', () => {
           React.createElement(StickerGrid, {
             page,
             collectedStickerIds: collectedSet,
-            onToggleSticker: () => {}
+            stickerQuantities: {},
+            onSetStickerQuantity: () => {}
           })
         )
       );
@@ -416,7 +721,8 @@ describe('StickerGrid', () => {
           React.createElement(StickerGrid, {
             page: teamPage,
             collectedStickerIds: new Set<StickerIdentifier>(),
-            onToggleSticker: () => {}
+            stickerQuantities: {},
+            onSetStickerQuantity: () => {}
           })
         )
       );
@@ -468,7 +774,8 @@ describe('StickerGrid', () => {
             React.createElement(StickerGrid, {
               page,
               collectedStickerIds: new Set<StickerIdentifier>(),
-              onToggleSticker: () => {}
+              stickerQuantities: {},
+              onSetStickerQuantity: () => {}
             }),
             React.createElement(ContextReader)
           )
@@ -479,11 +786,7 @@ describe('StickerGrid', () => {
         await waitFor(() => capturedContext !== null && capturedContext.renderState === 'ready');
 
         // Toggle sticker to collected
-        const toggleResult = await capturedContext!.toggleCollected(
-          capturedContext!.collection,
-          page.pageId,
-          stickerId
-        );
+        const toggleResult = await capturedContext!.toggleCollected(page.pageId, stickerId);
 
         expect(toggleResult.state).toBe('ready');
       } finally {
@@ -507,7 +810,7 @@ describe('StickerGrid', () => {
         // Collection should contain the previously toggled sticker
         const pageCollection = capturedContext!.collection[page.pageId];
         expect(pageCollection).toBeDefined();
-        expect(pageCollection!.has(stickerId)).toBe(true);
+        expect(pageCollection?.[stickerId]).toBe(1);
       } finally {
         cleanup(mounted2);
       }

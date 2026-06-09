@@ -278,7 +278,7 @@ export function parseAndValidate(rawText: string): BackupParseResult {
   }
 
   const persistedCollection = payload.collection;
-  const normalizedCollection: Record<string, string[]> = {};
+  const normalizedCollection: Record<string, unknown> = {};
 
   for (const [rawPageId, rawStickerIds] of Object.entries(persistedCollection)) {
     if (typeof rawPageId !== 'string' || rawPageId.length === 0) {
@@ -296,7 +296,7 @@ export function parseAndValidate(rawText: string): BackupParseResult {
       };
     }
 
-    if (rawStickerIds === null || !Array.isArray(rawStickerIds)) {
+    if (rawStickerIds === null) {
       return {
         state: 'invalid-collection',
         metadata: {
@@ -316,20 +316,60 @@ export function parseAndValidate(rawText: string): BackupParseResult {
       };
     }
 
-    const seen = new Set<string>();
+    if (Array.isArray(rawStickerIds)) {
+      const seen = new Set<string>();
+      const normalizedStickerIds: string[] = [];
 
-    const normalizedStickerIds: string[] = [];
+      for (const rawStickerId of rawStickerIds) {
+        if (typeof rawStickerId !== 'string') {
+          return {
+            state: 'invalid-sticker-id',
+            metadata: {
+              pageId: rawPageId
+            }
+          };
+        }
 
-    for (const rawStickerId of rawStickerIds) {
-      if (typeof rawStickerId !== 'string') {
-        return {
-          state: 'invalid-sticker-id',
-          metadata: {
-            pageId: rawPageId
-          }
-        };
+        if (!stickerSet.has(rawStickerId)) {
+          return {
+            state: 'invalid-sticker-id',
+            metadata: {
+              pageId: rawPageId,
+              stickerId: rawStickerId
+            }
+          };
+        }
+
+        if (seen.has(rawStickerId)) {
+          return {
+            state: 'duplicate-sticker-id',
+            metadata: {
+              pageId: rawPageId,
+              stickerId: rawStickerId
+            }
+          };
+        }
+
+        seen.add(rawStickerId);
+        normalizedStickerIds.push(rawStickerId);
       }
 
+      normalizedCollection[rawPageId] = normalizedStickerIds;
+      continue;
+    }
+
+    if (!isObjectRecord(rawStickerIds)) {
+      return {
+        state: 'invalid-collection',
+        metadata: {
+          pageId: rawPageId
+        }
+      };
+    }
+
+    const normalizedQuantities: Record<string, number> = {};
+
+    for (const [rawStickerId, rawQuantity] of Object.entries(rawStickerIds)) {
       if (!stickerSet.has(rawStickerId)) {
         return {
           state: 'invalid-sticker-id',
@@ -340,9 +380,13 @@ export function parseAndValidate(rawText: string): BackupParseResult {
         };
       }
 
-      if (seen.has(rawStickerId)) {
+      if (
+        typeof rawQuantity !== 'number' ||
+        !Number.isSafeInteger(rawQuantity) ||
+        rawQuantity <= 0
+      ) {
         return {
-          state: 'duplicate-sticker-id',
+          state: 'invalid-collection',
           metadata: {
             pageId: rawPageId,
             stickerId: rawStickerId
@@ -350,11 +394,10 @@ export function parseAndValidate(rawText: string): BackupParseResult {
         };
       }
 
-      seen.add(rawStickerId);
-      normalizedStickerIds.push(rawStickerId);
+      normalizedQuantities[rawStickerId] = rawQuantity;
     }
 
-    normalizedCollection[rawPageId] = normalizedStickerIds;
+    normalizedCollection[rawPageId] = normalizedQuantities;
   }
 
   if (payload.locale !== undefined) {

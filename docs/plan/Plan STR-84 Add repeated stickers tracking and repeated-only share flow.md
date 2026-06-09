@@ -1,0 +1,462 @@
+## Task Analysis
+
+- Main objective:
+  - Deliver epic `STR-84` through strict sequential slices `STR-85 -> STR-86 -> STR-87 -> STR-88 -> STR-89 -> STR-90`.
+  - Replace current binary collected model with a quantity-aware model that supports owned + repeated copies while keeping album progress, home summary, stats, and missing-stickers logic based on unique collected only.
+  - Add repeated-copy interactions in the main album grid, a dedicated `/repeated` route, and a repeated-only share/export flow that mirrors current missing-share UX as closely as possible.
+  - Honor locked product clarifications:
+    - double tap wins over two single taps
+    - badge shows repeated copies only, never total owned count
+    - repeated share text uses repeated copies only, e.g. qty `3` -> `(x2)`
+    - malformed/unknown saved app data fails soft to qty `0` during migration/load
+    - `/repeated` page order follows existing canonical album/page order
+    - repeated share/export should mirror missing-share UX; only data source/output differ
+  - Plan file: `/Users/trystan2k/Documents/Thiago/Repos/sticker-tracker/docs/plan/Plan STR-84 Add repeated stickers tracking and repeated-only share flow.md`
+- Identified dependencies:
+  - Core state + persistence now live in:
+    - `src/services/collection-service.ts`
+    - `src/lib/storage/app-storage.ts`
+    - `src/providers/AppStateProvider.tsx`
+  - Unique-count derivations that must stay unchanged in meaning live in:
+    - `src/data/album-stats.ts`
+    - `src/components/home/home-state.ts`
+    - `src/components/stats/stats-state.ts`
+    - `src/components/missing/missing-state.ts`
+    - `src/components/share/share-state.ts`
+  - Main grid interaction and visual contract already live in:
+    - `src/components/album-viewer/StickerCell.tsx`
+    - `src/components/album-viewer/StickerCell.module.css`
+    - `src/components/album-viewer/StickerGrid.tsx`
+    - `src/components/album-viewer/AlbumViewer.tsx`
+    - `src/components/album-viewer/AlbumRouteScreen.tsx`
+    - `src/components/album-viewer/viewer-state.ts`
+  - Current reusable navigation/share/page patterns already exist in:
+    - `src/routes/missing.tsx`
+    - `src/components/missing/MissingScreen.tsx`
+    - `src/routes/share.tsx`
+    - `src/routes/share/index.tsx`
+    - `src/routes/share/preview.tsx`
+    - `src/components/share/ShareSelectionScreen.tsx`
+    - `src/components/share/SharePreviewScreen.tsx`
+    - `src/components/share/SharePreviewCard.tsx`
+    - `src/components/share/share-renderer.ts`
+  - Drawer + route entry wiring already exists in:
+    - `src/components/MenuDrawer.tsx`
+    - `src/components/home/HomeScreen.tsx`
+    - `src/components/album-viewer/AlbumPageHeader.tsx`
+    - `src/components/not-found/NotFoundPage.tsx`
+  - Backup + scanner flows currently assume binary presence and must be reviewed:
+    - `src/services/backup-service.ts`
+    - `src/components/BackupRestoreSheet.tsx`
+    - `src/services/scanner-collection.ts`
+    - `src/services/scanner-lookup.ts`
+    - `src/components/scanner/ScannerScreen.tsx`
+    - `src/components/scanner/ScanResultPopup.tsx`
+  - Existing plans and patterns worth reusing instead of reinventing:
+    - `docs/plan/Plan STR-13 EP4: Core Album Tracking Experience.md`
+    - `docs/plan/Plan STR-22 EP6: Missing Stickers Share + Export.md`
+    - `docs/plan/Plan STR-79 EP17: Missing Stickers Page.md`
+  - Existing test surface already covers nearly every impacted subsystem:
+    - `test/services/collection-service.test.ts`
+    - `test/storage/app-storage.browser.test.ts`
+    - `test/providers/AppStateProvider.browser.test.tsx`
+    - `test/components/album-viewer/*.browser.test.tsx`
+    - `test/components/missing/*`
+    - `test/components/share/*`
+    - `test/components/home/home-state.test.ts`
+    - `test/components/stats/stats-state.test.ts`
+    - `test/services/backup-service*.test.ts`
+    - `test/services/scanner-collection.test.ts`
+    - `test/i18n/translation-resources.test.ts`
+- System impact:
+  - Data-model impact is high: current `CollectionState` is binary `Record<PageId, Set<StickerIdentifier>>`; repeated copies require a quantity-aware state shape plus migration.
+  - UI impact is high: sticker cells, grid interactions, accessibility labels, badge rendering, and any page deriving from collection presence/counts all change.
+  - Route impact is medium/high: new `/repeated` route plus a separate repeated-share route pair, with generated `src/routeTree.gen.ts` affected.
+  - Cross-cutting regression risk is high because collection state feeds persistence, missing pages, sharing, home, stats, backup/restore, scanner, and analytics.
+  - Likely first-inspection modules for implementation agents:
+    - `src/services/collection-service.ts`
+    - `src/lib/storage/app-storage.ts`
+    - `src/providers/AppStateProvider.tsx`
+    - `src/components/album-viewer/StickerCell.tsx`
+    - `src/components/album-viewer/AlbumRouteScreen.tsx`
+    - `src/components/missing/missing-state.ts`
+    - `src/components/share/share-state.ts`
+    - `src/services/backup-service.ts`
+    - `src/services/scanner-collection.ts`
+    - `test/helpers/typed-factories.ts`
+
+## Chosen Approach
+
+- Proposed solution:
+  - Keep `AppStateProvider` as the single runtime source of truth. Do not introduce a second repeated-stickers store.
+  - Convert collection state from binary presence to per-sticker quantities.
+    - Recommended in-memory shape: `Record<PageId, Record<StickerIdentifier, number>>` or equivalent typed readonly variant.
+    - Recommended persisted strategy: tolerate both old binary payloads and new quantity payloads at read time, then always write back the normalized quantity format.
+    - Treat this as a payload migration, not an IndexedDB schema redesign, unless implementation proves a schema bump is truly required.
+  - Add pure collection helpers early and make all downstream features consume those helpers instead of reading `.size` or `.has()` directly.
+    - Examples: unique collected count, repeated-copy count, sticker quantity lookup, unique set derivation for a page, repeated count per sticker.
+    - This keeps home/stats/missing/share math explicit and prevents repeated copies from inflating progress.
+  - Replace toggle semantics with explicit quantity mutation semantics.
+    - Recommend adding a new provider/service API such as `updateStickerQuantity` or similarly explicit action-based naming.
+    - Keep scanner write semantics idempotent at `min qty = 1`; scanning should still mean “mark as owned”, not “increment repeated copies”.
+  - Upgrade `StickerCell` to own gesture arbitration for manual interactions.
+    - Qty `0`: single tap/click can collect immediately to qty `1`.
+    - Qty `>= 1`: defer single-tap increment until the double-tap window expires.
+    - If second tap arrives in threshold, perform decrement instead.
+    - This is the simplest way to satisfy “double tap wins” and avoid a temporary accidental increment before decrement.
+  - Reuse existing feature architecture for derived pages and share flows.
+    - Mirror `src/components/missing/missing-state.ts` with a new pure repeated-state helper.
+    - Mirror thin TanStack route controllers like `src/routes/missing.tsx` and `src/routes/share/*.tsx`.
+    - Reuse token-backed screen chrome/CSS-module patterns from missing/share screens.
+    - Reuse the current share preview card / renderer layout rather than inventing a new export format.
+  - Keep missing-share flow behavior stable. Add a separate repeated-share route namespace instead of turning the existing `/share` routes into a broad multi-mode system.
+    - Recommended route pair: `/repeated-share` and `/repeated-share/preview`.
+    - Repeated screen share button navigates there with repeated-page preselection and `from: '/repeated'`.
+    - Missing-share routes remain missing-only.
+  - Distinguish app-load migration from backup-restore validation.
+    - App-load migration must fail soft: unknown page ids, unknown sticker ids, malformed quantities, or invalid saved values sanitize to qty `0` / dropped entries and must not block bootstrap.
+    - Backup restore can stay explicit and user-visible on invalid imports, but it must support the quantity model and preserve round-trip values.
+- Justification for simplicity:
+  - Reject dual binary + repeated persistence. Two sources of truth would multiply bugs across home/stats/share/backup/scanner.
+  - Reject encoding quantities as duplicate sticker ids in arrays. That would blur old invalid “duplicate” backup data with valid new repeated data and make validation harder.
+  - Reject a full generic “share engine” rewrite. Too much churn for a feature that only needs a repeated-specific data source with nearly identical UI.
+  - Reject hand-built new repeated UI primitives where missing/share primitives already match the product requirement. Reuse layout, token usage, and route contracts first.
+  - Reject hardcoded copy, colors, spacing, radii, or typography. Existing i18n and token systems already solve that.
+  - Reject broad analytics changes in early phases. Keep current tracking stable until repeated routes and counts are settled, then review small additions in STR-90 only.
+- Components to be modified/created:
+  - Core state + persistence:
+    - `src/services/collection-service.ts`
+    - `src/lib/storage/app-storage.ts`
+    - `src/providers/AppStateProvider.tsx`
+    - `test/helpers/typed-factories.ts`
+  - Progress/maths consumers:
+    - `src/data/album-stats.ts`
+    - `src/components/home/home-state.ts`
+    - `src/components/stats/stats-state.ts`
+    - `src/components/missing/missing-state.ts`
+    - `src/components/share/share-state.ts`
+  - Album-grid interaction slice:
+    - `src/components/album-viewer/StickerCell.tsx`
+    - `src/components/album-viewer/StickerCell.module.css`
+    - `src/components/album-viewer/StickerGrid.tsx`
+    - `src/components/album-viewer/AlbumViewer.tsx`
+    - `src/components/album-viewer/AlbumRouteScreen.tsx`
+    - related browser tests under `test/components/album-viewer/`
+  - New repeated-page slice:
+    - `src/components/repeated/repeated-state.ts`
+    - `src/components/repeated/RepeatedScreen.tsx`
+    - `src/components/repeated/RepeatedScreen.module.css`
+    - `src/routes/repeated.tsx`
+    - new repeated route/component tests
+  - New repeated-share slice:
+    - recommended `src/routes/repeated-share.tsx`
+    - recommended `src/routes/repeated-share/index.tsx`
+    - recommended `src/routes/repeated-share/preview.tsx`
+    - repeated-share state helper(s), likely under `src/components/share/` or `src/components/repeated-share/`
+    - widened share preview/selection shell props only if small and safe
+  - Cross-cutting integration:
+    - `src/components/MenuDrawer.tsx`
+    - `src/components/home/HomeScreen.tsx`
+    - `src/components/album-viewer/AlbumPageHeader.tsx`
+    - `src/components/not-found/NotFoundPage.tsx`
+    - `src/services/backup-service.ts`
+    - `src/components/BackupRestoreSheet.tsx`
+    - `src/services/scanner-collection.ts`
+    - `src/services/scanner-lookup.ts`
+    - `src/services/analytics-service.ts`
+    - `src/locales/en/translation.json`
+    - `src/locales/pt-BR/translation.json`
+    - `src/locales/es/translation.json`
+    - `src/routeTree.gen.ts` (generated only)
+
+## Implementation Steps
+
+1. Run a pre-implementation contract pass before touching code.
+   - Inspect these modules first and freeze the contracts they already own:
+     - `src/services/collection-service.ts`
+     - `src/lib/storage/app-storage.ts`
+     - `src/providers/AppStateProvider.tsx`
+     - `src/components/album-viewer/StickerCell.tsx`
+     - `src/components/missing/missing-state.ts`
+     - `src/components/share/share-state.ts`
+     - `src/services/backup-service.ts`
+     - `src/services/scanner-collection.ts`
+   - Re-read prior plans for reuse boundaries:
+     - `docs/plan/Plan STR-13 EP4: Core Album Tracking Experience.md`
+     - `docs/plan/Plan STR-22 EP6: Missing Stickers Share + Export.md`
+     - `docs/plan/Plan STR-79 EP17: Missing Stickers Page.md`
+   - Lock 3 implementation rules early:
+     - unique-collected derivations must never count repeated copies
+     - missing/share logic must depend on `qty == 0` vs `qty >= 1`, not on raw quantity totals
+     - repeated logic must depend on `max(0, qty - 1)` everywhere
+   - Pre-implementation correctness check:
+     - confirm repeated-share route naming choice before coding (`/repeated-share` recommended for lowest routing churn)
+     - confirm no new design token is needed before CSS work; if a token gap appears, add token work instead of hardcoding values
+   - Risk / mitigation:
+     - biggest early risk is hidden `.size`/`.has()` assumptions; mitigate by searching them all before STR-85 and replacing them through shared helpers, not ad hoc fixes.
+
+2. Execute `STR-85` first: persist sticker quantities and migrate safely.
+   - Replace binary collection state with quantity-aware state in `src/services/collection-service.ts`.
+   - Add pure helper functions in or beside the collection service for:
+     - hydrating legacy binary persisted data into qty `1`
+     - hydrating new quantity persisted data into normalized in-memory state
+     - serializing normalized quantity state back to persistence
+     - counting unique collected stickers
+     - counting repeated copies
+     - deriving a page-level unique collected set
+     - reading a sticker quantity / repeated count safely
+   - Make load migration tolerant:
+     - unknown page ids -> drop
+     - unknown sticker ids -> drop
+     - invalid quantities -> coerce to `0` and omit from state
+     - malformed top-level persisted data -> return empty collection, not storage failure
+   - Update downstream unique-only math to use helpers instead of raw set size:
+     - `src/data/album-stats.ts`
+     - `src/components/home/home-state.ts`
+     - `src/components/stats/stats-state.ts`
+     - `src/components/missing/missing-state.ts`
+     - `src/components/share/share-state.ts`
+   - Update provider/service contracts enough to compile with the new state shape, but keep drawer/share/repeated UI changes out of this phase.
+   - Update scanner internals to preserve current meaning:
+     - scanner-owned writes should set missing stickers to qty `1` if absent
+     - scanner should not create repeated copies on already-owned stickers
+   - Update test helpers and low-level tests first:
+     - `test/helpers/typed-factories.ts`
+     - `test/services/collection-service.test.ts`
+     - `test/storage/app-storage.browser.test.ts`
+     - `test/data/album-stats.test.ts`
+     - `test/components/home/home-state.test.ts`
+     - `test/components/stats/stats-state.test.ts`
+     - `test/services/scanner-collection.test.ts`
+   - Explicit validation after STR-85:
+     - legacy binary payload loads as qty `1`
+     - normalized quantity payload reloads unchanged
+     - malformed saved payload fails soft and app still reaches ready state
+     - album/home/stats unique totals are unchanged for equivalent owned stickers
+     - qty `0` behaves as missing; qty `>= 1` behaves as collected
+   - Rollback / mitigation:
+     - keep legacy payload fixtures in tests before UI work; if migration math breaks, stop here and fix data helpers before touching routes or components.
+
+3. Execute `STR-86` second: upgrade main album-grid interactions and repeated badge behavior.
+   - Introduce an explicit quantity mutation API through provider + route/controller wiring.
+     - Prefer a new action-based method name over silently changing `toggleCollected` semantics.
+     - Update `src/providers/AppStateProvider.tsx` and `src/components/album-viewer/AlbumRouteScreen.tsx` first.
+   - Widen the album viewer props from binary collected state to quantity-aware state.
+     - Keep `PageProgress` and filter logic unique-based via derived unique sets.
+     - Pass repeated-count data into sticker cells instead of teaching every parent about badge rendering.
+   - Update `StickerCell` / `StickerGrid` behavior:
+     - qty `0` single tap -> qty `1`
+     - qty `>= 1` single tap after threshold -> qty + `1`
+     - qty `>= 2` double tap -> qty - `1`
+     - qty `1` double tap -> qty `0` (unmark)
+     - badge visible only when repeated count `> 0`
+     - badge text equals repeated count, not total owned count
+   - Implement double-tap arbitration locally in the cell or a tiny shared hook/helper.
+     - Do not emit the first increment immediately for owned stickers.
+     - Double-tap threshold must be deterministic and testable.
+   - Accessibility updates:
+     - aria label/state must announce owned vs missing plus repeated count when present
+     - screen readers must hear repeated badge meaning, not a decorative number
+     - avoid hardcoded visible or spoken strings; all copy through i18n
+   - Keep analytics behavior conservative in this phase.
+     - `stickers_marked_collected` should continue to fire only when a sticker becomes uniquely owned for the first time, not on repeated increments/decrements.
+   - Update tests:
+     - `test/components/album-viewer/StickerGrid.browser.test.tsx`
+     - `test/components/album-viewer/AlbumViewer.browser.test.tsx`
+     - `test/providers/AppStateProvider.browser.test.tsx`
+     - any route/controller browser tests covering album interactions
+   - Explicit validation after STR-86:
+     - transition matrix `0 -> 1 -> 2 -> 3` and reverse works
+     - double tap on qty `1` unmarks instead of increment-then-decrement
+     - badge hidden at repeated `0`, shows `1`, `2`, ... for repeated copies only
+     - album page progress, missing filters, home summary, and stats remain unique-based
+     - keyboard/pointer accessibility remains valid and browser tests stay stable
+   - Rollback / mitigation:
+     - if threshold logic causes flaky tests, keep arbitration scoped to owned stickers only and move the threshold constant to one exported testable helper.
+
+4. Execute `STR-87` third: derive repeated-page state and route contract.
+   - Create a new pure helper module, recommended `src/components/repeated/repeated-state.ts`.
+   - Mirror the proven `missing-state.ts` pattern instead of creating a new store.
+     - iterate canonical `albumPages`
+     - include only pages containing at least one sticker with `qty > 1`
+     - compute page-level repeated-copy totals as `sum(qty - 1)`
+     - compute global repeated-copy total as `sum(max(0, qty - 1))`
+     - preserve canonical album/page order
+     - expose only the metadata needed by the repeated screen and repeated share preselection
+   - Create thin route/controller `src/routes/repeated.tsx`.
+     - direct URL load must work from live app state
+     - back target should stay simple (`'/'` unless an existing path contract proves better)
+     - route should not own heavy logic; it should pass collection + callbacks into screen UI
+   - Add unit/route tests before screen UI work:
+     - repeated-state ordering
+     - page omission when no repeated copies remain
+     - global repeated total math
+     - route direct-load smoke behavior
+   - Explicit validation after STR-87:
+     - `/repeated` builds from live collection with no persisted snapshot state
+     - only pages with repeated stickers appear
+     - pages are in the same album order as `albumPages`
+     - total repeated-copy count equals sum of `qty - 1`
+     - no progress bar / percent data is required by the route contract
+   - Rollback / mitigation:
+     - if repeated-state logic starts duplicating missing/share compression logic, stop and extract the minimum shared helper only after the repeated-state tests are green.
+
+5. Execute `STR-88` fourth: build the repeated-stickers screen and wire same interaction semantics.
+   - Create:
+     - `src/components/repeated/RepeatedScreen.tsx`
+     - `src/components/repeated/RepeatedScreen.module.css`
+   - Reuse current missing-screen structure and token patterns where possible:
+     - sticky header
+     - scrollable grouped page blocks
+     - safe-area footer treatment
+     - same `StickerCell` component for interaction parity
+   - Apply repeated-specific differences only:
+     - header shows total repeated-copy count only
+     - no progress bar
+     - no percentage
+     - empty state speaks to “no repeated stickers” rather than album completion
+   - Interaction behavior on `/repeated` must mirror main grid semantics.
+     - single tap increases repeated quantity
+     - double tap decreases repeated quantity
+     - when a sticker falls from qty `2` to qty `1`, it disappears from repeated view but remains collected in album
+     - when the last repeated sticker on a page clears, the whole page block disappears
+     - when all repeated copies clear, screen falls into empty state
+   - Prefer provider-driven state updates first. Add only minimal local pending/focus handling if needed for deterministic block removal, focus recovery, or transient UI stability.
+   - Add browser tests for:
+     - grouped blocks
+     - immediate count refresh after increment/decrement
+     - page-block disappearance
+     - empty-state transition
+     - back/share control visibility
+   - Explicit validation after STR-88:
+     - `/repeated` visually mirrors missing-page structure without cloning missing-page logic blindly
+     - repeated counts update correctly in-place
+     - page block collapses away when last repeated sticker clears
+     - app-level empty state appears when no repeated copies remain
+     - CSS stays token-backed and matches existing design language
+   - Rollback / mitigation:
+     - if full optimistic removal causes complexity, keep UI correctness provider-driven and add only page/sticker-level pending locks; do not introduce a second derived cache.
+
+6. Execute `STR-89` fifth: add repeated-only share/export flow with separate routes.
+   - Keep current missing-share flow unchanged from the user’s perspective.
+   - Add a separate repeated-share route namespace.
+     - Recommended: `src/routes/repeated-share.tsx`, `src/routes/repeated-share/index.tsx`, `src/routes/repeated-share/preview.tsx`
+     - Use the same `pages` + `from` search-contract pattern already proven in current share routes
+   - Reuse current share architecture instead of reinventing it.
+     - repeated share should still have selection -> preview -> share/download
+     - selection should preselect only pages that currently contain repeated stickers
+     - preview should preserve canonical page order
+     - reuse current preview-card layout and canvas renderer layout if widening props is small and safe
+   - Keep repeated-share data derivation separate from missing-share data derivation.
+     - repeated-share payload should contain repeated-only entries
+     - each rendered line should format from sticker quantity as `displayCode displayNumber (x{qty - 1})`
+     - total repeated share count must be repeated copies only, not owned totals
+   - Update or add tests around:
+     - repeated share state derivation
+     - repeated selection route parsing
+     - repeated preview payload ordering
+     - preview card/render output formatting
+     - browser share/download behavior regression
+   - Explicit validation after STR-89:
+     - repeated share routes are separate from missing share routes
+     - only repeated stickers are selected/rendered
+     - format matches `BRA 10 (x2)` style for qty `3`
+     - missing share output remains unchanged
+     - repeated share back path returns to `/repeated`
+   - Rollback / mitigation:
+     - if prop-generalizing current share UI causes missing-share regressions, keep the current missing components stable and create thin repeated wrappers that reuse only safe layout/render helpers.
+
+7. Execute `STR-90` last: drawer wiring, i18n, analytics review, backup round-trip, scanner regression, final integration.
+   - Drawer + navigation:
+     - add `Repeated stickers` entry below `Missing stickers` in `src/components/MenuDrawer.tsx`
+     - wire current hosts:
+       - `src/components/home/HomeScreen.tsx`
+       - `src/components/album-viewer/AlbumPageHeader.tsx`
+       - `src/components/not-found/NotFoundPage.tsx`
+   - i18n:
+     - add all new visible strings and aria labels to:
+       - `src/locales/en/translation.json`
+       - `src/locales/pt-BR/translation.json`
+       - `src/locales/es/translation.json`
+     - extend `test/i18n/translation-resources.test.ts` to assert the new trees/keys stay aligned
+   - Analytics review/update:
+     - keep all tracking inside `src/services/analytics-service.ts`
+     - review whether repeated-share preview should reuse `share_preview_generated` with new mode/count properties or emit a new repeated-share event; choose the smaller change that does not break current semantics
+     - keep `stickers_marked_collected` unique-only unless product explicitly wants repeated-increment analytics
+     - update `AGENTS.md` event table if any event contract changes
+   - Backup / restore:
+     - finalize external backup payload strategy for quantities
+     - ensure export preserves quantities exactly
+     - ensure restore round-trips quantities exactly
+     - if external backup versioning changes, support old binary backup imports during restore when feasible and keep invalid imports user-visible
+     - keep app-load migration fail-soft behavior distinct from explicit restore validation
+   - Scanner regression review:
+     - `src/services/scanner-lookup.ts` should treat qty `>= 1` as owned
+     - `src/services/scanner-collection.ts` should remain idempotent and avoid incrementing repeated copies
+     - popup/review UX should still speak correctly for already-owned vs missing states
+   - Generated/runtime artifacts:
+     - regenerate `src/routeTree.gen.ts` through normal route generation only
+   - Explicit validation after STR-90:
+     - drawer item opens `/repeated`
+     - all new strings exist in en / pt-BR / es
+     - analytics changes use snake_case, no PII, analytics-service only
+     - backup export/import preserves quantities round-trip
+     - scanner flows still behave correctly for owned vs missing stickers
+   - Rollback / mitigation:
+     - if backup versioning or analytics semantics become contentious late, keep the quantity model and UI slices stable and isolate the final change to backup/analytics adapters only.
+
+8. Run final verification in strict stop-on-fail order.
+   - After each subtask, run only the most relevant unit/browser suites first.
+   - Before closing the epic, run the full project QA gate:
+     - `pnpm complete-check`
+   - Final manual regression pass should cover:
+     - main album single tap / double tap transitions
+     - missing screen still uses unique collected logic only
+     - repeated screen ordering and empty state
+     - repeated share export text + download/share behavior
+     - backup export/import round-trip with repeated quantities
+     - scanner confirm flow on new and already-owned stickers
+   - Final mitigation note:
+     - if a late regression appears, preserve the core quantity helpers + route contracts and back out only the smallest UI or adapter layer causing the issue. Do not revert to a dual data model.
+
+## Validation
+
+- Success criteria:
+  - `STR-85`: collection persistence stores per-sticker quantities `>= 0`, migrates legacy binary data safely, reload preserves quantities, malformed saved app data fails soft to qty `0`, and unique-only progress math remains unchanged.
+  - `STR-86`: main album grid supports single-tap increment, double-tap decrement, double-tap unmark from qty `1`, repeated-only badge rendering, and accessibility labels that announce repeated counts.
+  - `STR-87`: `/repeated` loads directly from live app state, shows only pages with repeated stickers, preserves canonical album order, and computes total repeated-copy count as `sum(qty - 1)`.
+  - `STR-88`: repeated screen mirrors missing-page structure, updates counts through the same main-grid interaction model, removes empty page blocks automatically, and shows an empty state when none remain.
+  - `STR-89`: repeated share/export is fully separate from missing share, includes only repeated stickers, and formats entries like `BRA 10 (x2)` using repeated copies only.
+  - `STR-90`: drawer item is wired below Missing stickers, all new strings are translated in en/pt-BR/es, analytics changes stay inside existing service/consent rules, backup/restore preserves quantities, scanner regressions are reviewed, and `pnpm complete-check` passes.
+  - No hardcoded user-facing copy, no hardcoded design values when an existing token fits, no coverage-threshold change, React 19 + TanStack Start constraints preserved.
+- Checkpoints:
+  - Pre-implementation assumptions check:
+    - confirm route naming for repeated-share flow
+    - confirm quantity helper API shape before touching consumers
+    - confirm app-load migration is soft-fail while backup restore remains explicit
+    - confirm no new token is required before screen styling starts
+  - After `STR-85`:
+    - unit/browser tests prove legacy migration, normalized persistence, malformed-data soft fail, and unchanged unique math
+    - search confirms old `.size`/`.has()` assumptions on collection state are removed or helper-wrapped in impacted modules
+  - After `STR-86`:
+    - browser tests cover quantity transition matrix, double-tap arbitration, badge visibility, and unchanged progress behavior
+    - provider tests confirm analytics still fire only for first-time collected stickers
+  - After `STR-87`:
+    - repeated-state tests prove order, omission, and repeated totals
+    - route smoke test proves direct `/repeated` load works
+  - After `STR-88`:
+    - repeated screen browser tests prove block rendering, count updates, block disappearance, and empty-state transition
+    - visual/CSS review confirms token-backed parity with existing app patterns
+  - After `STR-89`:
+    - repeated share state/route tests prove page selection, payload order, repeated-only filtering, and preview text formatting
+    - browser tests prove share/download fallback behavior still works
+  - After `STR-90`:
+    - drawer/browser tests prove navigation entry placement and wiring
+    - translation-resource tests prove locale tree alignment
+    - backup tests prove quantity round-trip
+    - scanner tests prove idempotent owned behavior remains intact
+    - analytics review confirms snake_case, no PII, service-only integration
+  - Final post-implementation gate:
+    - generated routes are current
+    - targeted regressions are green
+    - `pnpm complete-check` is green

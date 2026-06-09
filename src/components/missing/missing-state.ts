@@ -5,7 +5,11 @@ import {
   type PageId,
   type StickerIdentifier
 } from '@/data/album';
-import type { CollectionState } from '@/services/collection-service';
+import {
+  countUniqueCollectedStickers,
+  derivePageCollectedStickerIds,
+  type CollectionState
+} from '@/services/collection-service';
 
 type MissingPageBlock = {
   pageId: PageId;
@@ -47,10 +51,6 @@ function getMissingStickerIds(
   );
 }
 
-function countCollectedStickers(collection: CollectionState): number {
-  return Object.values(collection).reduce((total, stickerIds) => total + stickerIds.size, 0);
-}
-
 export function buildMissingState(
   collection: CollectionState,
   options?: {
@@ -62,7 +62,7 @@ export function buildMissingState(
   const pages: MissingPageBlock[] = [];
 
   for (const page of albumPages) {
-    const collectedByPage = collection[page.pageId] ?? new Set<StickerIdentifier>();
+    const collectedByPage = derivePageCollectedStickerIds(collection, page.pageId);
     const missingStickerIds = getMissingStickerIds(page, collectedByPage, hiddenStickerIds);
 
     if (missingStickerIds.length === 0) {
@@ -94,7 +94,7 @@ export function buildMissingState(
     });
   }
 
-  const collectedCount = countCollectedStickers(collection);
+  const collectedCount = countUniqueCollectedStickers(collection);
 
   if (pages.length === 0) {
     return {

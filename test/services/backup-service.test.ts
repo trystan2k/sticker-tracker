@@ -64,6 +64,46 @@ describe('backup-service parseAndValidate', () => {
     });
   });
 
+  it('accepts quantity-based page payloads', () => {
+    expect(
+      parseAndValidate(
+        JSON.stringify({
+          version: 1,
+          collection: { mex: { 'MEX-1': 3, 'MEX-2': 1 } },
+          ...validMeta
+        })
+      )
+    ).toEqual({
+      state: 'success',
+      collection: { mex: { 'MEX-1': 3, 'MEX-2': 1 } }
+    });
+  });
+
+  it('round-trips quantity collections without losing counts', () => {
+    const collection = {
+      [asPageId('mex')]: {
+        [asStickerIdentifier('MEX-1')]: 3,
+        [asStickerIdentifier('MEX-2')]: 1
+      },
+      [asPageId('bra')]: {
+        [asStickerIdentifier('BRA-1')]: 2
+      }
+    };
+
+    const payload = generateBackupPayload(collection, 'pt-BR', 'dark');
+    const result = parseAndValidate(JSON.stringify(payload));
+
+    expect(result).toEqual({
+      state: 'success',
+      collection: {
+        mex: { 'MEX-1': 3, 'MEX-2': 1 },
+        bra: { 'BRA-1': 2 }
+      },
+      locale: 'pt-BR',
+      theme: 'dark'
+    });
+  });
+
   it('returns invalid-page-id when page not in album map', () => {
     expect(
       parseAndValidate(
@@ -106,14 +146,16 @@ describe('backup-service parseAndValidate', () => {
 
   it('returns success for valid backup payload', () => {
     const collection = {
-      [asPageId('mex')]: new Set([asStickerIdentifier('MEX-1')])
+      [asPageId('mex')]: {
+        [asStickerIdentifier('MEX-1')]: 1
+      }
     };
 
     const payload = generateBackupPayload(collection);
     const result = parseAndValidate(JSON.stringify(payload));
 
     expect(result.state).toBe('success');
-    expect(result.collection).toEqual({ mex: ['MEX-1'] });
+    expect(result.collection).toEqual({ mex: { 'MEX-1': 1 } });
   });
 
   it('returns invalid-locale for unsupported locale in backup', () => {
@@ -262,7 +304,9 @@ describe('backup-service file api flows', () => {
     vi.stubGlobal('window', { showSaveFilePicker });
 
     const payload = generateBackupPayload({
-      [asPageId('mex')]: new Set([asStickerIdentifier('MEX-1')])
+      [asPageId('mex')]: {
+        [asStickerIdentifier('MEX-1')]: 1
+      }
     });
 
     const result = await triggerBackupDownload(payload);
@@ -279,7 +323,9 @@ describe('backup-service file api flows', () => {
     vi.stubGlobal('window', { showSaveFilePicker });
 
     const payload = generateBackupPayload({
-      [asPageId('mex')]: new Set([asStickerIdentifier('MEX-1')])
+      [asPageId('mex')]: {
+        [asStickerIdentifier('MEX-1')]: 1
+      }
     });
 
     await expect(triggerBackupDownload(payload)).resolves.toEqual({ state: 'cancelled' });
@@ -292,7 +338,9 @@ describe('backup-service file api flows', () => {
     vi.stubGlobal('window', { showSaveFilePicker });
 
     const payload = generateBackupPayload({
-      [asPageId('mex')]: new Set([asStickerIdentifier('MEX-1')])
+      [asPageId('mex')]: {
+        [asStickerIdentifier('MEX-1')]: 1
+      }
     });
 
     await expect(triggerBackupDownload(payload)).resolves.toEqual({ state: 'error' });
@@ -322,6 +370,33 @@ describe('backup-service file api flows', () => {
       collection: { mex: ['MEX-1'] },
       locale: 'en',
       theme: 'system'
+    });
+  });
+
+  it('restores quantity collections from open file picker', async () => {
+    const text = JSON.stringify({
+      version: 1,
+      exportedAt: '2026-01-01T00:00:00.000Z',
+      appVersion: '1.0.0',
+      collection: { mex: { 'MEX-1': 3, 'MEX-2': 1 } },
+      locale: 'pt-BR',
+      theme: 'dark'
+    });
+    const showOpenFilePicker = vi.fn<
+      () => Promise<readonly [{ getFile: () => Promise<{ text: () => Promise<string> }> }]>
+    >(async () => [
+      {
+        getFile: async () => ({ text: async () => text })
+      }
+    ]);
+
+    vi.stubGlobal('window', { showOpenFilePicker });
+
+    await expect(triggerRestore()).resolves.toEqual({
+      state: 'success',
+      collection: { mex: { 'MEX-1': 3, 'MEX-2': 1 } },
+      locale: 'pt-BR',
+      theme: 'dark'
     });
   });
 

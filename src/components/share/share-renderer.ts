@@ -1,4 +1,5 @@
 import type { SharePreviewPayload } from '@/components/share/share-state';
+import { getShareModeKeyPrefix, type ShareMode } from '@/components/share/share-mode';
 
 type RenderSharePngOptions = {
   preferredScale?: number;
@@ -22,6 +23,10 @@ const CARD_PADDING_TOP = 12;
 const BLOCK_HEIGHT = 52;
 const EMPTY_BLOCK_HEIGHT = 52;
 const MIN_CARD_BODY_HEIGHT = 80;
+const BLOCK_BODY_LINE_HEIGHT = 16;
+const BLOCK_BODY_BASELINE_OFFSET = 32;
+const BLOCK_BOTTOM_PADDING = 20;
+const BLOCK_DIVIDER_GAP = 10;
 
 const DEFAULT_MAX_PIXEL_WIDTH = 4096;
 const DEFAULT_MAX_PIXEL_HEIGHT = 16384;
@@ -43,15 +48,22 @@ type RenderBlock = {
   flagCode: string;
 };
 
+type PreparedRenderBlock = RenderBlock & {
+  wrappedMissingLines: readonly string[];
+  height: number;
+};
+
 function buildBlocks(
   payload: SharePreviewPayload,
-  t: (key: string) => string
+  t: (key: string) => string,
+  mode: ShareMode
 ): readonly RenderBlock[] {
+  const translationKeyPrefix = getShareModeKeyPrefix(mode);
   const blocks = payload.sections
     .flatMap((section) => section.pages)
     .map((page) => {
       const title = t(page.title);
-      const missingText = `${t('share.preview.missingPrefix')}: ${page.compressedMissingText}`;
+      const missingText = page.compressedStickerText;
 
       const isFifaSpecial = page.specialKey === 'fwc-opening' || page.specialKey === 'fwc-closing';
       const isCocaCola = page.specialKey === 'coca-cola';
@@ -75,18 +87,16 @@ function buildBlocks(
       return result;
     });
 
-  if (blocks.length > 0) {
-    return blocks;
-  }
-
-  return [
-    {
-      title: t('share.preview.emptyTitle'),
-      missingText: t('share.preview.emptyDescription'),
-      showFlag: false,
-      flagCode: ''
-    }
-  ];
+  return blocks.length > 0
+    ? blocks
+    : [
+        {
+          title: t(`${translationKeyPrefix}.preview.emptyTitle`),
+          missingText: t(`${translationKeyPrefix}.preview.emptyDescription`),
+          showFlag: false,
+          flagCode: ''
+        }
+      ];
 }
 
 const flagCache = new Map<string, HTMLImageElement>();
@@ -201,6 +211,119 @@ function computeLogicalHeight(blockCount: number): number {
   return HEADER_HEIGHT + bodyHeight + FOOTER_HEIGHT;
 }
 
+function computeLogicalHeightFromBlocks(blocks: readonly PreparedRenderBlock[]): number {
+  const dividerGapHeight = blocks.length > 1 ? (blocks.length - 1) * BLOCK_DIVIDER_GAP : 0;
+  const contentHeight =
+    blocks.length === 0
+      ? EMPTY_BLOCK_HEIGHT
+      : blocks.reduce((total, block) => total + block.height, 0) + dividerGapHeight;
+  const bodyHeight = Math.max(MIN_CARD_BODY_HEIGHT, CARD_PADDING_TOP + contentHeight + 10);
+
+  return HEADER_HEIGHT + bodyHeight + FOOTER_HEIGHT;
+}
+
+function splitLongWord(
+  word: string,
+  maxWidth: number,
+  context: CanvasRenderingContext2D
+): string[] {
+  const segments: string[] = [];
+  let currentSegment = '';
+
+  for (const character of word) {
+    const nextSegment = `${currentSegment}${character}`;
+
+    if (currentSegment && context.measureText(nextSegment).width > maxWidth) {
+      segments.push(currentSegment);
+      currentSegment = character;
+      continue;
+    }
+
+    currentSegment = nextSegment;
+  }
+
+  if (currentSegment) {
+    segments.push(currentSegment);
+  }
+
+  return segments.length > 0 ? segments : [word];
+}
+
+function wrapTextLines(
+  text: string,
+  maxWidth: number,
+  context: CanvasRenderingContext2D
+): readonly string[] {
+  const trimmedText = text.trim();
+
+  if (!trimmedText) {
+    return [''];
+  }
+
+  const words = trimmedText.split(/\s+/);
+  const lines: string[] = [];
+  let currentLine = '';
+
+  const pushWord = (word: string) => {
+    const candidateLine = currentLine ? `${currentLine} ${word}` : word;
+
+    if (context.measureText(candidateLine).width <= maxWidth) {
+      currentLine = candidateLine;
+      return;
+    }
+
+    if (currentLine) {
+      lines.push(currentLine);
+      currentLine = '';
+    }
+
+    if (context.measureText(word).width <= maxWidth) {
+      currentLine = word;
+      return;
+    }
+
+    const segments = splitLongWord(word, maxWidth, context);
+    const lastSegment = segments.pop();
+
+    lines.push(...segments);
+    currentLine = lastSegment ?? '';
+  };
+
+  words.forEach(pushWord);
+
+  if (currentLine) {
+    lines.push(currentLine);
+  }
+
+  return lines.length > 0 ? lines : [''];
+}
+
+function prepareRenderBlocks(
+  blocks: readonly RenderBlock[],
+  context: CanvasRenderingContext2D,
+  logicalWidth: number
+): readonly PreparedRenderBlock[] {
+  context.font = `400 14px ${FONT_STACK}`;
+
+  const maxTextWidth = logicalWidth - CARD_PADDING_X * 2;
+
+  return blocks.map((block) => {
+    const wrappedMissingLines = wrapTextLines(block.missingText, maxTextWidth, context);
+    const height = Math.max(
+      BLOCK_HEIGHT,
+      BLOCK_BODY_BASELINE_OFFSET +
+        (wrappedMissingLines.length - 1) * BLOCK_BODY_LINE_HEIGHT +
+        BLOCK_BOTTOM_PADDING
+    );
+
+    return {
+      ...block,
+      wrappedMissingLines,
+      height
+    };
+  });
+}
+
 function computeScale(
   logicalWidth: number,
   logicalHeight: number,
@@ -238,18 +361,32 @@ function toPngBlob(canvas: HTMLCanvasElement): Promise<Blob> {
 export async function renderSharePng(
   payload: SharePreviewPayload,
   t: (key: string) => string,
-  options?: RenderSharePngOptions
+  options?: RenderSharePngOptions,
+  mode: ShareMode = 'missing'
 ): Promise<RenderedSharePng> {
-  const blocks = buildBlocks(payload, t);
+  const blocks = buildBlocks(payload, t, mode);
+  const translationKeyPrefix = getShareModeKeyPrefix(mode);
   const logicalWidth = CARD_WIDTH;
-  const logicalHeight = computeLogicalHeight(blocks.length);
-  const scale = computeScale(logicalWidth, logicalHeight, options);
 
   await Promise.all([
     preloadFlagImages(blocks),
     loadLogoImage(),
     typeof document.fonts?.ready !== 'undefined' ? document.fonts.ready : Promise.resolve()
   ]);
+
+  const measurementCanvas = document.createElement('canvas');
+  const measurementContext = measurementCanvas.getContext('2d');
+
+  if (!measurementContext) {
+    throw new Error('Unable to render PNG: 2D canvas context unavailable.');
+  }
+
+  const preparedBlocks = prepareRenderBlocks(blocks, measurementContext, logicalWidth);
+  const logicalHeight =
+    preparedBlocks.length > 0
+      ? computeLogicalHeightFromBlocks(preparedBlocks)
+      : computeLogicalHeight(blocks.length);
+  const scale = computeScale(logicalWidth, logicalHeight, options);
 
   const canvas = document.createElement('canvas');
   canvas.width = logicalWidth * scale;
@@ -282,7 +419,7 @@ export async function renderSharePng(
   context.fillStyle = COLOR_TEXT_SECONDARY;
   context.font = `400 14px ${FONT_STACK}`;
   context.fillText(
-    t('share.preview.subtitle'),
+    t(`${translationKeyPrefix}.preview.subtitle`),
     CARD_PADDING_X,
     52,
     logicalWidth - CARD_PADDING_X * 2
@@ -305,14 +442,14 @@ export async function renderSharePng(
 
   let y = HEADER_HEIGHT + CARD_PADDING_TOP;
 
-  blocks.forEach((block, index) => {
+  preparedBlocks.forEach((block, index) => {
     if (index > 0) {
       context.strokeStyle = COLOR_DIVIDER;
       context.beginPath();
       context.moveTo(CARD_PADDING_X, y + 0.5);
       context.lineTo(logicalWidth - CARD_PADDING_X, y + 0.5);
       context.stroke();
-      y += 10;
+      y += BLOCK_DIVIDER_GAP;
     }
 
     let titleX = CARD_PADDING_X;
@@ -333,9 +470,16 @@ export async function renderSharePng(
 
     context.fillStyle = COLOR_TEXT_SECONDARY;
     context.font = `400 14px ${FONT_STACK}`;
-    context.fillText(block.missingText, CARD_PADDING_X, y + 32, logicalWidth - CARD_PADDING_X * 2);
+    block.wrappedMissingLines.forEach((line, lineIndex) => {
+      context.fillText(
+        line,
+        CARD_PADDING_X,
+        y + BLOCK_BODY_BASELINE_OFFSET + lineIndex * BLOCK_BODY_LINE_HEIGHT,
+        logicalWidth - CARD_PADDING_X * 2
+      );
+    });
 
-    y += BLOCK_HEIGHT;
+    y += block.height;
   });
 
   context.fillStyle = COLOR_CARD_CHROME_BG;
@@ -360,7 +504,7 @@ export async function renderSharePng(
 
   return {
     blob,
-    fileName: t('share.fileName'),
+    fileName: t(`${translationKeyPrefix}.fileName`),
     width: canvas.width,
     height: canvas.height,
     scale

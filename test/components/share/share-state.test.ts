@@ -12,12 +12,22 @@ import {
   encodeShareSelection
 } from '@/components/share/share-state';
 
-function makeCollection(entries: Record<string, string[]>): CollectionState {
-  const result: Record<string, ReadonlySet<StickerIdentifier>> = {};
+function makeCollection(
+  entries: Record<string, string[] | Record<string, number>>
+): CollectionState {
+  const result: Record<string, Record<StickerIdentifier, number>> = {};
 
-  for (const [pageId, stickerIds] of Object.entries(entries)) {
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-    result[pageId] = new Set(stickerIds) as unknown as ReadonlySet<StickerIdentifier>;
+  for (const [pageId, stickerState] of Object.entries(entries)) {
+    result[pageId] = Array.isArray(stickerState)
+      ? Object.fromEntries(
+          stickerState.map((stickerId) => [stickerId as StickerIdentifier, 1] as const)
+        )
+      : Object.fromEntries(
+          Object.entries(stickerState).map(([stickerId, quantity]) => [
+            stickerId as StickerIdentifier,
+            quantity
+          ])
+        );
   }
 
   return result as unknown as CollectionState;
@@ -84,7 +94,7 @@ describe('share-state', () => {
     expect(sections[0]?.sectionLabel).toBeDefined();
     expect(sections[0]?.rows.length).toBeGreaterThan(0);
     expect(sections[0]?.rows[0]?.pageId).toBeDefined();
-    expect(sections[0]?.rows[0]?.missingCount).toBeGreaterThan(0);
+    expect(sections[0]?.rows[0]?.stickerCount).toBeGreaterThan(0);
   });
 
   it('buildShareSelectionSections rows have correct pageType for team pages', () => {
@@ -116,7 +126,7 @@ describe('share-state', () => {
 
     expect(payload.selectedPageIds).toEqual([]);
     expect(payload.selectedPageCount).toBe(0);
-    expect(payload.totalMissingStickerCount).toBe(0);
+    expect(payload.totalStickerCount).toBe(0);
     expect(payload.sections).toEqual([]);
   });
 
@@ -126,8 +136,24 @@ describe('share-state', () => {
 
     expect(payload.selectedPageIds).toContain('mex');
     expect(payload.selectedPageCount).toBe(1);
-    expect(payload.totalMissingStickerCount).toBeGreaterThan(0);
+    expect(payload.totalStickerCount).toBeGreaterThan(0);
     expect(payload.sections.length).toBeGreaterThan(0);
+  });
+
+  it('treats repeated copies as collected for share filtering', () => {
+    const collection = makeCollection({
+      mex: {
+        'MEX-1': 3,
+        'MEX-2': 2
+      }
+    });
+
+    const payload = buildSharePreviewPayload(collection, ['mex' as PageId]);
+    const firstSection = payload.sections[0];
+    const firstPage = firstSection?.pages[0];
+
+    expect(firstPage?.stickerIds).not.toContain('MEX-1');
+    expect(firstPage?.stickerIds).not.toContain('MEX-2');
   });
 
   it('buildSharePreviewPayload returns data for multiple page selection', () => {
@@ -140,7 +166,7 @@ describe('share-state', () => {
     expect(payload.selectedPageIds).toContain('mex');
     expect(payload.selectedPageIds).toContain('fwc-opening');
     expect(payload.selectedPageCount).toBe(2);
-    expect(payload.totalMissingStickerCount).toBeGreaterThan(0);
+    expect(payload.totalStickerCount).toBeGreaterThan(0);
   });
 
   it('buildSharePreviewPayload preserves album order', () => {

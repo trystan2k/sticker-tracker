@@ -38,6 +38,8 @@ Sticker tracker application used to track the stickers that users have already a
 
 Whatever task you are told to implement, Linear project issue first, to identify if it has a dependency with other tasks. If it does, check in Linear (ask `project-manager-specialist` to check that, passing the dependencies issue IDs) to see if the dependency is already implemented. If not, ask for clarification.
 
+If no Linear task number is given, ignore the Linear project and just implement the task.
+
 ## QA
 
 `pnpm complete-check`
@@ -120,12 +122,12 @@ This project uses **Mixpanel** for product analytics. Do not add another analyti
 
 ### Tracked Events
 
-| Event                       | Trigger                                                                   | Key properties                                                                                     | File                                 |
-| --------------------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------ |
-| `stickers_marked_collected` | User marks stickers as collected manually or through scanner confirmation | `input_method`, `sticker_count`, `sticker_id` or `sticker_ids`, `page_id`, `total_collected_count` | `src/providers/AppStateProvider.tsx` |
-| `share_preview_generated`   | User opens share preview with at least one selected page                  | `selected_page_count`, `total_missing_sticker_count`, `selection_source_path`                      | `src/routes/share/preview.tsx`       |
-| `stats_cta_clicked`         | User clicks Home magnify CTA to open stats                                | `source_path`                                                                                      | `src/components/home/HomeScreen.tsx` |
-| `stats_page_opened`         | User opens `/stat` page                                                   | `source_path`                                                                                      | `src/routes/stat.tsx`                |
+| Event                       | Trigger                                                                      | Key properties                                                                                                                | File                                                                    |
+| --------------------------- | ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `stickers_marked_collected` | User marks stickers as collected manually or through scanner confirmation    | `input_method`, `sticker_count`, `sticker_id` or `sticker_ids`, `page_id`, `total_collected_count`                            | `src/providers/AppStateProvider.tsx`                                    |
+| `share_preview_generated`   | User opens missing or repeated share preview with at least one selected page | `share_mode`, `selected_page_count`, `selection_source_path`, `total_missing_sticker_count` or `total_repeated_sticker_count` | `src/routes/share/preview.tsx`, `src/routes/repeated-share/preview.tsx` |
+| `stats_cta_clicked`         | User clicks Home magnify CTA to open stats                                   | `source_path`                                                                                                                 | `src/components/home/HomeScreen.tsx`                                    |
+| `stats_page_opened`         | User opens `/stat` page                                                      | `source_path`                                                                                                                 | `src/routes/stat.tsx`                                                   |
 
 ### Rules
 

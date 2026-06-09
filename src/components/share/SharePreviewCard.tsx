@@ -1,21 +1,24 @@
 import type { SharePreviewPayload } from '@/components/share/share-state';
+import { getShareModeKeyPrefix, type ShareMode } from '@/components/share/share-mode';
 
 import styles from './SharePreviewCard.module.css';
 
 type SharePreviewCardProps = {
   payload: SharePreviewPayload;
   t: (key: string) => string;
+  mode?: ShareMode;
 };
 
-export function SharePreviewCard({ payload, t }: SharePreviewCardProps) {
+export function SharePreviewCard({ payload, t, mode = 'missing' }: SharePreviewCardProps) {
   const pageBlocks = payload.sections.flatMap((section) => section.pages);
+  const translationKeyPrefix = getShareModeKeyPrefix(mode);
 
   return (
-    <article className={styles.card} aria-label={t('share.preview.ariaLabel')}>
+    <article className={styles.card} aria-label={t(`${translationKeyPrefix}.preview.ariaLabel`)}>
       <header className={styles.header}>
         <div className={styles.headerText}>
           <h2 className={styles.title}>{t('share.brandName')}</h2>
-          <p className={styles.subtitle}>{t('share.preview.subtitle')}</p>
+          <p className={styles.subtitle}>{t(`${translationKeyPrefix}.preview.subtitle`)}</p>
         </div>
         <img src="/images/fifa-26-logo.jpg" alt="" className={styles.logo} aria-hidden="true" />
       </header>
@@ -23,8 +26,10 @@ export function SharePreviewCard({ payload, t }: SharePreviewCardProps) {
       <div className={styles.content}>
         {pageBlocks.length === 0 ? (
           <div className={styles.pageBlock}>
-            <p className={styles.pageTitle}>{t('share.preview.emptyTitle')}</p>
-            <p className={styles.missingText}>{t('share.preview.emptyDescription')}</p>
+            <p className={styles.pageTitle}>{t(`${translationKeyPrefix}.preview.emptyTitle`)}</p>
+            <p className={styles.missingText}>
+              {t(`${translationKeyPrefix}.preview.emptyDescription`)}
+            </p>
           </div>
         ) : (
           pageBlocks.map((page) => (
@@ -44,9 +49,7 @@ export function SharePreviewCard({ payload, t }: SharePreviewCardProps) {
                 ) : null}
                 <p className={styles.pageTitle}>{t(page.title)}</p>
               </div>
-              <p className={styles.missingText}>
-                {t('share.preview.missingPrefix')}: {page.compressedMissingText}
-              </p>
+              <p className={styles.missingText}>{page.compressedStickerText}</p>
             </div>
           ))
         )}

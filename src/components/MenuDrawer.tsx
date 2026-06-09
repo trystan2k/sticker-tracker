@@ -3,6 +3,7 @@
 import {
   Camera,
   ChevronRight,
+  Copy,
   Download,
   ListMinus,
   Menu,
@@ -29,6 +30,7 @@ interface MenuDrawerProps {
   onOpenDeleteConfirm?: () => void;
   onOpenShare?: (() => void) | undefined;
   onOpenMissing?: (() => void) | undefined;
+  onOpenRepeated?: (() => void) | undefined;
   onOpenBackupRestore?: (() => void) | undefined;
   onOpenScanner?: (() => void) | undefined;
   currentLocale: string;
@@ -48,6 +50,7 @@ export function MenuDrawer({
   onOpenDeleteConfirm,
   onOpenShare,
   onOpenMissing,
+  onOpenRepeated,
   onOpenBackupRestore,
   onOpenScanner,
   currentLocale
@@ -174,6 +177,16 @@ export function MenuDrawer({
     onOpenMissing();
   }, [onClose, onOpenMissing]);
 
+  const handleOpenRepeated = useCallback(() => {
+    if (!onOpenRepeated) {
+      return;
+    }
+
+    triggerRef.current = null;
+    onClose();
+    onOpenRepeated();
+  }, [onClose, onOpenRepeated]);
+
   const handleOpenDeleteConfirm = useCallback(() => {
     if (!onOpenDeleteConfirm) {
       return;
@@ -285,6 +298,18 @@ export function MenuDrawer({
           >
             <ListMinus size={22} aria-hidden="true" />
             <span className={styles.rowLabel}>{t('drawer.missing')}</span>
+          </button>
+
+          <div className={styles.divider} aria-hidden="true" />
+
+          <button
+            type="button"
+            className={styles.row}
+            disabled={!onOpenRepeated}
+            onClick={handleOpenRepeated}
+          >
+            <Copy size={22} aria-hidden="true" />
+            <span className={styles.rowLabel}>{t('drawer.repeated')}</span>
           </button>
 
           <div className={styles.divider} aria-hidden="true" />

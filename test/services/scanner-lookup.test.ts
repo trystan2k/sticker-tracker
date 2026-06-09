@@ -341,6 +341,31 @@ describe('scanner-lookup', () => {
       }
     });
 
+    it('treats quantity collections as already owned', async () => {
+      const lookupSticker = await getLookupSticker();
+      readMock.mockImplementation(async (key: string) => {
+        if (key === 'scannerLookup') {
+          return { state: 'ready', value: buildScannerLookupIndex() };
+        }
+        if (key === 'collection') {
+          return {
+            state: 'ready',
+            value: {
+              bra: { 'BRA-1': 4 }
+            }
+          };
+        }
+        return { state: 'ready', value: null };
+      });
+
+      const result = await lookupSticker('BRA-1');
+      expect(result.state).toBe('matched');
+      if (result.state === 'matched') {
+        expect(result.hasSticker).toBe(true);
+        expect(result.missingSticker).toBe(false);
+      }
+    });
+
     it('handles opening sticker 00 lookup', async () => {
       const lookupSticker = await getLookupSticker();
       readMock.mockImplementation(async (key: string) => {

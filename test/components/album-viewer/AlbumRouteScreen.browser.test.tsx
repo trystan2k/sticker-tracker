@@ -115,12 +115,13 @@ async function resetStorage() {
 }
 
 function makeMockAppState(
-  collection: Record<string, ReadonlySet<StickerIdentifier>> = {}
+  collection: Record<string, Record<StickerIdentifier, number>> = {}
 ): NonNullable<React.ContextType<typeof AppStateContext>> {
   return {
     collection,
     renderState: 'ready',
     toggleCollected: async () => ({ state: 'ready' as const, value: collection }),
+    setStickerQuantity: async () => ({ state: 'ready' as const, value: collection }),
     bootstrap: async () => {},
     reset: async () => {}
   } as unknown as NonNullable<React.ContextType<typeof AppStateContext>>;
@@ -337,8 +338,11 @@ describe('AlbumRouteScreen', () => {
   it('renders with collection data', async () => {
     await resetStorage();
 
-    const collection: Record<string, ReadonlySet<StickerIdentifier>> = {
-      mex: new Set(['MEX-1' as StickerIdentifier, 'MEX-2' as StickerIdentifier])
+    const collection: Record<string, Record<StickerIdentifier, number>> = {
+      mex: {
+        ['MEX-1' as StickerIdentifier]: 1,
+        ['MEX-2' as StickerIdentifier]: 1
+      }
     };
     const appState = makeMockAppState(collection);
 
@@ -370,7 +374,7 @@ describe('AlbumRouteScreen', () => {
     await resetStorage();
 
     // Fill all stickers for all pages so buildInitialShareSelection returns empty
-    const collection: Record<string, ReadonlySet<StickerIdentifier>> = {};
+    const collection: Record<string, Record<StickerIdentifier, number>> = {};
     // Fill every page — all stickers collected means no missing → empty selection
     // Use empty pages so encodeShareSelection returns undefined/empty
     const appState = makeMockAppState(collection);

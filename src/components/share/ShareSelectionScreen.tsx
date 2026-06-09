@@ -2,6 +2,7 @@ import { ArrowLeft } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { getShareModeKeyPrefix, type ShareMode } from '@/components/share/share-mode';
 import type { ShareSelectionSection } from '@/components/share/share-state';
 import type { PageId } from '@/data/album';
 
@@ -15,6 +16,7 @@ type ShareSelectionScreenProps = Readonly<{
   onSelectAll: () => void;
   onClear: () => void;
   onGenerate: (selectedPageIds: readonly PageId[]) => void;
+  mode?: ShareMode;
 }>;
 
 export function ShareSelectionScreen({
@@ -24,12 +26,14 @@ export function ShareSelectionScreen({
   onTogglePage,
   onSelectAll,
   onClear,
-  onGenerate
+  onGenerate,
+  mode = 'missing'
 }: ShareSelectionScreenProps) {
   const { t } = useTranslation();
+  const translationKeyPrefix = getShareModeKeyPrefix(mode);
   const selectedSet = useMemo(() => new Set(selectedPageIds), [selectedPageIds]);
   const selectableRows = useMemo(
-    () => sections.flatMap((section) => section.rows).filter((row) => row.missingCount > 0),
+    () => sections.flatMap((section) => section.rows).filter((row) => row.stickerCount > 0),
     [sections]
   );
   const selectableIds = useMemo(
@@ -61,14 +65,17 @@ export function ShareSelectionScreen({
           type="button"
           className={styles.iconButton}
           onClick={onBack}
-          aria-label={t('share.selection.back')}
+          aria-label={t(`${translationKeyPrefix}.selection.back`)}
         >
           <ArrowLeft size={22} aria-hidden="true" />
         </button>
-        <h1 className={styles.title}>{t('share.selection.title')}</h1>
+        <h1 className={styles.title}>{t(`${translationKeyPrefix}.selection.title`)}</h1>
       </header>
 
-      <section className={styles.actionsRow} aria-label={t('share.selection.title')}>
+      <section
+        className={styles.actionsRow}
+        aria-label={t(`${translationKeyPrefix}.selection.title`)}
+      >
         <div className={styles.actionsLeft}>
           <button
             type="button"
@@ -76,7 +83,7 @@ export function ShareSelectionScreen({
             onClick={onSelectAll}
             disabled={isEmpty}
           >
-            {t('share.selection.selectAll')}
+            {t(`${translationKeyPrefix}.selection.selectAll`)}
           </button>
           <button
             type="button"
@@ -84,23 +91,23 @@ export function ShareSelectionScreen({
             onClick={onClear}
             disabled={selectedCount === 0}
           >
-            {t('share.selection.clear')}
+            {t(`${translationKeyPrefix}.selection.clear`)}
           </button>
         </div>
 
         <span className={styles.selectedPill}>
-          {t('share.selection.selected', { count: selectedCount })}
+          {t(`${translationKeyPrefix}.selection.selected`, { count: selectedCount })}
         </span>
       </section>
 
       <div className={styles.listArea}>
         {isEmpty ? (
-          <p className={styles.emptyState}>{t('share.selection.empty')}</p>
+          <p className={styles.emptyState}>{t(`${translationKeyPrefix}.selection.empty`)}</p>
         ) : (
           sections.map((section) => {
-            const rows = section.rows.filter((row) => row.missingCount > 0);
+            const visibleRows = section.rows.filter((row) => row.stickerCount > 0);
 
-            if (rows.length === 0) {
+            if (visibleRows.length === 0) {
               return null;
             }
 
@@ -108,7 +115,7 @@ export function ShareSelectionScreen({
               <section key={section.sectionId} className={styles.section}>
                 <h2 className={styles.sectionTitle}>{t(section.sectionLabel)}</h2>
                 <ul className={styles.rows}>
-                  {rows.map((row) => {
+                  {visibleRows.map((row) => {
                     const isChecked = selectedSet.has(row.pageId);
                     const rowTitle = t(row.title);
                     const metaLabel =
@@ -175,7 +182,7 @@ export function ShareSelectionScreen({
           disabled={selectedCount === 0 || isEmpty}
           onClick={handleGenerate}
         >
-          {t('share.selection.generate')}
+          {t(`${translationKeyPrefix}.selection.generate`)}
         </button>
       </footer>
     </div>

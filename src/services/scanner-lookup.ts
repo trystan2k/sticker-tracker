@@ -5,7 +5,7 @@ import {
   type PersistedScannerLookupEntry,
   write
 } from '@/lib/storage/app-storage';
-import { hydrateCollectionState } from '@/services/collection-service';
+import { getStickerQuantity, hydrateCollectionState } from '@/services/collection-service';
 import { parseStickerNumber } from '@/services/scanner-parser';
 
 export type StickerLookupResult =
@@ -182,8 +182,7 @@ export async function lookupSticker(ocrText: string): Promise<StickerLookupResul
   }
 
   const collectionState = hydrateCollectionState(collectionRead.value);
-  const pageState = collectionState[match.pageId];
-  const hasSticker = pageState ? pageState.has(match.stickerId) : false;
+  const hasSticker = getStickerQuantity(collectionState, match.pageId, match.stickerId) > 0;
 
   return {
     state: 'matched',

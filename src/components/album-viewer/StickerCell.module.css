@@ -10,6 +10,18 @@
   border: none;
   cursor: pointer;
   padding: 0;
+  min-height: var(--component-sticker-min-tap);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  border: 0;
 }
 
 .cell:focus-visible {
@@ -41,6 +53,26 @@
   font-family: var(--typography-family-heading);
   font-size: var(--typography-size-2xl);
   text-align: center;
+  line-height: var(--typography-line-height-none);
+}
+
+.badge {
+  position: absolute;
+  top: var(--space-1);
+  right: var(--space-1);
+  display: inline-flex;
+  min-width: var(--space-5);
+  height: var(--space-5);
+  align-items: center;
+  justify-content: center;
+  padding-inline: var(--space-1);
+  border: var(--border-width-medium) solid var(--color-brand-primary);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-bg-badge);
+  color: var(--color-text-primary);
+  font-family: var(--typography-family-heading);
+  font-size: var(--typography-size-sm);
+  font-weight: var(--typography-weight-bold);
   line-height: var(--typography-line-height-none);
 }
 

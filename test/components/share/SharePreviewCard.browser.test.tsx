@@ -26,7 +26,7 @@ function makePayload(overrides: Partial<SharePreviewPayload> = {}): SharePreview
   return {
     selectedPageIds: [],
     selectedPageCount: 0,
-    totalMissingStickerCount: 0,
+    totalStickerCount: 0,
     sections: [],
     ...overrides
   };
@@ -37,9 +37,12 @@ function makeT(key: string): string {
   if (key === 'share.preview.subtitle') return 'Missing stickers';
   if (key === 'share.preview.emptyTitle') return 'No pages selected';
   if (key === 'share.preview.emptyDescription') return 'Select pages to share';
-  if (key === 'share.preview.missingPrefix') return 'Missing';
+  if (key === 'share.repeated.preview.ariaLabel') return 'Repeated preview';
+  if (key === 'share.repeated.preview.subtitle') return 'Repeated Stickers';
+  if (key === 'share.repeated.preview.emptyTitle') return 'No repeated stickers';
+  if (key === 'share.repeated.preview.emptyDescription') return 'No repeated stickers selected.';
   if (key === 'share.brandName') return 'COPA 26';
-  if (key === 'share.brandDomain') return 'copa26.app';
+  if (key === 'share.brandDomain') return 'https://sticker-tracker.pages.dev';
 
   return `Page: ${key}`;
 }
@@ -51,7 +54,7 @@ describe('SharePreviewCard', () => {
     const payload = makePayload({
       selectedPageIds: ['mex' as PageId],
       selectedPageCount: 1,
-      totalMissingStickerCount: 20,
+      totalStickerCount: 20,
       sections: [
         {
           sectionId: 'special',
@@ -62,8 +65,8 @@ describe('SharePreviewCard', () => {
               title: 'mex',
               pageType: 'special',
               specialKey: 'fwc-opening',
-              missingStickerIds: ['1', '2'] as unknown as readonly StickerIdentifier[],
-              compressedMissingText: '1-2'
+              stickerIds: ['1', '2'] as unknown as readonly StickerIdentifier[],
+              compressedStickerText: '1-2'
             }
           ]
         }
@@ -77,7 +80,7 @@ describe('SharePreviewCard', () => {
 
       const text = mounted.container.textContent;
       expect(text).toContain('COPA 26');
-      expect(text).toContain('copa26.app');
+      expect(text).toContain('https://sticker-tracker.pages.dev');
       expect(text).toContain('Page: mex');
     } finally {
       cleanup(mounted);
@@ -117,8 +120,8 @@ describe('SharePreviewCard', () => {
               pageType: 'team',
               flagCode: 'ar',
               group: 'A',
-              missingStickerIds: ['ARG-1'] as unknown as readonly StickerIdentifier[],
-              compressedMissingText: '1'
+              stickerIds: ['ARG-1'] as unknown as readonly StickerIdentifier[],
+              compressedStickerText: '1'
             }
           ]
         }
@@ -150,8 +153,8 @@ describe('SharePreviewCard', () => {
               title: 'coca-cola',
               pageType: 'special',
               specialKey: 'coca-cola',
-              missingStickerIds: ['CC1', 'CC2'] as unknown as readonly StickerIdentifier[],
-              compressedMissingText: 'CC1-CC2'
+              stickerIds: ['CC1', 'CC2'] as unknown as readonly StickerIdentifier[],
+              compressedStickerText: 'CC1-CC2'
             }
           ]
         }
@@ -163,7 +166,44 @@ describe('SharePreviewCard', () => {
     try {
       await new Promise((r) => setTimeout(r, 50));
 
-      expect(mounted.container.textContent).toContain('Missing: CC1-CC2');
+      expect(mounted.container.textContent).toContain('CC1-CC2');
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('renders repeated mode labels and formatted repeated entries', async () => {
+    await initializeI18n('en');
+
+    const payload = makePayload({
+      sections: [
+        {
+          sectionId: 'group-c',
+          sectionLabel: 'Group C',
+          pages: [
+            {
+              pageId: 'bra' as PageId,
+              title: 'team.bra',
+              pageType: 'team',
+              flagCode: 'br',
+              group: 'C',
+              stickerIds: ['BRA-10'] as unknown as readonly StickerIdentifier[],
+              compressedStickerText: 'BRA 10 (x2)'
+            }
+          ]
+        }
+      ]
+    });
+
+    const mounted = mount(
+      React.createElement(SharePreviewCard, { payload, t: makeT, mode: 'repeated' })
+    );
+
+    try {
+      await new Promise((r) => setTimeout(r, 50));
+
+      expect(mounted.container.textContent).toContain('Repeated Stickers');
+      expect(mounted.container.textContent).toContain('BRA 10 (x2)');
     } finally {
       cleanup(mounted);
     }

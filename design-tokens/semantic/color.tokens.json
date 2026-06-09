@@ -81,6 +81,11 @@
           }
         },
         "$description": "App header and top navigation background"
+      },
+      "badge": {
+        "$type": "color",
+        "$value": "{color.palette.red.500}",
+        "$description": "Badge background color"
       }
     },
     "text": {

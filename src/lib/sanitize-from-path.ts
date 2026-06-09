@@ -1,6 +1,6 @@
-export function sanitizeFromPath(raw: string | undefined | null): string {
+export function sanitizeFromPath(raw: string | undefined | null, fallback = '/'): string {
   if (!raw || !raw.startsWith('/') || raw.startsWith('//') || raw.includes('\\')) {
-    return '/';
+    return fallback;
   }
 
   return raw;

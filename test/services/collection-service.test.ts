@@ -2,10 +2,15 @@ import { describe, expect, it, vi } from 'vitest';
 
 import type { PageId, StickerIdentifier } from '@/data/album';
 import {
+  countRepeatedCopies,
+  countUniqueCollectedStickers,
+  derivePageCollectedStickerIds,
+  getStickerQuantity,
   hydrateCollectionState,
   loadCollectionState,
   serializeCollectionState,
-  toggleStickerCollectionState
+  toggleStickerCollectionState,
+  updateStickerQuantity
 } from '@/services/collection-service';
 
 const { readMock, writeMock } = vi.hoisted(() => ({
@@ -38,17 +43,64 @@ describe('collection-service', () => {
       [asPageId('mex')]: [asStickerIdentifier('MEX-1'), asStickerIdentifier('MEX-2')]
     });
 
-    const mexicoPageState = hydrated[asPageId('mex')];
-    expect(mexicoPageState).toBeInstanceOf(Set);
-    expect(mexicoPageState).toBeDefined();
-    expect([...(mexicoPageState ?? new Set())]).toEqual([
-      asStickerIdentifier('MEX-1'),
-      asStickerIdentifier('MEX-2')
-    ]);
+    expect(hydrated).toEqual({
+      [asPageId('mex')]: {
+        [asStickerIdentifier('MEX-1')]: 1,
+        [asStickerIdentifier('MEX-2')]: 1
+      }
+    });
 
     expect(serializeCollectionState(hydrated)).toEqual({
-      [asPageId('mex')]: [asStickerIdentifier('MEX-1'), asStickerIdentifier('MEX-2')]
+      [asPageId('mex')]: {
+        [asStickerIdentifier('MEX-1')]: 1,
+        [asStickerIdentifier('MEX-2')]: 1
+      }
     });
+  });
+
+  it('drops duplicate legacy sticker ids during hydration', () => {
+    const hydrated = hydrateCollectionState({
+      [asPageId('mex')]: [
+        asStickerIdentifier('MEX-1'),
+        asStickerIdentifier('MEX-1'),
+        asStickerIdentifier('MEX-2')
+      ]
+    });
+
+    expect(hydrated).toEqual({
+      [asPageId('mex')]: {
+        [asStickerIdentifier('MEX-2')]: 1
+      }
+    });
+  });
+
+  it('hydrates quantity payload and keeps repeated math unique-aware', () => {
+    const hydrated = hydrateCollectionState({
+      [asPageId('mex')]: {
+        [asStickerIdentifier('MEX-1')]: 3,
+        [asStickerIdentifier('MEX-2')]: 1
+      }
+    });
+
+    expect(getStickerQuantity(hydrated, asPageId('mex'), asStickerIdentifier('MEX-1'))).toBe(3);
+    expect(derivePageCollectedStickerIds(hydrated, asPageId('mex'))).toEqual(
+      new Set([asStickerIdentifier('MEX-1'), asStickerIdentifier('MEX-2')])
+    );
+    expect(countUniqueCollectedStickers(hydrated)).toBe(2);
+    expect(countRepeatedCopies(hydrated)).toBe(2);
+  });
+
+  it('drops malformed saved data instead of failing hydration', () => {
+    const hydrated = hydrateCollectionState({
+      [asPageId('mex')]: {
+        [asStickerIdentifier('MEX-1')]: 0,
+        [asStickerIdentifier('MEX-2')]: -1,
+        'BAD-1': 4
+      },
+      unknown: ['MEX-1']
+    } as never);
+
+    expect(hydrated).toEqual({});
   });
 
   it('loads empty state on first launch when storage has no collection', async () => {
@@ -68,12 +120,16 @@ describe('collection-service', () => {
     expect(firstToggle).toEqual({
       state: 'ready',
       value: {
-        [pageId]: new Set([stickerId])
+        [pageId]: {
+          [stickerId]: 1
+        }
       }
     });
 
     expect(writeMock).toHaveBeenNthCalledWith(1, 'collection', {
-      [pageId]: [stickerId]
+      [pageId]: {
+        [stickerId]: 1
+      }
     });
 
     const secondToggle = await toggleStickerCollectionState(
@@ -93,6 +149,32 @@ describe('collection-service', () => {
     expect(result).toEqual({ state: 'unavailable' });
   });
 
+  it('returns normalized collection when normalization writeback fails during load', async () => {
+    readMock.mockResolvedValueOnce({
+      state: 'ready',
+      value: {
+        [asPageId('mex')]: [asStickerIdentifier('MEX-1')]
+      }
+    });
+    writeMock.mockResolvedValueOnce({ state: 'unavailable' });
+
+    const result = await loadCollectionState();
+
+    expect(result).toEqual({
+      state: 'ready',
+      value: {
+        [asPageId('mex')]: {
+          [asStickerIdentifier('MEX-1')]: 1
+        }
+      }
+    });
+    expect(writeMock).toHaveBeenCalledWith('collection', {
+      [asPageId('mex')]: {
+        [asStickerIdentifier('MEX-1')]: 1
+      }
+    });
+  });
+
   it('returns storage failure and does not commit next state', async () => {
     writeMock.mockResolvedValueOnce({ state: 'unavailable' });
 
@@ -103,5 +185,31 @@ describe('collection-service', () => {
     );
 
     expect(result).toEqual({ state: 'unavailable' });
+  });
+
+  it('preserves existing stickers when overlapping updates use latest state', async () => {
+    writeMock.mockResolvedValue({ state: 'ready' });
+
+    const pageId = asPageId('mex');
+    const firstStickerId = asStickerIdentifier('MEX-1');
+    const secondStickerId = asStickerIdentifier('MEX-2');
+
+    const firstUpdate = await updateStickerQuantity({}, pageId, firstStickerId, 1);
+    const secondUpdate = await updateStickerQuantity(
+      firstUpdate.state === 'ready' ? firstUpdate.value : {},
+      pageId,
+      secondStickerId,
+      1
+    );
+
+    expect(secondUpdate).toEqual({
+      state: 'ready',
+      value: {
+        [pageId]: {
+          [firstStickerId]: 1,
+          [secondStickerId]: 1
+        }
+      }
+    });
   });
 });

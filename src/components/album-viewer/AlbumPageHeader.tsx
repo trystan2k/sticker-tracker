@@ -90,6 +90,10 @@ export function AlbumPageHeader({
     void navigate({ to: '/missing' });
   }, [navigate]);
 
+  const handleOpenRepeated = useCallback((): void => {
+    void navigate({ to: '/repeated' });
+  }, [navigate]);
+
   const handleOpenDeleteConfirm = useCallback(async (): Promise<void> => {
     // oxlint-disable-next-line no-alert
     const isConfirmed = window.confirm(
@@ -186,6 +190,7 @@ export function AlbumPageHeader({
         onOpenDeleteConfirm={handleOpenDeleteConfirm}
         onOpenShare={onOpenShare}
         onOpenMissing={handleOpenMissing}
+        onOpenRepeated={handleOpenRepeated}
         onOpenScanner={handleNavigateToScanner}
         currentLocale={i18n.resolvedLanguage ?? i18n.language ?? 'en'}
       />

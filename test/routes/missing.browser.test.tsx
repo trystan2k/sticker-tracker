@@ -103,6 +103,9 @@ describe('missing route component', () => {
       toggleCollected: vi.fn<() => Promise<{ state: 'unavailable' }>>(async () => ({
         state: 'unavailable'
       })),
+      setStickerQuantity: vi.fn<() => Promise<{ state: 'unavailable' }>>(async () => ({
+        state: 'unavailable'
+      })),
       retryBootstrap: async () => {},
       resetAppData: async () => {},
       setLocale: async () => 'ready' as const,
@@ -172,6 +175,7 @@ describe('missing route component', () => {
       theme: 'system' as const,
       collection: fullCollection,
       toggleCollected,
+      setStickerQuantity: toggleCollected,
       retryBootstrap: async () => {},
       resetAppData: async () => {},
       setLocale: async () => 'ready' as const,
@@ -244,6 +248,7 @@ describe('missing route component', () => {
         rsa: ['RSA-1', 'RSA-2', 'RSA-3']
       }),
       toggleCollected,
+      setStickerQuantity: toggleCollected,
       retryBootstrap: async () => {},
       resetAppData: async () => {},
       setLocale: async () => 'ready' as const,

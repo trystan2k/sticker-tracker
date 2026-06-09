@@ -33,7 +33,7 @@ function makeTeamSection(): ShareSelectionSection {
         pageType: 'team',
         flagCode: 'us',
         group: 'A',
-        missingCount: 5
+        stickerCount: 5
       },
       {
         pageId: 'usa' as PageId,
@@ -41,7 +41,7 @@ function makeTeamSection(): ShareSelectionSection {
         pageType: 'team',
         flagCode: 'us',
         group: 'A',
-        missingCount: 0
+        stickerCount: 0
       }
     ]
   };
@@ -57,7 +57,7 @@ function makeSpecialSection(): ShareSelectionSection {
         title: 'album.specialSection.fwc-opening',
         pageType: 'special',
         specialKey: 'fwc-opening',
-        missingCount: 3
+        stickerCount: 3
       }
     ]
   };
@@ -108,7 +108,7 @@ describe('ShareSelectionScreen', () => {
             pageType: 'team',
             flagCode: 'us',
             group: 'A',
-            missingCount: 0
+            stickerCount: 0
           }
         ]
       }
@@ -149,7 +149,7 @@ describe('ShareSelectionScreen', () => {
             pageType: 'team',
             flagCode: 'us',
             group: 'A',
-            missingCount: 0
+            stickerCount: 0
           }
         ]
       }
@@ -423,7 +423,7 @@ describe('ShareSelectionScreen', () => {
             title: 'album.specialSection.coca-cola',
             pageType: 'special',
             specialKey: 'coca-cola',
-            missingCount: 2
+            stickerCount: 2
           }
         ]
       }
@@ -463,7 +463,7 @@ describe('ShareSelectionScreen', () => {
             pageId: 'fwc-opening' as PageId,
             title: 'album.specialSection.fwc-opening',
             pageType: 'special',
-            missingCount: 3
+            stickerCount: 3
           }
         ]
       }
@@ -492,7 +492,7 @@ describe('ShareSelectionScreen', () => {
     }
   });
 
-  it('filters out sections where all rows have missingCount === 0', async () => {
+  it('filters out sections where all rows have stickerCount === 0', async () => {
     await initializeI18n('en');
 
     const sections: ShareSelectionSection[] = [
@@ -506,7 +506,7 @@ describe('ShareSelectionScreen', () => {
             pageType: 'team',
             flagCode: 'us',
             group: 'A',
-            missingCount: 5
+            stickerCount: 5
           }
         ]
       },
@@ -519,7 +519,7 @@ describe('ShareSelectionScreen', () => {
             title: 'album.specialSection.fwc-opening',
             pageType: 'special',
             specialKey: 'fwc-opening',
-            missingCount: 0
+            stickerCount: 0
           }
         ]
       }

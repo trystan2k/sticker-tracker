@@ -1,6 +1,15 @@
-import { createContext, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode
+} from 'react';
 import { I18nextProvider } from 'react-i18next';
 
+import type { PageId, StickerIdentifier } from '@/data/album';
 import { changeLocale, getI18nInstance, initializeI18n } from '@/i18n/config';
 import {
   initializeStorage,
@@ -9,14 +18,19 @@ import {
   type StorageState
 } from '@/lib/storage/app-storage';
 import {
+  countUniqueCollectedStickers,
+  getStickerQuantity,
   loadCollectionState,
   replacePersistedCollection,
   type CollectionState,
   type ReplaceCollectionResult,
-  toggleStickerCollectionState
+  type ToggleStickerResult,
+  type UpdateStickerQuantityResult,
+  toggleStickerCollectionState,
+  updateStickerQuantity
 } from '@/services/collection-service';
 import { trackAnalyticsEvent } from '@/services/analytics-service';
-import { markStickersAsHave } from '@/services/scanner-collection';
+import { markStickersAsHaveInCollection } from '@/services/scanner-collection';
 import type { MarkStickersAsHaveResult } from '@/services/scanner-collection';
 import {
   loadSavedLocale,
@@ -38,22 +52,44 @@ type AppStateContextValue = Readonly<{
   resetAppData: () => Promise<void>;
   setLocale: (locale: SupportedLocale) => Promise<StorageState>;
   setTheme: (theme: ThemeValue) => Promise<void>;
-  toggleCollected: typeof toggleStickerCollectionState;
+  toggleCollected: (pageId: PageId, stickerId: StickerIdentifier) => Promise<ToggleStickerResult>;
+  setStickerQuantity: (
+    pageId: PageId,
+    stickerId: StickerIdentifier,
+    quantity: number
+  ) => Promise<UpdateStickerQuantityResult>;
   restoreCollection: (persistedCollection: PersistedCollection) => Promise<ReplaceCollectionResult>;
   markScannedStickersAsHave: (stickerIds: readonly string[]) => Promise<MarkStickersAsHaveResult>;
 }>;
 
 const EMPTY_COLLECTION: CollectionState = {};
 
-function countCollectedStickers(collection: CollectionState): number {
-  return Object.values(collection).reduce((total, stickerIds) => total + stickerIds.size, 0);
-}
-
 export const AppStateContext = createContext<AppStateContextValue | null>(null);
 
 type AppStateProviderProps = Readonly<{
   children: ReactNode;
 }>;
+
+type QueuedCollectionMutationResult =
+  | ToggleStickerResult
+  | UpdateStickerQuantityResult
+  | ReplaceCollectionResult
+  | MarkStickersAsHaveResult;
+
+type CollectionMutationQueueOptions<Result extends QueuedCollectionMutationResult> = Readonly<{
+  onReady?: (
+    nextCollection: CollectionState,
+    previousCollection: CollectionState,
+    result: Extract<Result, { state: 'ready' }>
+  ) => void;
+  promoteFailureToStorageError?: boolean;
+}>;
+
+function isReadyCollectionMutationResult<Result extends QueuedCollectionMutationResult>(
+  result: Result
+): result is Extract<Result, { state: 'ready' }> {
+  return result.state === 'ready';
+}
 
 export function AppStateProvider({ children }: AppStateProviderProps) {
   const t = getI18nInstance().t.bind(getI18nInstance());
@@ -62,8 +98,49 @@ export function AppStateProvider({ children }: AppStateProviderProps) {
   const [locale, setLocaleState] = useState<SupportedLocale>('en');
   const [theme, setThemeState] = useState<ThemeValue>('system');
   const [collection, setCollection] = useState<CollectionState>(EMPTY_COLLECTION);
+  const collectionRef = useRef<CollectionState>(EMPTY_COLLECTION);
+  const collectionMutationQueueRef = useRef<Promise<void>>(Promise.resolve());
 
-  async function runBootstrap(): Promise<void> {
+  const applyCollectionState = useCallback((nextCollection: CollectionState): void => {
+    collectionRef.current = nextCollection;
+    setCollection(nextCollection);
+  }, []);
+
+  const enqueueCollectionMutation = useCallback(
+    <Result extends QueuedCollectionMutationResult>(
+      runMutation: (currentCollection: CollectionState) => Promise<Result>,
+      options?: CollectionMutationQueueOptions<Result>
+    ): Promise<Result> => {
+      const resultPromise = collectionMutationQueueRef.current.then(async () => {
+        const currentCollection = collectionRef.current;
+        const result = await runMutation(currentCollection);
+
+        if (!isReadyCollectionMutationResult(result)) {
+          if (options?.promoteFailureToStorageError) {
+            setStorageState(result.state);
+            setRenderState('storage-error');
+          }
+
+          return result;
+        }
+
+        applyCollectionState(result.value);
+        options?.onReady?.(result.value, currentCollection, result);
+
+        return result;
+      });
+
+      collectionMutationQueueRef.current = resultPromise.then(
+        () => undefined,
+        () => undefined
+      );
+
+      return resultPromise;
+    },
+    [applyCollectionState]
+  );
+
+  const runBootstrap = useCallback(async (): Promise<void> => {
     setRenderState('loading');
 
     const initResult = await initializeStorage();
@@ -118,17 +195,17 @@ export function AppStateProvider({ children }: AppStateProviderProps) {
     setStorageState('ready');
     setLocaleState(resolvedLocale);
     setThemeState(resolvedTheme);
-    setCollection(collectionResult.value);
+    applyCollectionState(collectionResult.value);
     setRenderState('ready');
-  }
+  }, [applyCollectionState]);
 
   useEffect(() => {
     void runBootstrap();
-  }, []);
+  }, [runBootstrap]);
 
   const retryBootstrap = useCallback(async (): Promise<void> => {
     await runBootstrap();
-  }, []);
+  }, [runBootstrap]);
 
   const setLocale = useCallback(async (localeToSet: SupportedLocale): Promise<StorageState> => {
     const changedLocale = await changeLocale(localeToSet);
@@ -146,20 +223,34 @@ export function AppStateProvider({ children }: AppStateProviderProps) {
   }, []);
 
   const resetAppData = useCallback(async (): Promise<void> => {
-    const resetResult = await resetAllData();
+    const previousQueue = collectionMutationQueueRef.current;
+    const resetPromise = (async (): Promise<void> => {
+      await previousQueue;
 
-    if (resetResult.state !== 'ready') {
-      setStorageState(resetResult.state);
-      setRenderState('storage-error');
+      const resetResult = await resetAllData();
 
-      return;
-    }
+      if (resetResult.state !== 'ready') {
+        setStorageState(resetResult.state);
+        setRenderState('storage-error');
 
-    // Prevent flash of previous theme before bootstrap resolves
-    applyTheme('system');
+        return;
+      }
 
-    await runBootstrap();
-  }, []);
+      applyCollectionState(EMPTY_COLLECTION);
+
+      // Prevent flash of previous theme before bootstrap resolves
+      applyTheme('system');
+
+      await runBootstrap();
+    })();
+
+    collectionMutationQueueRef.current = resetPromise.then(
+      () => undefined,
+      () => undefined
+    );
+
+    await resetPromise;
+  }, [applyCollectionState, runBootstrap]);
 
   const setTheme = useCallback(async (themeToSet: ThemeValue): Promise<void> => {
     const result = await saveTheme(themeToSet);
@@ -183,65 +274,93 @@ export function AppStateProvider({ children }: AppStateProviderProps) {
   }, [resetAppData]);
 
   const toggleCollected = useCallback(
-    async (...args: Parameters<typeof toggleStickerCollectionState>) => {
-      const toggleResult = await toggleStickerCollectionState(...args);
-      if (toggleResult.state !== 'ready') {
-        setStorageState(toggleResult.state);
-        setRenderState('storage-error');
+    async (pageId: PageId, stickerId: StickerIdentifier): Promise<ToggleStickerResult> => {
+      return enqueueCollectionMutation(
+        (currentCollection) => toggleStickerCollectionState(currentCollection, pageId, stickerId),
+        {
+          promoteFailureToStorageError: true,
+          onReady: (nextCollection, previousCollection) => {
+            const wasCollected = getStickerQuantity(previousCollection, pageId, stickerId) > 0;
 
-        return toggleResult;
-      }
+            if (wasCollected) {
+              return;
+            }
 
-      const [currentState, pageId, stickerId] = args;
-      const wasCollected = currentState[pageId]?.has(stickerId) ?? false;
-
-      setCollection(toggleResult.value);
-
-      if (!wasCollected) {
-        void trackAnalyticsEvent('stickers_marked_collected', {
-          input_method: 'manual',
-          page_id: pageId,
-          sticker_count: 1,
-          sticker_id: stickerId,
-          total_collected_count: countCollectedStickers(toggleResult.value)
-        });
-      }
-
-      return toggleResult;
+            void trackAnalyticsEvent('stickers_marked_collected', {
+              input_method: 'manual',
+              page_id: pageId,
+              sticker_count: 1,
+              sticker_id: stickerId,
+              total_collected_count: countUniqueCollectedStickers(nextCollection)
+            });
+          }
+        }
+      );
     },
-    []
+    [enqueueCollectionMutation]
   );
 
-  const markScannedStickersAsHave = useCallback(async (stickerIds: readonly string[]) => {
-    const result = await markStickersAsHave([...stickerIds]);
+  const setStickerQuantity = useCallback(
+    async (
+      pageId: PageId,
+      stickerId: StickerIdentifier,
+      quantity: number
+    ): Promise<UpdateStickerQuantityResult> => {
+      return enqueueCollectionMutation(
+        (currentCollection) =>
+          updateStickerQuantity(currentCollection, pageId, stickerId, quantity),
+        {
+          promoteFailureToStorageError: true,
+          onReady: (nextCollection, previousCollection) => {
+            const previousQuantity = getStickerQuantity(previousCollection, pageId, stickerId);
 
-    if (result.state !== 'ready') {
-      return result;
-    }
+            if (previousQuantity !== 0 || quantity <= 0) {
+              return;
+            }
 
-    setCollection(result.value);
+            void trackAnalyticsEvent('stickers_marked_collected', {
+              input_method: 'manual',
+              page_id: pageId,
+              sticker_count: 1,
+              sticker_id: stickerId,
+              total_collected_count: countUniqueCollectedStickers(nextCollection)
+            });
+          }
+        }
+      );
+    },
+    [enqueueCollectionMutation]
+  );
 
-    if (result.updatedStickerIds.length > 0) {
-      void trackAnalyticsEvent('stickers_marked_collected', {
-        input_method: 'scanner',
-        sticker_count: result.updatedStickerIds.length,
-        sticker_ids: result.updatedStickerIds,
-        total_collected_count: countCollectedStickers(result.value)
-      });
-    }
+  const markScannedStickersAsHave = useCallback(
+    async (stickerIds: readonly string[]) => {
+      return enqueueCollectionMutation(
+        (currentCollection) => markStickersAsHaveInCollection(currentCollection, stickerIds),
+        {
+          onReady: (nextCollection, _previousCollection, result) => {
+            if (result.updatedStickerIds.length === 0) {
+              return;
+            }
 
-    return result;
-  }, []);
+            void trackAnalyticsEvent('stickers_marked_collected', {
+              input_method: 'scanner',
+              sticker_count: result.updatedStickerIds.length,
+              sticker_ids: result.updatedStickerIds,
+              total_collected_count: countUniqueCollectedStickers(nextCollection)
+            });
+          }
+        }
+      );
+    },
+    [enqueueCollectionMutation]
+  );
 
-  const restoreCollection = useCallback(async (persistedCollection: PersistedCollection) => {
-    const result = await replacePersistedCollection(persistedCollection);
-
-    if (result.state === 'ready') {
-      setCollection(result.value);
-    }
-
-    return result;
-  }, []);
+  const restoreCollection = useCallback(
+    async (persistedCollection: PersistedCollection) => {
+      return enqueueCollectionMutation(async () => replacePersistedCollection(persistedCollection));
+    },
+    [enqueueCollectionMutation]
+  );
 
   const contextValue = useMemo<AppStateContextValue>(
     () => ({
@@ -255,6 +374,7 @@ export function AppStateProvider({ children }: AppStateProviderProps) {
       setLocale,
       setTheme,
       toggleCollected,
+      setStickerQuantity,
       restoreCollection,
       markScannedStickersAsHave
     }),
@@ -269,6 +389,7 @@ export function AppStateProvider({ children }: AppStateProviderProps) {
       setLocale,
       setTheme,
       toggleCollected,
+      setStickerQuantity,
       restoreCollection,
       markScannedStickersAsHave
     ]

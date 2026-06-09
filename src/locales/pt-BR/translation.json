@@ -150,8 +150,13 @@
     },
     "sticker": {
       "ariaLabel": "Figurinha {{id}} - {{state}}",
+      "ariaLabelWithRepeated": "Figurinha {{id}} - {{state}} - {{repeatedCount}}",
       "collected": "colecionada",
-      "missing": "faltando"
+      "missing": "faltando",
+      "keyboardHintCollected": "Pressione Enter ou Espaço para adicionar uma cópia. Pressione Backspace ou Delete para remover uma cópia.",
+      "keyboardHintMissing": "Pressione Enter ou Espaço para colecionar esta figurinha.",
+      "repeatedCopies_one": "{{count}} repetida",
+      "repeatedCopies_other": "{{count}} repetidas"
     },
     "pageHeader": {
       "ariaLabel": "Cabeçalho da página do álbum"
@@ -208,6 +213,36 @@
     "empty": {
       "title": "Álbum completo",
       "description": "Você colecionou todas as figurinhas.",
+      "backHome": "Ir para início"
+    }
+  },
+  "repeated": {
+    "header": {
+      "title": "Figurinhas Repetidas",
+      "back": "Voltar",
+      "share": "Compartilhar figurinhas repetidas"
+    },
+    "summary": {
+      "ariaLabel": "Resumo de figurinhas repetidas",
+      "totalRepeated_one": "{{count}} figurinha repetida",
+      "totalRepeated_other": "{{count}} figurinhas repetidas"
+    },
+    "content": {
+      "ariaLabel": "Conteúdo de figurinhas repetidas"
+    },
+    "intro": {
+      "title": "Repetidas",
+      "description": "Só aparecem seleções e especiais que ainda têm figurinhas repetidas."
+    },
+    "block": {
+      "repeatedCount_one": "{{count}} repetida",
+      "repeatedCount_other": "{{count}} repetidas",
+      "specialLabel": "Especial",
+      "fwcCode": "FWC"
+    },
+    "empty": {
+      "title": "Sem figurinhas repetidas",
+      "description": "Você não tem mais figurinhas repetidas.",
       "backHome": "Ir para início"
     }
   },
@@ -325,7 +360,7 @@
   },
   "share": {
     "brandName": "COPA 26",
-    "brandDomain": "copa26.app",
+    "brandDomain": "https://sticker-tracker.pages.dev",
     "fileName": "copa26-missing-stickers.png",
     "selection": {
       "title": "Compartilhar Faltantes",
@@ -343,7 +378,6 @@
       "back": "Voltar",
       "ariaLabel": "Cartão de prévia para compartilhar",
       "subtitle": "Figurinhas faltantes",
-      "missingPrefix": "Faltam",
       "emptyTitle": "Sem figurinhas faltantes",
       "emptyDescription": "Tudo completo.",
       "share": "Compartilhar",
@@ -352,6 +386,28 @@
       "downloading": "Baixando...",
       "error": "Algo deu errado",
       "shareUnsupported": "Compartilhamento indisponível, arquivo baixado"
+    },
+    "repeated": {
+      "fileName": "copa26-repeated-stickers.png",
+      "selection": {
+        "title": "Compartilhar repetidas",
+        "back": "Voltar",
+        "selectAll": "Selecionar todas",
+        "clear": "Limpar",
+        "generate": "Gerar imagem",
+        "selected": "{{count}} selecionada",
+        "selected_one": "{{count}} selecionada",
+        "selected_other": "{{count}} selecionadas",
+        "empty": "Nenhuma figurinha repetida para compartilhar"
+      },
+      "preview": {
+        "title": "Prévia",
+        "back": "Voltar",
+        "ariaLabel": "Cartão de prévia de repetidas",
+        "subtitle": "Figurinhas Repetidas",
+        "emptyTitle": "Sem figurinhas repetidas",
+        "emptyDescription": "Nenhuma figurinha repetida selecionada."
+      }
     }
   },
   "pwa": {
@@ -382,6 +438,7 @@
   "drawer": {
     "share": "Compartilhar Faltantes",
     "missing": "Figurinhas faltantes",
+    "repeated": "Figurinhas repetidas",
     "language": "Idioma",
     "theme": "Tema",
     "backup_restore": "Backup e restauração",

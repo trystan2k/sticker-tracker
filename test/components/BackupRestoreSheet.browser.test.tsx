@@ -85,7 +85,7 @@ function cleanup({ container, root }: { container: HTMLDivElement; root: Root })
 
 function createMexPersistedCollection(): PersistedCollection {
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-  return { [asPageId('mex')]: [asStickerId('MEX-1')] } as PersistedCollection;
+  return { [asPageId('mex')]: { [asStickerId('MEX-1')]: 1 } } as PersistedCollection;
 }
 
 async function resolveReadyRestoreResult() {
@@ -247,7 +247,9 @@ describe('BackupRestoreSheet', () => {
     >(async (_collection: PersistedCollection) => ({
       state: 'ready',
       value: {
-        [asPageId('mex')]: new Set([asStickerId('MEX-1')])
+        [asPageId('mex')]: {
+          [asStickerId('MEX-1')]: 1
+        }
       }
     }));
 
@@ -263,7 +265,7 @@ describe('BackupRestoreSheet', () => {
       React.createElement(BackupRestoreSheet, {
         isOpen: true,
         onClose,
-        collection: { [asPageId('mex')]: new Set([asStickerId('MEX-2')]) },
+        collection: { [asPageId('mex')]: { [asStickerId('MEX-2')]: 1 } },
         locale: 'en',
         theme: 'system',
         onRestoreCollection
@@ -302,7 +304,7 @@ describe('BackupRestoreSheet', () => {
       React.createElement(BackupRestoreSheet, {
         isOpen: true,
         onClose,
-        collection: { [asPageId('mex')]: new Set([asStickerId('MEX-2')]) },
+        collection: { [asPageId('mex')]: { [asStickerId('MEX-2')]: 1 } },
         locale: 'en',
         theme: 'system',
         onRestoreCollection
@@ -369,7 +371,7 @@ describe('BackupRestoreSheet', () => {
       React.createElement(BackupRestoreSheet, {
         isOpen: true,
         onClose: () => {},
-        collection: { [asPageId('mex')]: new Set([asStickerId('MEX-2')]) },
+        collection: { [asPageId('mex')]: { [asStickerId('MEX-2')]: 1 } },
         locale: 'en',
         theme: 'system',
         onRestoreCollection: resolveReadyRestoreResult

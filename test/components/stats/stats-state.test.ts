@@ -77,4 +77,24 @@ describe('stats-state', () => {
 
     expect(state.incompleteGroups).toEqual(GROUP_LIST);
   });
+
+  it('ignores repeated copies when ranking progress', () => {
+    const state = buildStatsState(
+      createCollectionState({
+        mex: {
+          'MEX-1': 4,
+          'MEX-2': 3,
+          'MEX-3': 1
+        }
+      })
+    );
+
+    expect(state.kind).toBe('ready');
+    if (state.kind !== 'ready') {
+      return;
+    }
+
+    expect(state.teams.moreStickers.pageId).toBe('mex');
+    expect(state.teams.moreStickers.collected).toBe(3);
+  });
 });

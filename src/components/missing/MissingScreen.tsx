@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import { albumPages, type PageId, type StickerIdentifier } from '@/data/album';
 import { StickerCell } from '@/components/album-viewer/StickerCell';
+import { getStickerInteractionKey } from '@/components/album-viewer/sticker-cell-interactions';
 import type { CollectionState, ToggleStickerResult } from '@/services/collection-service';
 
 import { buildMissingState } from './missing-state';
@@ -19,7 +20,7 @@ type MissingScreenProps = Readonly<{
 }>;
 
 type FocusTarget =
-  | { kind: 'sticker'; stickerId: StickerIdentifier }
+  | { kind: 'sticker'; interactionKey: string }
   | { kind: 'empty-state' }
   | { kind: 'back' };
 
@@ -63,14 +64,17 @@ function getNextFocusTarget(
     const nextInSameBlock = currentPage.missingStickerIds[currentStickerIndex + 1];
 
     if (nextInSameBlock) {
-      return { kind: 'sticker', stickerId: nextInSameBlock };
+      return { kind: 'sticker', interactionKey: getStickerInteractionKey(pageId, nextInSameBlock) };
     }
   }
 
   const nextPage = state.pages[currentPageIndex + 1];
 
   if (nextPage?.missingStickerIds[0]) {
-    return { kind: 'sticker', stickerId: nextPage.missingStickerIds[0] };
+    return {
+      kind: 'sticker',
+      interactionKey: getStickerInteractionKey(nextPage.pageId, nextPage.missingStickerIds[0])
+    };
   }
 
   return state.pages.length === 1 ? { kind: 'empty-state' } : { kind: 'back' };
@@ -86,16 +90,14 @@ export function MissingScreen({
   const [hiddenStickerIds, setHiddenStickerIds] = useState<ReadonlySet<StickerIdentifier>>(
     new Set()
   );
-  const [pendingStickerIds, setPendingStickerIds] = useState<ReadonlySet<StickerIdentifier>>(
-    new Set()
-  );
+  const [pendingStickerIds, setPendingStickerIds] = useState<ReadonlySet<string>>(new Set());
   const [showToast, setShowToast] = useState(false);
   const [focusTarget, setFocusTarget] = useState<FocusTarget | null>(null);
 
   const backButtonRef = useRef<HTMLButtonElement | null>(null);
   const emptyStateRef = useRef<HTMLButtonElement | null>(null);
   const screenRef = useRef<HTMLDivElement | null>(null);
-  const pendingRef = useRef<Set<StickerIdentifier>>(new Set());
+  const pendingRef = useRef<Set<string>>(new Set());
 
   const baseState = useMemo(() => buildMissingState(collection), [collection]);
   const state = useMemo(
@@ -122,11 +124,13 @@ export function MissingScreen({
 
   useEffect(() => {
     const currentlyMissing = new Set<StickerIdentifier>();
+    const currentInteractionKeys = new Set<string>();
 
     if (baseState.kind === 'ready') {
       for (const page of baseState.pages) {
         for (const stickerId of page.missingStickerIds) {
           currentlyMissing.add(stickerId);
+          currentInteractionKeys.add(getStickerInteractionKey(page.pageId, stickerId));
         }
       }
     }
@@ -141,7 +145,7 @@ export function MissingScreen({
 
     setPendingStickerIds((current) => {
       const next = new Set(
-        Array.from(current).filter((stickerId) => currentlyMissing.has(stickerId))
+        Array.from(current).filter((interactionKey) => currentInteractionKeys.has(interactionKey))
       );
       pendingRef.current = next;
 
@@ -156,7 +160,7 @@ export function MissingScreen({
 
     if (focusTarget.kind === 'sticker') {
       const target = screenRef.current?.querySelector<HTMLElement>(
-        `[data-testid="${focusTarget.stickerId}"]`
+        `[data-testid="${focusTarget.interactionKey}"]`
       );
 
       if (target) {
@@ -182,14 +186,16 @@ export function MissingScreen({
 
   const handleCollectSticker = useCallback(
     async (pageId: PageId, stickerId: StickerIdentifier): Promise<void> => {
-      if (pendingRef.current.has(stickerId)) {
+      const interactionKey = getStickerInteractionKey(pageId, stickerId);
+
+      if (pendingRef.current.has(interactionKey)) {
         return;
       }
 
       const rollbackOptimisticState = () => {
         setPendingStickerIds((current) => {
           const next = new Set(current);
-          next.delete(stickerId);
+          next.delete(interactionKey);
           return next;
         });
 
@@ -200,10 +206,10 @@ export function MissingScreen({
         });
       };
 
-      pendingRef.current.add(stickerId);
+      pendingRef.current.add(interactionKey);
       setFocusTarget(getNextFocusTarget(state, pageId, stickerId));
 
-      setPendingStickerIds((current) => new Set(current).add(stickerId));
+      setPendingStickerIds((current) => new Set(current).add(interactionKey));
       setHiddenStickerIds((current) => new Set(current).add(stickerId));
 
       try {
@@ -218,17 +224,10 @@ export function MissingScreen({
       } catch {
         rollbackOptimisticState();
       } finally {
-        pendingRef.current.delete(stickerId);
+        pendingRef.current.delete(interactionKey);
       }
     },
     [onToggleCollected, state]
-  );
-
-  const createCollectHandler = useCallback(
-    (pageId: PageId, stickerId: StickerIdentifier) => () => {
-      void handleCollectSticker(pageId, stickerId);
-    },
-    [handleCollectSticker]
   );
 
   return (
@@ -364,8 +363,10 @@ export function MissingScreen({
                         key={stickerId}
                         page={page}
                         stickerId={stickerId}
-                        isPending={pendingStickerIds.has(stickerId)}
-                        onClick={createCollectHandler(page.pageId, stickerId)}
+                        isPending={pendingStickerIds.has(
+                          getStickerInteractionKey(page.pageId, stickerId)
+                        )}
+                        onCollect={handleCollectSticker}
                       />
                     ))}
                   </div>
@@ -394,17 +395,26 @@ type MissingStickerButtonProps = Readonly<{
   page: (typeof albumPages)[number];
   stickerId: StickerIdentifier;
   isPending: boolean;
-  onClick: () => void;
+  onCollect: (pageId: PageId, stickerId: StickerIdentifier) => Promise<void>;
 }>;
 
-function MissingStickerButton({ page, stickerId, isPending, onClick }: MissingStickerButtonProps) {
+function MissingStickerButton({
+  page,
+  stickerId,
+  isPending,
+  onCollect
+}: MissingStickerButtonProps) {
+  const handleSetStickerQuantity = useCallback(() => {
+    void onCollect(page.pageId, stickerId);
+  }, [onCollect, page.pageId, stickerId]);
+
   return (
     <StickerCell
-      dataTestId={stickerId}
+      dataTestId={getStickerInteractionKey(page.pageId, stickerId)}
       page={page}
       stickerId={stickerId}
-      isCollected={false}
-      onToggleSticker={onClick}
+      quantity={0}
+      onSetStickerQuantity={handleSetStickerQuantity}
       disabled={isPending}
     />
   );

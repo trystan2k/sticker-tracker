@@ -58,7 +58,7 @@ describe('MenuDrawer', () => {
     await getI18nInstance().changeLanguage('en');
   });
 
-  it('renders share, missing and language rows when open', async () => {
+  it('renders share, missing, repeated, and language rows when open', async () => {
     const mounted = mount(
       React.createElement(MenuDrawer, {
         isOpen: true,
@@ -72,6 +72,7 @@ describe('MenuDrawer', () => {
       await waitFor(() => document.body.textContent?.includes('Share') ?? false);
       expect(document.body.textContent).toContain('Share');
       expect(document.body.textContent).toContain('Missing Stickers');
+      expect(document.body.textContent).toContain('Repeated Stickers');
       expect(document.body.textContent).toContain('Language');
     } finally {
       cleanup(mounted);
@@ -326,12 +327,70 @@ describe('MenuDrawer', () => {
     }
   });
 
-  it('renders scanner entry after missing row', async () => {
+  it('renders repeated row after missing row', async () => {
     const mounted = mount(
       React.createElement(MenuDrawer, {
         isOpen: true,
         onClose: () => {},
         onOpenLocaleSwitcher: () => {},
+        onOpenRepeated: () => {},
+        currentLocale: 'en'
+      })
+    );
+
+    try {
+      await waitFor(() => document.body.textContent?.includes('Repeated Stickers') ?? false);
+
+      const rowLabels = Array.from(document.body.querySelectorAll('[class*="rowLabel"]')).map(
+        (node) => node.textContent?.trim()
+      );
+
+      const missingIndex = rowLabels.findIndex(
+        (label) => label?.includes('Missing Stickers') ?? false
+      );
+      const repeatedIndex = rowLabels.findIndex((label) => label === 'Repeated Stickers');
+
+      expect(missingIndex).toBeGreaterThanOrEqual(0);
+      expect(repeatedIndex).toBe(missingIndex + 1);
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('calls onOpenRepeated when repeated row is clicked', async () => {
+    const onOpenRepeated = vi.fn<() => void>();
+
+    const mounted = mount(
+      React.createElement(MenuDrawer, {
+        isOpen: true,
+        onClose: () => {},
+        onOpenLocaleSwitcher: () => {},
+        onOpenRepeated,
+        currentLocale: 'en'
+      })
+    );
+
+    try {
+      await waitFor(() => document.body.textContent?.includes('Repeated Stickers') ?? false);
+
+      const repeatedButton = Array.from(document.body.querySelectorAll('button')).find(
+        (button) => button.textContent?.includes('Repeated Stickers') ?? false
+      );
+
+      repeatedButton?.click();
+      expect(onOpenRepeated).toHaveBeenCalledTimes(1);
+    } finally {
+      cleanup(mounted);
+    }
+  });
+
+  it('renders scanner entry after repeated row', async () => {
+    const mounted = mount(
+      React.createElement(MenuDrawer, {
+        isOpen: true,
+        onClose: () => {},
+        onOpenLocaleSwitcher: () => {},
+        onOpenRepeated: () => {},
         onOpenScanner: () => {},
         currentLocale: 'en'
       })
@@ -344,13 +403,11 @@ describe('MenuDrawer', () => {
         (node) => node.textContent?.trim()
       );
 
-      const missingIndex = rowLabels.findIndex(
-        (label) => label?.includes('Missing Stickers') ?? false
-      );
+      const repeatedIndex = rowLabels.findIndex((label) => label === 'Repeated Stickers');
       const scannerIndex = rowLabels.findIndex((label) => label === 'Scanner');
 
-      expect(missingIndex).toBeGreaterThanOrEqual(0);
-      expect(scannerIndex).toBe(missingIndex + 1);
+      expect(repeatedIndex).toBeGreaterThanOrEqual(0);
+      expect(scannerIndex).toBe(repeatedIndex + 1);
     } finally {
       cleanup(mounted);
     }

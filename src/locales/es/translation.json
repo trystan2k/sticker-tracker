@@ -150,8 +150,13 @@
     },
     "sticker": {
       "ariaLabel": "Estampa {{id}} - {{state}}",
+      "ariaLabelWithRepeated": "Estampa {{id}} - {{state}} - {{repeatedCount}}",
       "collected": "coleccionada",
-      "missing": "faltante"
+      "missing": "faltante",
+      "keyboardHintCollected": "Presiona Enter o Espacio para agregar una copia. Presiona Retroceso o Suprimir para quitar una copia.",
+      "keyboardHintMissing": "Presiona Enter o Espacio para coleccionar esta estampa.",
+      "repeatedCopies_one": "{{count}} repetida",
+      "repeatedCopies_other": "{{count}} repetidas"
     },
     "pageHeader": {
       "ariaLabel": "Encabezado de página del álbum"
@@ -208,6 +213,36 @@
     "empty": {
       "title": "Álbum completo",
       "description": "Has coleccionado todos los cromos.",
+      "backHome": "Ir al inicio"
+    }
+  },
+  "repeated": {
+    "header": {
+      "title": "Cromos Repetidos",
+      "back": "Volver",
+      "share": "Compartir cromos repetidos"
+    },
+    "summary": {
+      "ariaLabel": "Resumen de cromos repetidos",
+      "totalRepeated_one": "{{count}} cromo repetido",
+      "totalRepeated_other": "{{count}} cromos repetidos"
+    },
+    "content": {
+      "ariaLabel": "Contenido de cromos repetidos"
+    },
+    "intro": {
+      "title": "Repetidos",
+      "description": "Solo aparecen selecciones y especiales que todavía tienen cromos repetidos."
+    },
+    "block": {
+      "repeatedCount_one": "{{count}} repetido",
+      "repeatedCount_other": "{{count}} repetidos",
+      "specialLabel": "Especial",
+      "fwcCode": "FWC"
+    },
+    "empty": {
+      "title": "Sin cromos repetidos",
+      "description": "Ya no te quedan cromos repetidos.",
       "backHome": "Ir al inicio"
     }
   },
@@ -325,7 +360,7 @@
   },
   "share": {
     "brandName": "COPA 26",
-    "brandDomain": "copa26.app",
+    "brandDomain": "https://sticker-tracker.pages.dev",
     "fileName": "copa26-missing-stickers.png",
     "selection": {
       "title": "Compartir Faltantes",
@@ -343,7 +378,6 @@
       "back": "Volver",
       "ariaLabel": "Tarjeta de vista previa para compartir",
       "subtitle": "Cromos faltantes",
-      "missingPrefix": "Faltan",
       "emptyTitle": "No faltan cromos",
       "emptyDescription": "Todo completo.",
       "share": "Compartir",
@@ -352,6 +386,28 @@
       "downloading": "Descargando...",
       "error": "Algo salió mal",
       "shareUnsupported": "Compartir no disponible, archivo descargado"
+    },
+    "repeated": {
+      "fileName": "copa26-repeated-stickers.png",
+      "selection": {
+        "title": "Compartir repetidos",
+        "back": "Volver",
+        "selectAll": "Seleccionar todas",
+        "clear": "Limpiar",
+        "generate": "Generar imagen",
+        "selected": "{{count}} seleccionada",
+        "selected_one": "{{count}} seleccionada",
+        "selected_other": "{{count}} seleccionadas",
+        "empty": "No hay cromos repetidos para compartir"
+      },
+      "preview": {
+        "title": "Vista previa",
+        "back": "Volver",
+        "ariaLabel": "Tarjeta de vista previa de repetidas",
+        "subtitle": "Cromos Repetidos",
+        "emptyTitle": "Sin cromos repetidos",
+        "emptyDescription": "No se han seleccionado cromos repetidos."
+      }
     }
   },
   "pwa": {
@@ -382,6 +438,7 @@
   "drawer": {
     "share": "Compartir Faltantes",
     "missing": "Cromos faltantes",
+    "repeated": "Cromos repetidos",
     "language": "Idioma",
     "theme": "Tema",
     "backup_restore": "Backup y restauración",

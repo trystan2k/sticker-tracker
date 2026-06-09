@@ -1,86 +1,84 @@
 import { expect, test } from '@playwright/test';
 
+import { waitForStickerGrid } from './utils/journey-helpers';
+
 test('click sticker cell, verify progress, reload, verify persistence', async ({ page }) => {
   await page.goto('/album/fwc-opening');
 
-  // Wait for sticker cells to be attached
-  await page.waitForSelector('div[class*="grid"] button[aria-pressed]', { timeout: 10000 });
-
-  // Initial state: no stickers collected on first page (fwc-opening has 9 stickers)
-  const stickerCells = page.locator('div[class*="grid"] button[aria-pressed]');
+  const stickerCells = await waitForStickerGrid(page);
   const totalStickers = await stickerCells.count();
 
-  // All should start as not collected (aria-pressed="false")
   for (let i = 0; i < totalStickers; i++) {
     // oxlint-disable-next-line no-await-in-loop
     await expect(stickerCells.nth(i)).toHaveAttribute('aria-pressed', 'false');
   }
 
-  // Initial progress should be 0 collected
   const progressbar = page.getByRole('progressbar');
   await expect(progressbar).toHaveAttribute('aria-valuenow', '0');
 
-  // Click the first sticker cell to mark it as collected
   await stickerCells.first().click();
-
-  // Verify first cell is now collected
   await expect(stickerCells.first()).toHaveAttribute('aria-pressed', 'true');
-
-  // Progress should update to 1 collected
   await expect(progressbar).toHaveAttribute('aria-valuenow', '1');
 
-  // Click second sticker cell too
   await stickerCells.nth(1).click();
-
-  // Verify second cell is collected
   await expect(stickerCells.nth(1)).toHaveAttribute('aria-pressed', 'true');
-
-  // Progress should update to 2 collected
   await expect(progressbar).toHaveAttribute('aria-valuenow', '2');
 
-  // Reload the page
   await page.reload();
 
-  // Wait for app to be ready again after reload
-  await page.waitForSelector('div[class*="grid"] button[aria-pressed]', { timeout: 10000 });
-
-  // Verify stickers are still collected after reload
-  const reloadedCells = page.locator('div[class*="grid"] button[aria-pressed]');
+  const reloadedCells = await waitForStickerGrid(page);
   await expect(reloadedCells.first()).toHaveAttribute('aria-pressed', 'true');
   await expect(reloadedCells.nth(1)).toHaveAttribute('aria-pressed', 'true');
 
-  // Progress should persist as 2
   const reloadedProgressbar = page.getByRole('progressbar');
   await expect(reloadedProgressbar).toHaveAttribute('aria-valuenow', '2');
 });
 
-test('uncollect sticker via click toggle persists after reload', async ({ page }) => {
+test('single tap adds repeated copy, reload persists it, double click path decrements and unmarks', async ({
+  page
+}) => {
   await page.goto('/album/fwc-opening');
 
-  // Wait for sticker cells to be attached
-  await page.waitForSelector('div[class*="grid"] button[aria-pressed]', { timeout: 10000 });
-
-  const stickerCells = page.locator('div[class*="grid"] button[aria-pressed]');
-
-  // Click to collect first sticker
-  await stickerCells.first().click();
-  await expect(stickerCells.first()).toHaveAttribute('aria-pressed', 'true');
-
-  // Click again to uncollect
-  await stickerCells.first().click();
-  await expect(stickerCells.first()).toHaveAttribute('aria-pressed', 'false');
-
-  // Progress should be back to 0
+  const stickerCells = await waitForStickerGrid(page);
+  const firstSticker = stickerCells.first();
+  const repeatedBadge = firstSticker.locator('span[aria-hidden="true"]');
   const progressbar = page.getByRole('progressbar');
-  await expect(progressbar).toHaveAttribute('aria-valuenow', '0');
 
-  // Reload and verify uncollected state persists
+  await firstSticker.click();
+  await expect(firstSticker).toHaveAttribute('aria-pressed', 'true');
+  await expect(repeatedBadge).toHaveCount(0);
+  await expect(progressbar).toHaveAttribute('aria-valuenow', '1');
+
+  await firstSticker.click();
+  await expect(firstSticker).toHaveAttribute('aria-pressed', 'true');
+  await expect(repeatedBadge).toHaveText('1');
+  await expect(progressbar).toHaveAttribute('aria-valuenow', '1');
+
   await page.reload();
-  await page.waitForSelector('div[class*="grid"] button[aria-pressed]', { timeout: 10000 });
 
-  const reloadedCells = page.locator('div[class*="grid"] button[aria-pressed]');
-  await expect(reloadedCells.first()).toHaveAttribute('aria-pressed', 'false');
-
+  const reloadedCells = await waitForStickerGrid(page);
+  const reloadedFirstSticker = reloadedCells.first();
+  const reloadedRepeatedBadge = reloadedFirstSticker.locator('span[aria-hidden="true"]');
   const reloadedProgressbar = page.getByRole('progressbar');
+
+  await expect(reloadedFirstSticker).toHaveAttribute('aria-pressed', 'true');
+  await expect(reloadedRepeatedBadge).toHaveText('1');
+  await expect(reloadedProgressbar).toHaveAttribute('aria-valuenow', '1');
+
+  await reloadedFirstSticker.dblclick();
+  await expect(reloadedFirstSticker).toHaveAttribute('aria-pressed', 'true');
+  await expect(reloadedRepeatedBadge).toHaveCount(0);
+  await expect(reloadedProgressbar).toHaveAttribute('aria-valuenow', '1');
+
+  await reloadedFirstSticker.dblclick();
+  await expect(reloadedFirstSticker).toHaveAttribute('aria-pressed', 'false');
   await expect(reloadedProgressbar).toHaveAttribute('aria-valuenow', '0');
+
+  await page.reload();
+
+  const finalCells = await waitForStickerGrid(page);
+  await expect(finalCells.first()).toHaveAttribute('aria-pressed', 'false');
+
+  const finalProgressbar = page.getByRole('progressbar');
+  await expect(finalProgressbar).toHaveAttribute('aria-valuenow', '0');
 });

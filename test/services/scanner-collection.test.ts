@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { PageId, StickerIdentifier } from '@/data/album';
-import { markStickersAsHave } from '@/services/scanner-collection';
+import { markStickersAsHave, markStickersAsHaveInCollection } from '@/services/scanner-collection';
 
 function asPageId(value: string): PageId {
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion
@@ -13,83 +13,44 @@ function asStickerIdentifier(value: string): StickerIdentifier {
   return value as StickerIdentifier;
 }
 
-const { mockStore, mockIdb, loadCollectionStateMock } = vi.hoisted(() => {
+const { mockStore, readMock, writeMock } = vi.hoisted(() => {
   const store = new Map<string, unknown>();
-  const transactionDone = Promise.resolve();
-  const loadMock = vi.fn<() => Promise<{ state: string; value?: object }>>();
 
   return {
     mockStore: store,
-    mockIdb: {
-      openDB: vi.fn<
-        () => Promise<{
-          transaction: () => {
-            store: {
-              get: (key: string) => Promise<unknown>;
-              put: (entry: { key: string; value: unknown }) => Promise<void>;
-            };
-            done: Promise<void>;
-            abort: () => void;
-          };
-          close: () => void;
-        }>
-      >(async () => ({
-        transaction: vi.fn<
-          () => {
-            store: {
-              get: (key: string) => Promise<unknown>;
-              put: (entry: { key: string; value: unknown }) => Promise<void>;
-            };
-            done: Promise<void>;
-            abort: () => void;
-          }
-        >(() => ({
-          store: {
-            get: vi.fn<(key: string) => Promise<unknown>>(async (key: string) => store.get(key)),
-            put: vi.fn<(entry: { key: string; value: unknown }) => Promise<void>>(
-              async (entry: { key: string; value: unknown }) => {
-                store.set(entry.key, entry);
-              }
-            )
-          },
-          done: transactionDone,
-          abort: vi.fn<() => void>(() => {
-            throw new Error('Transaction aborted');
-          })
-        })),
-        close: vi.fn<() => void>()
-      })),
-      deleteDB: vi.fn<() => void>()
-    },
-    loadCollectionStateMock: loadMock
+    readMock: vi.fn<
+      (key: string) => Promise<{ state: 'ready'; value: unknown } | { state: 'unavailable' }>
+    >(async (key: string) => ({
+      state: 'ready' as const,
+      value: store.get(key) ?? null
+    })),
+    writeMock: vi.fn<
+      (key: string, value: unknown) => Promise<{ state: 'ready' } | { state: 'unavailable' }>
+    >(async (key: string, value: unknown) => {
+      store.set(key, value);
+
+      return { state: 'ready' as const };
+    })
   };
 });
-
-vi.mock('idb', () => mockIdb);
 
 vi.mock('@/lib/storage/app-storage', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/lib/storage/app-storage')>();
-  return {
-    ...actual,
-    getDatabaseNameForStorage: () => 'test-db'
-  };
-});
 
-vi.mock('@/services/collection-service', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/services/collection-service')>();
   return {
     ...actual,
-    loadCollectionState: loadCollectionStateMock
+    read: readMock,
+    write: writeMock
   };
 });
 
 describe('scanner-collection', () => {
   beforeEach(() => {
-    vi.useFakeTimers();
     mockStore.clear();
-    loadCollectionStateMock.mockResolvedValue({ state: 'ready', value: {} });
+    readMock.mockClear();
+    writeMock.mockClear();
 
-    const lookupIndex = {
+    mockStore.set('scannerLookup', {
       version: 1,
       entries: {
         'BRA-1': {
@@ -129,21 +90,12 @@ describe('scanner-collection', () => {
           flagCode: null
         }
       }
-    };
-
-    mockStore.set('scannerLookup', {
-      key: 'scannerLookup',
-      value: lookupIndex
     });
 
-    mockStore.set('collection', {
-      key: 'collection',
-      value: {}
-    });
+    mockStore.set('collection', {});
   });
 
   afterEach(() => {
-    vi.useRealTimers();
     vi.clearAllMocks();
   });
 
@@ -151,6 +103,7 @@ describe('scanner-collection', () => {
     it('returns empty updated list for empty input', async () => {
       const result = await markStickersAsHave([]);
       expect(result.state).toBe('ready');
+
       if (result.state === 'ready') {
         expect(result.updatedStickerIds).toEqual([]);
       }
@@ -159,29 +112,52 @@ describe('scanner-collection', () => {
     it('marks new sticker as collected', async () => {
       const result = await markStickersAsHave(['BRA-1']);
       expect(result.state).toBe('ready');
+
       if (result.state === 'ready') {
         expect(result.updatedStickerIds).toEqual([asStickerIdentifier('BRA-1')]);
+        expect(result.value).toEqual({
+          [asPageId('bra')]: {
+            [asStickerIdentifier('BRA-1')]: 1
+          }
+        });
       }
     });
 
     it('skips already-collected sticker (idempotent)', async () => {
       mockStore.set('collection', {
-        key: 'collection',
-        value: {
-          bra: [asStickerIdentifier('BRA-1')]
+        bra: {
+          [asStickerIdentifier('BRA-1')]: 2
         }
       });
 
       const result = await markStickersAsHave(['BRA-1']);
       expect(result.state).toBe('ready');
+
       if (result.state === 'ready') {
         expect(result.updatedStickerIds).toEqual([]);
       }
     });
 
+    it('does not increment quantity for already-owned sticker', async () => {
+      mockStore.set('collection', {
+        bra: {
+          [asStickerIdentifier('BRA-1')]: 3
+        }
+      });
+
+      await markStickersAsHave(['BRA-1']);
+
+      expect(mockStore.get('collection')).toEqual({
+        bra: {
+          [asStickerIdentifier('BRA-1')]: 3
+        }
+      });
+    });
+
     it('marks multiple stickers in batch', async () => {
       const result = await markStickersAsHave(['BRA-1', 'MEX-1']);
       expect(result.state).toBe('ready');
+
       if (result.state === 'ready') {
         expect(result.updatedStickerIds).toHaveLength(2);
         expect(result.updatedStickerIds).toContainEqual(asStickerIdentifier('BRA-1'));
@@ -192,6 +168,7 @@ describe('scanner-collection', () => {
     it('deduplicates sticker ids', async () => {
       const result = await markStickersAsHave(['BRA-1', 'BRA-1', 'BRA-1']);
       expect(result.state).toBe('ready');
+
       if (result.state === 'ready') {
         expect(result.updatedStickerIds).toEqual([asStickerIdentifier('BRA-1')]);
       }
@@ -200,6 +177,7 @@ describe('scanner-collection', () => {
     it('skips unknown sticker codes', async () => {
       const result = await markStickersAsHave(['BRA-1', 'XXX-999']);
       expect(result.state).toBe('ready');
+
       if (result.state === 'ready') {
         expect(result.updatedStickerIds).toEqual([asStickerIdentifier('BRA-1')]);
       }
@@ -215,33 +193,51 @@ describe('scanner-collection', () => {
     it('handles special stickers (00, CC1)', async () => {
       const result = await markStickersAsHave(['00', 'CC1']);
       expect(result.state).toBe('ready');
+
       if (result.state === 'ready') {
         expect(result.updatedStickerIds).toContainEqual(asStickerIdentifier('00'));
         expect(result.updatedStickerIds).toContainEqual(asStickerIdentifier('CC1'));
       }
     });
 
-    it('returns unavailable when collection load fails with empty input', async () => {
-      loadCollectionStateMock.mockResolvedValueOnce({ state: 'unavailable' });
+    it('returns unavailable when collection read fails', async () => {
+      readMock.mockImplementationOnce(async () => ({ state: 'unavailable' as const }));
 
       const result = await markStickersAsHave([]);
       expect(result.state).toBe('unavailable');
     });
 
-    it('returns unavailable when refreshed collection load fails after write', async () => {
-      loadCollectionStateMock.mockResolvedValue({ state: 'unavailable' });
+    it('returns unavailable when collection write fails', async () => {
+      writeMock.mockImplementationOnce(async () => ({ state: 'unavailable' as const }));
 
       const result = await markStickersAsHave(['BRA-1']);
       expect(result.state).toBe('unavailable');
     });
+  });
 
-    it('closes idb connection after transaction', async () => {
-      await markStickersAsHave(['BRA-1']);
+  describe('markStickersAsHaveInCollection', () => {
+    it('writes scanner changes on top of provided collection state', async () => {
+      const result = await markStickersAsHaveInCollection(
+        {
+          [asPageId('mex')]: {
+            [asStickerIdentifier('MEX-1')]: 2
+          }
+        },
+        ['BRA-1']
+      );
 
-      expect(mockIdb.openDB).toHaveBeenCalledTimes(1);
-      const firstCallResult = await mockIdb.openDB.mock.results[0]?.value;
-
-      expect(firstCallResult?.close).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({
+        state: 'ready',
+        value: {
+          [asPageId('mex')]: {
+            [asStickerIdentifier('MEX-1')]: 2
+          },
+          [asPageId('bra')]: {
+            [asStickerIdentifier('BRA-1')]: 1
+          }
+        },
+        updatedStickerIds: [asStickerIdentifier('BRA-1')]
+      });
     });
   });
 });

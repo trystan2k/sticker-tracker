@@ -1,6 +1,6 @@
 import { albumPages, type AlbumPage, type PageId, type StickerIdentifier } from '@/data/album';
 import { isValidPageId, PAGE_SECTION_RUNS } from '@/components/album-viewer/viewer-state';
-import type { CollectionState } from '@/services/collection-service';
+import { derivePageCollectedStickerIds, type CollectionState } from '@/services/collection-service';
 
 export type ShareEntryPoint = { type: 'all-missing' } | { type: 'current-page'; pageId: PageId };
 
@@ -16,7 +16,7 @@ type ShareSelectionRow = {
   group?: string;
   pageType: 'team' | 'special';
   specialKey?: string;
-  missingCount: number;
+  stickerCount: number;
 };
 
 export type ShareSelectionSection = {
@@ -25,15 +25,15 @@ export type ShareSelectionSection = {
   rows: readonly ShareSelectionRow[];
 };
 
-type SharePreviewPageBlock = {
+export type SharePreviewPageBlock = {
   pageId: PageId;
   title: string;
   flagCode?: string;
   group?: string;
   pageType: 'team' | 'special';
   specialKey?: string;
-  missingStickerIds: readonly StickerIdentifier[];
-  compressedMissingText: string;
+  stickerIds: readonly StickerIdentifier[];
+  compressedStickerText: string;
 };
 
 type SharePreviewSection = {
@@ -45,7 +45,7 @@ type SharePreviewSection = {
 export type SharePreviewPayload = {
   selectedPageIds: readonly PageId[];
   selectedPageCount: number;
-  totalMissingStickerCount: number;
+  totalStickerCount: number;
   sections: readonly SharePreviewSection[];
 };
 
@@ -62,7 +62,7 @@ function getMissingStickerIds(
     return [];
   }
 
-  const collected = collection[pageId] ?? new Set<StickerIdentifier>();
+  const collected = derivePageCollectedStickerIds(collection, pageId);
 
   return page.stickerIds.filter((stickerId) => !collected.has(stickerId));
 }
@@ -82,7 +82,7 @@ function createSelectionRow(collection: CollectionState, pageId: PageId): ShareS
     pageId,
     title: page.translationKey,
     pageType: page.type,
-    missingCount: getMissingStickerIds(collection, pageId).length
+    stickerCount: getMissingStickerIds(collection, pageId).length
   } as const;
 
   if (page.type === 'team') {
@@ -109,14 +109,14 @@ function createPreviewPageBlock(
     throw new Error(`Invalid page id: ${pageId}`);
   }
 
-  const missingStickerIds = getMissingStickerIds(collection, pageId);
+  const stickerIds = getMissingStickerIds(collection, pageId);
 
   const base = {
     pageId,
     title: page.translationKey,
     pageType: page.type,
-    missingStickerIds,
-    compressedMissingText: compressMissingStickerIds(missingStickerIds)
+    stickerIds,
+    compressedStickerText: compressMissingStickerIds(stickerIds)
   } as const;
 
   if (page.type === 'team') {
@@ -269,15 +269,15 @@ export function buildSharePreviewPayload(
   const selectedSet = new Set(selectedPageIds);
   const orderedSelectedPageIds = CANONICAL_PAGE_IDS.filter((pageId) => selectedSet.has(pageId));
 
-  let totalMissingStickerCount = 0;
+  let totalStickerCount = 0;
 
   const sections = PAGE_SECTION_RUNS.map((run): SharePreviewSection => {
     const pages = run.pages
       .filter((page) => selectedSet.has(page.pageId))
       .map((page) => createPreviewPageBlock(collection, page.pageId))
-      .filter((page) => page.missingStickerIds.length > 0);
+      .filter((page) => page.stickerIds.length > 0);
 
-    totalMissingStickerCount += pages.reduce((sum, page) => sum + page.missingStickerIds.length, 0);
+    totalStickerCount += pages.reduce((sum, page) => sum + page.stickerIds.length, 0);
 
     return {
       sectionId: run.sectionId,
@@ -289,7 +289,7 @@ export function buildSharePreviewPayload(
   return {
     selectedPageIds: orderedSelectedPageIds,
     selectedPageCount: sections.reduce((sum, section) => sum + section.pages.length, 0),
-    totalMissingStickerCount,
+    totalStickerCount,
     sections
   };
 }

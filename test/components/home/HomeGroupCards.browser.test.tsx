@@ -226,10 +226,10 @@ describe('HomeGroupCards', () => {
   it('shows complete styling for complete groups', async () => {
     // Collect all stickers from group A
     const teamPages = ['mex', 'rsa', 'kor', 'cze'];
-    const collection: Record<string, ReadonlySet<string>> = {};
+    const collection: Record<string, Record<string, number>> = {};
     for (const team of teamPages) {
-      collection[team] = new Set(
-        Array.from({ length: 20 }, (_, i) => `${team.toUpperCase()}-${i + 1}`)
+      collection[team] = Object.fromEntries(
+        Array.from({ length: 20 }, (_, i) => [`${team.toUpperCase()}-${i + 1}`, 1] as const)
       );
     }
 
@@ -281,8 +281,10 @@ describe('HomeGroupCards', () => {
   });
 
   it('renders team tile counters and team progress bars', async () => {
-    const collection: Record<string, ReadonlySet<string>> = {
-      mex: new Set(Array.from({ length: 10 }, (_, index) => `MEX-${index + 1}`))
+    const collection: Record<string, Record<string, number>> = {
+      mex: Object.fromEntries(
+        Array.from({ length: 10 }, (_, index) => [`MEX-${index + 1}`, 1] as const)
+      )
     };
     const groups = computeGroupsData(collection as never);
 
