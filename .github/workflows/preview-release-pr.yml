@@ -28,12 +28,12 @@ jobs:
       preview_url: ${{ steps.preview_url.outputs.preview_url }}
     steps:
       - name: Check out release PR head
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Set up pnpm
-        uses: pnpm/action-setup@v6.0.8
+        uses: pnpm/action-setup@v6.0.9
         with:
           version: ${{ env.PNPM_VERSION }}
 
