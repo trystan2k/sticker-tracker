@@ -51,7 +51,7 @@
     "@tanstack/react-start": "~1.168.26",
     "@tesseract.js-data/eng": "~1.0.0",
     "flag-icons": "~7.5.0",
-    "i18next": "~26.3.1",
+    "i18next": "~26.3.2",
     "idb": "~8.0.3",
     "lucide-react": "~1.21.0",
     "mixpanel-browser": "~2.80.0",
