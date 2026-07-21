@@ -8,7 +8,7 @@ function getAudioContextConstructor(): AudioContextConstructor | null {
   }
 
   const ctor = Reflect.get(window, 'AudioContext') ?? Reflect.get(window, 'webkitAudioContext');
-  return typeof ctor === 'function' ? (ctor as AudioContextConstructor) : null;
+  return typeof ctor === 'function' ? ctor : null;
 }
 
 function getAudioContext(): AudioContext | null {

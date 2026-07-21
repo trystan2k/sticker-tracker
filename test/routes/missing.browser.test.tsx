@@ -126,7 +126,7 @@ describe('missing route component', () => {
     const mounted = mount(
       React.createElement(
         AppStateContext.Provider,
-        { value: loadingState as never },
+        { value: loadingState },
         React.createElement(Component)
       )
     );
@@ -196,7 +196,7 @@ describe('missing route component', () => {
     const mounted = mount(
       React.createElement(
         AppStateContext.Provider,
-        { value: readyState as never },
+        { value: readyState },
         React.createElement(Component)
       )
     );
@@ -269,7 +269,7 @@ describe('missing route component', () => {
     const mounted = mount(
       React.createElement(
         AppStateContext.Provider,
-        { value: firstState as never },
+        { value: firstState },
         React.createElement(Component)
       )
     );

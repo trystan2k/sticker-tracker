@@ -60,13 +60,7 @@ export async function markStickersAsHaveInCollection(
       continue;
     }
 
-    if (
-      getStickerQuantity(
-        nextCollection as CollectionState,
-        lookupMatch.pageId,
-        lookupMatch.stickerId
-      ) > 0
-    ) {
+    if (getStickerQuantity(nextCollection, lookupMatch.pageId, lookupMatch.stickerId) > 0) {
       continue;
     }
 
@@ -88,7 +82,7 @@ export async function markStickersAsHaveInCollection(
 
   return {
     state: 'ready',
-    value: nextCollection as CollectionState,
+    value: nextCollection,
     updatedStickerIds
   };
 }

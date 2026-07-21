@@ -413,7 +413,7 @@ describe('ScannerScreen browser', () => {
         startButton.click();
         cleanup(mounted);
 
-        resolveStream(delayedStream as typeof fakeStream);
+        resolveStream(delayedStream);
         await Promise.resolve();
         await Promise.resolve();
 

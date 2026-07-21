@@ -56,7 +56,7 @@ function setStickerQuantity(
     nextState[pageId][stickerId] = quantity;
   }
 
-  return nextState as CollectionState;
+  return nextState;
 }
 
 function RepeatedScreenHarness({

@@ -27,7 +27,7 @@ function makeCollection(
         );
   }
 
-  return result as unknown as CollectionState;
+  return result;
 }
 
 function getPage(pageId: PageId): AlbumPage {

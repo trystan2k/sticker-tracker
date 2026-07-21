@@ -233,7 +233,7 @@ describe('HomeGroupCards', () => {
       );
     }
 
-    const groups = computeGroupsData(collection as any);
+    const groups = computeGroupsData(collection);
     const groupA = groups.find((g) => g.group === 'A')!;
     expect(groupA.isComplete).toBe(true);
 
@@ -286,7 +286,7 @@ describe('HomeGroupCards', () => {
         Array.from({ length: 10 }, (_, index) => [`MEX-${index + 1}`, 1] as const)
       )
     };
-    const groups = computeGroupsData(collection as never);
+    const groups = computeGroupsData(collection);
 
     const mounted = mountWithRouter(React.createElement(HomeGroupCards, { groups }));
 

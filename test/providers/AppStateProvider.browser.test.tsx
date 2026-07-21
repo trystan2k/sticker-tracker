@@ -233,7 +233,7 @@ describe('AppStateProvider', () => {
         initialCollection: { mex: ['MEX-1'] }
       });
 
-      setStorageDriverForTests(memoryStorage.driver as never);
+      setStorageDriverForTests(memoryStorage.driver);
 
       const mounted = mountProvider();
 
@@ -486,7 +486,7 @@ describe('AppStateProvider', () => {
         delayFirstCollectionWrite: true
       });
 
-      setStorageDriverForTests(memoryStorage.driver as never);
+      setStorageDriverForTests(memoryStorage.driver);
 
       let capturedContext:
         | (typeof AppStateContext extends React.Context<infer T> ? T : never)
@@ -553,7 +553,7 @@ describe('AppStateProvider', () => {
       });
 
       memoryStorage.store.set('scannerLookup', createScannerLookup());
-      setStorageDriverForTests(memoryStorage.driver as never);
+      setStorageDriverForTests(memoryStorage.driver);
 
       let capturedContext:
         | (typeof AppStateContext extends React.Context<infer T> ? T : never)
@@ -615,7 +615,7 @@ describe('AppStateProvider', () => {
         delayFirstCollectionWrite: true
       });
 
-      setStorageDriverForTests(memoryStorage.driver as never);
+      setStorageDriverForTests(memoryStorage.driver);
 
       let capturedContext:
         | (typeof AppStateContext extends React.Context<infer T> ? T : never)
@@ -677,7 +677,7 @@ describe('AppStateProvider', () => {
       });
 
       memoryStorage.store.set('scannerLookup', createScannerLookup());
-      setStorageDriverForTests(memoryStorage.driver as never);
+      setStorageDriverForTests(memoryStorage.driver);
 
       let capturedContext:
         | (typeof AppStateContext extends React.Context<infer T> ? T : never)
@@ -734,7 +734,7 @@ describe('AppStateProvider', () => {
         delayFirstCollectionWrite: true
       });
 
-      setStorageDriverForTests(memoryStorage.driver as never);
+      setStorageDriverForTests(memoryStorage.driver);
 
       let capturedContext:
         | (typeof AppStateContext extends React.Context<infer T> ? T : never)

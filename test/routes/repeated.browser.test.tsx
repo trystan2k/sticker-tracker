@@ -181,7 +181,7 @@ describe('repeated route component', () => {
     const mounted = mount(
       React.createElement(
         AppStateContext.Provider,
-        { value: readyState as never },
+        { value: readyState },
         React.createElement(Component)
       )
     );
@@ -242,7 +242,7 @@ describe('repeated route component', () => {
     const mounted = mount(
       React.createElement(
         AppStateContext.Provider,
-        { value: readyState as never },
+        { value: readyState },
         React.createElement(Component)
       )
     );

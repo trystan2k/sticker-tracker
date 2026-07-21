@@ -85,7 +85,7 @@ function cleanup({ container, root }: { container: HTMLDivElement; root: Root })
 
 function createMexPersistedCollection(): PersistedCollection {
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-  return { [asPageId('mex')]: { [asStickerId('MEX-1')]: 1 } } as PersistedCollection;
+  return { [asPageId('mex')]: { [asStickerId('MEX-1')]: 1 } };
 }
 
 async function resolveReadyRestoreResult() {

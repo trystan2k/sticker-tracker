@@ -68,17 +68,16 @@ type CapturedWindowListeners = Partial<
 function captureWindowListeners(): CapturedWindowListeners {
   const listeners: CapturedWindowListeners = {};
 
-  vi.spyOn(window, 'addEventListener').mockImplementation(((
-    type: string,
-    listener: EventListenerOrEventListenerObject
-  ) => {
-    if (
-      (type === 'beforeinstallprompt' || type === 'appinstalled') &&
-      typeof listener === 'function'
-    ) {
-      listeners[type] = listener;
+  vi.spyOn(window, 'addEventListener').mockImplementation(
+    (type: string, listener: EventListenerOrEventListenerObject) => {
+      if (
+        (type === 'beforeinstallprompt' || type === 'appinstalled') &&
+        typeof listener === 'function'
+      ) {
+        listeners[type] = listener;
+      }
     }
-  }) as typeof window.addEventListener);
+  );
 
   return listeners;
 }

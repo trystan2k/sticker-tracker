@@ -109,7 +109,7 @@ describe('share preview analytics routes', () => {
     const mod = await import('@/routes/share/preview');
     const useSearchSpy = vi
       .spyOn(mod.Route, 'useSearch')
-      .mockReturnValue({ pages: 'mex', from: '/' } as never);
+      .mockReturnValue({ pages: 'mex', from: '/' });
     const Component = mod.Route.options.component;
 
     if (!Component) {
@@ -119,7 +119,7 @@ describe('share preview analytics routes', () => {
     const mounted = mount(
       React.createElement(
         AppStateContext.Provider,
-        { value: makeReadyState(createCollectionState({})) as never },
+        { value: makeReadyState(createCollectionState({})) },
         React.createElement(Component)
       )
     );
@@ -149,7 +149,7 @@ describe('share preview analytics routes', () => {
     const mod = await import('@/routes/repeated-share/preview');
     const useSearchSpy = vi
       .spyOn(mod.Route, 'useSearch')
-      .mockReturnValue({ pages: 'mex', from: '/repeated' } as never);
+      .mockReturnValue({ pages: 'mex', from: '/repeated' });
     const Component = mod.Route.options.component;
 
     if (!Component) {
@@ -167,7 +167,7 @@ describe('share preview analytics routes', () => {
                 'MEX-2': 2
               }
             })
-          ) as never
+          )
         },
         React.createElement(Component)
       )
@@ -195,7 +195,7 @@ describe('share preview analytics routes', () => {
     const mod = await import('@/routes/share/preview');
     const useSearchSpy = vi
       .spyOn(mod.Route, 'useSearch')
-      .mockReturnValue({ pages: 'mex', from: '//unsafe' } as never);
+      .mockReturnValue({ pages: 'mex', from: '//unsafe' });
     const Component = mod.Route.options.component;
 
     if (!Component) {
@@ -216,7 +216,7 @@ describe('share preview analytics routes', () => {
             createCollectionState({
               mex: Object.fromEntries(mexPage.stickerIds.map((stickerId) => [stickerId, 1]))
             })
-          ) as never
+          )
         },
         React.createElement(Component)
       )
@@ -245,7 +245,7 @@ describe('share preview analytics routes', () => {
     const mod = await import('@/routes/share/preview');
     const useSearchSpy = vi
       .spyOn(mod.Route, 'useSearch')
-      .mockReturnValue({ pages: 'mex', from: '//unsafe' } as never);
+      .mockReturnValue({ pages: 'mex', from: '//unsafe' });
     const Component = mod.Route.options.component;
 
     if (!Component) {
@@ -255,7 +255,7 @@ describe('share preview analytics routes', () => {
     const mounted = mount(
       React.createElement(
         AppStateContext.Provider,
-        { value: makeReadyState(createCollectionState({})) as never },
+        { value: makeReadyState(createCollectionState({})) },
         React.createElement(Component)
       )
     );
@@ -285,7 +285,7 @@ describe('share preview analytics routes', () => {
     const mod = await import('@/routes/share/preview');
     const useSearchSpy = vi
       .spyOn(mod.Route, 'useSearch')
-      .mockReturnValue({ pages: 'mex', from: '/missing' } as never);
+      .mockReturnValue({ pages: 'mex', from: '/missing' });
     const Component = mod.Route.options.component;
 
     if (!Component) {
@@ -295,7 +295,7 @@ describe('share preview analytics routes', () => {
     const mounted = mount(
       React.createElement(
         AppStateContext.Provider,
-        { value: makeReadyState(createCollectionState({})) as never },
+        { value: makeReadyState(createCollectionState({})) },
         React.createElement(Component)
       )
     );
@@ -306,7 +306,7 @@ describe('share preview analytics routes', () => {
       mounted.root.render(
         React.createElement(
           AppStateContext.Provider,
-          { value: makeReadyState(createCollectionState({})) as never },
+          { value: makeReadyState(createCollectionState({})) },
           React.createElement(Component)
         )
       );
@@ -326,7 +326,7 @@ describe('share preview analytics routes', () => {
     const mod = await import('@/routes/share/preview');
     const useSearchSpy = vi
       .spyOn(mod.Route, 'useSearch')
-      .mockReturnValue({ pages: 'mex', from: '/missing' } as never);
+      .mockReturnValue({ pages: 'mex', from: '/missing' });
     const Component = mod.Route.options.component;
 
     if (!Component) {
@@ -336,7 +336,7 @@ describe('share preview analytics routes', () => {
     const mounted = mount(
       React.createElement(
         AppStateContext.Provider,
-        { value: makeLoadingState(createCollectionState({})) as never },
+        { value: makeLoadingState(createCollectionState({})) },
         React.createElement(Component)
       )
     );
@@ -353,7 +353,7 @@ describe('share preview analytics routes', () => {
       mounted.root.render(
         React.createElement(
           AppStateContext.Provider,
-          { value: makeReadyState(createCollectionState({})) as never },
+          { value: makeReadyState(createCollectionState({})) },
           React.createElement(Component)
         )
       );
@@ -376,9 +376,7 @@ describe('share preview analytics routes', () => {
 
   it('returns null when missing share preview route app state is unavailable', async () => {
     const mod = await import('@/routes/share/preview');
-    const useSearchSpy = vi
-      .spyOn(mod.Route, 'useSearch')
-      .mockReturnValue({ from: '/missing' } as never);
+    const useSearchSpy = vi.spyOn(mod.Route, 'useSearch').mockReturnValue({ from: '/missing' });
     const Component = mod.Route.options.component;
 
     if (!Component) {
@@ -407,7 +405,7 @@ describe('share preview analytics routes', () => {
     const mod = await import('@/routes/repeated-share/preview');
     const useSearchSpy = vi
       .spyOn(mod.Route, 'useSearch')
-      .mockReturnValue({ pages: 'mex', from: '//unsafe' } as never);
+      .mockReturnValue({ pages: 'mex', from: '//unsafe' });
     const Component = mod.Route.options.component;
 
     if (!Component) {
@@ -424,7 +422,7 @@ describe('share preview analytics routes', () => {
                 'MEX-1': 2
               }
             })
-          ) as never
+          )
         },
         React.createElement(Component)
       )
@@ -456,7 +454,7 @@ describe('share preview analytics routes', () => {
     const mod = await import('@/routes/repeated-share/preview');
     const useSearchSpy = vi
       .spyOn(mod.Route, 'useSearch')
-      .mockReturnValue({ pages: 'mex', from: '/repeated' } as never);
+      .mockReturnValue({ pages: 'mex', from: '/repeated' });
     const Component = mod.Route.options.component;
 
     if (!Component) {
@@ -466,7 +464,7 @@ describe('share preview analytics routes', () => {
     const mounted = mount(
       React.createElement(
         AppStateContext.Provider,
-        { value: makeReadyState(createCollectionState({})) as never },
+        { value: makeReadyState(createCollectionState({})) },
         React.createElement(Component)
       )
     );
@@ -494,7 +492,7 @@ describe('share preview analytics routes', () => {
     const mod = await import('@/routes/repeated-share/preview');
     const useSearchSpy = vi
       .spyOn(mod.Route, 'useSearch')
-      .mockReturnValue({ pages: 'mex', from: '/repeated' } as never);
+      .mockReturnValue({ pages: 'mex', from: '/repeated' });
     const Component = mod.Route.options.component;
 
     if (!Component) {
@@ -511,7 +509,7 @@ describe('share preview analytics routes', () => {
                 'MEX-1': 3
               }
             })
-          ) as never
+          )
         },
         React.createElement(Component)
       )
@@ -530,7 +528,7 @@ describe('share preview analytics routes', () => {
                   'MEX-1': 3
                 }
               })
-            ) as never
+            )
           },
           React.createElement(Component)
         )
@@ -551,7 +549,7 @@ describe('share preview analytics routes', () => {
     const mod = await import('@/routes/repeated-share/preview');
     const useSearchSpy = vi
       .spyOn(mod.Route, 'useSearch')
-      .mockReturnValue({ pages: 'mex', from: '/repeated' } as never);
+      .mockReturnValue({ pages: 'mex', from: '/repeated' });
     const Component = mod.Route.options.component;
 
     if (!Component) {
@@ -561,7 +559,7 @@ describe('share preview analytics routes', () => {
     const mounted = mount(
       React.createElement(
         AppStateContext.Provider,
-        { value: makeLoadingState(createCollectionState({})) as never },
+        { value: makeLoadingState(createCollectionState({})) },
         React.createElement(Component)
       )
     );
@@ -584,7 +582,7 @@ describe('share preview analytics routes', () => {
                   'MEX-1': 2
                 }
               })
-            ) as never
+            )
           },
           React.createElement(Component)
         )
@@ -607,9 +605,7 @@ describe('share preview analytics routes', () => {
 
   it('returns null when repeated share preview route app state is unavailable', async () => {
     const mod = await import('@/routes/repeated-share/preview');
-    const useSearchSpy = vi
-      .spyOn(mod.Route, 'useSearch')
-      .mockReturnValue({ from: '/repeated' } as never);
+    const useSearchSpy = vi.spyOn(mod.Route, 'useSearch').mockReturnValue({ from: '/repeated' });
     const Component = mod.Route.options.component;
 
     if (!Component) {

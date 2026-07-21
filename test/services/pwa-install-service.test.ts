@@ -7,12 +7,6 @@ import {
   shouldShowInstallEntry
 } from '@/services/pwa-install-service';
 
-type MutableNavigator = Navigator & {
-  standalone?: boolean;
-  userAgent: string;
-  maxTouchPoints: number;
-};
-
 function stubWindow(config: {
   mediaMatch?: boolean;
   userAgent?: string;
@@ -31,7 +25,7 @@ function stubWindow(config: {
     userAgent: config.userAgent ?? 'Mozilla/5.0 Chrome/122.0.0.0 Safari/537.36',
     maxTouchPoints: config.maxTouchPoints ?? 0,
     standalone: config.standalone
-  } as MutableNavigator);
+  });
 }
 
 afterEach(() => {
