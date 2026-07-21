@@ -56,7 +56,7 @@ function makeMockVideo(width = 640, height = 480): HTMLVideoElement {
       x: 0,
       y: 0,
       toJSON: () => ({})
-    } as DOMRect)
+    })
   } as unknown as HTMLVideoElement;
 }
 
@@ -206,7 +206,7 @@ describe('scanner-ocr', () => {
           x: 100,
           y: 100,
           toJSON: () => ({})
-        } as DOMRect)
+        })
       } as unknown as HTMLElement;
 
       await recognizeFromVideo(mockVideo, { viewfinderElement: mockViewfinder });

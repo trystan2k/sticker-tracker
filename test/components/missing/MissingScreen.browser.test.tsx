@@ -411,7 +411,7 @@ describe('MissingScreen', () => {
         collection={createCollectionState({ mex: ['MEX-1'] })}
         onBack={() => {}}
         onShare={() => {}}
-        onToggleCollected={onToggleCollected as never}
+        onToggleCollected={onToggleCollected}
       />
     );
 

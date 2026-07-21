@@ -32,7 +32,7 @@ function makeCollection(
           ])
         );
   }
-  return result as unknown as CollectionState;
+  return result;
 }
 
 describe('home-state', () => {
@@ -77,7 +77,7 @@ describe('home-state', () => {
         pageCollection[`sticker-${i}` as StickerIdentifier] = 1;
         oversized[pageId] = pageCollection;
       }
-      const summary = computeHomeSummary(oversized as unknown as CollectionState);
+      const summary = computeHomeSummary(oversized);
       expect(summary.percentage).toBe(100);
     });
 

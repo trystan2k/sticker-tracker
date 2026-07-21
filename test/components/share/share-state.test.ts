@@ -30,14 +30,14 @@ function makeCollection(
         );
   }
 
-  return result as unknown as CollectionState;
+  return result;
 }
 
 describe('share-state', () => {
   it('global preset returns only pages with missing stickers', () => {
     const mexPage = albumPages.find((page) => page.pageId === 'mex')!;
     const collection = makeCollection({
-      mex: [...mexPage.stickerIds] as unknown as string[]
+      mex: [...mexPage.stickerIds]
     });
 
     const selected = buildInitialShareSelection(collection, { type: 'all-missing' });
@@ -50,7 +50,7 @@ describe('share-state', () => {
   it('current-page preset returns empty when page fully collected', () => {
     const mexPage = albumPages.find((page) => page.pageId === 'mex')!;
     const collection = makeCollection({
-      mex: [...mexPage.stickerIds] as unknown as string[]
+      mex: [...mexPage.stickerIds]
     });
 
     const selected = buildInitialShareSelection(collection, {
@@ -330,7 +330,7 @@ describe('share-state', () => {
   it('buildSharePreviewPayload filters selected pages with zero missing stickers', () => {
     const mexPage = albumPages.find((page) => page.pageId === 'mex')!;
     const collection = makeCollection({
-      mex: [...mexPage.stickerIds] as unknown as string[]
+      mex: [...mexPage.stickerIds]
     });
 
     const payload = buildSharePreviewPayload(collection, [

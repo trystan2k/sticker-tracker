@@ -30,7 +30,7 @@ function makeCollection(
         );
   }
 
-  return result as unknown as CollectionState;
+  return result;
 }
 
 describe('album-stats', () => {

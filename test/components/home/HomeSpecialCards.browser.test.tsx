@@ -215,7 +215,7 @@ describe('HomeSpecialCards', () => {
       )
     };
 
-    const cards = computeSpecialPagesData(collection as any);
+    const cards = computeSpecialPagesData(collection);
     const openingCard = cards.find((c) => c.key === 'fwc-opening')!;
     expect(openingCard.isComplete).toBe(true);
 

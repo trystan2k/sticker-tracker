@@ -43,9 +43,9 @@ type LocaleResource = JsonObject & {
 };
 
 const allLocales: ReadonlyArray<{ name: string; resource: LocaleResource }> = [
-  { name: 'en', resource: enTranslation as LocaleResource },
-  { name: 'pt-BR', resource: ptBrTranslation as LocaleResource },
-  { name: 'es', resource: esTranslation as LocaleResource }
+  { name: 'en', resource: enTranslation },
+  { name: 'pt-BR', resource: ptBrTranslation },
+  { name: 'es', resource: esTranslation }
 ];
 
 describe('translation resources', () => {

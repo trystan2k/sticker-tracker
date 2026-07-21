@@ -159,7 +159,7 @@ function setStickerQuantity(
       Readonly<Record<StickerIdentifier, number>>
     >;
     delete nextStateWithoutPage[pageId];
-    return nextStateWithoutPage as CollectionState;
+    return nextStateWithoutPage;
   }
 
   return {
@@ -196,15 +196,10 @@ export function hydrateCollectionState(
       return [];
     }
 
-    return [
-      [
-        page.pageId,
-        Object.fromEntries(normalizedEntries) as Readonly<Record<StickerIdentifier, number>>
-      ] as const
-    ];
+    return [[page.pageId, Object.fromEntries(normalizedEntries)] as const];
   });
 
-  return Object.fromEntries(hydratedEntries) as CollectionState;
+  return Object.fromEntries(hydratedEntries);
 }
 
 function normalizePersistedCollection(persistedCollection: PersistedCollection | null): Readonly<{
@@ -239,7 +234,7 @@ export function serializeCollectionState(state: CollectionState): PersistedColle
     serializedState[page.pageId] = { ...quantities };
   }
 
-  return serializedState as PersistedCollection;
+  return serializedState;
 }
 
 export function getStickerQuantity(

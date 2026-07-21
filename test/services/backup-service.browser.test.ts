@@ -170,7 +170,7 @@ describe('backup-service', () => {
     const createElementSpy = vi
       .spyOn(document, 'createElement')
       .mockImplementation((tag: string) => {
-        if (tag === 'input') return mockInput as unknown as HTMLElement;
+        if (tag === 'input') return mockInput;
         return originalCreateElement(tag);
       });
 
@@ -241,7 +241,7 @@ describe('backup-service', () => {
     const createElementSpy = vi
       .spyOn(document, 'createElement')
       .mockImplementation((tag: string) => {
-        if (tag === 'input') return mockInput as unknown as HTMLElement;
+        if (tag === 'input') return mockInput;
         return originalCreateElement(tag);
       });
 
