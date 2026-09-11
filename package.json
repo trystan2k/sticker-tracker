@@ -87,7 +87,7 @@
     "typescript": "~7.0.2",
     "vite": "~8.1.5",
     "vite-plugin-killer-instincts": "~1.1.0",
-    "vitest": "~4.1.10",
+    "vitest": "~4.1.11",
     "workbox-build": "~7.4.1",
     "wrangler": "~4.115.0"
   },
